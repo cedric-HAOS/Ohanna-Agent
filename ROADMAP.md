@@ -1,240 +1,301 @@
-# ROADMAP
+# ROADMAP — Ohanna-Agent
 
 ## Vision
 
-L'objectif d'**Ohanna-Agent** est de devenir un noyau d'agent intelligent, modulaire, événementiel et extensible, capable de fonctionner de manière autonome, distribuée ou intégrée à différents écosystèmes (MQTT, HTTP, Home Assistant, LLM, etc.).
+Ohanna-Agent n'est pas un superviseur d'équipements.
 
-Les développements sont réalisés par sprints successifs, chaque sprint devant respecter les principes suivants :
+Il est le garant des **capacités** définies par l'architecture de référence d'Ohanna-House.
 
-* Architecture propre (Clean Architecture)
-* Faible couplage
-* Forte cohésion
-* Couverture de tests exhaustive
-* Documentation systématiquement mise à jour
-* Évolution incrémentale sans régression
+Les logiciels évoluent.
+
+Les matériels changent.
+
+Les services sont remplacés.
+
+Les capacités, elles, doivent rester disponibles.
+
+Ohanna-Agent observe, évalue et garantit ces capacités indépendamment des technologies qui les implémentent.
+
+> **Les logiciels changent. Les capacités demeurent.**
 
 ---
 
 # État actuel
 
-## Sprint 8 — Terminé ✅
+Le noyau logiciel est désormais mature.
 
-Le noyau est désormais basé sur une **architecture événementielle**.
+Il fournit :
 
-### Réalisations
+* une architecture modulaire ;
+* un Runtime supervisé ;
+* un Scheduler événementiel ;
+* un système mémoire ;
+* un Dispatcher ;
+* un EventBus ;
+* une forte couverture de tests.
 
+Cette base constitue le socle des prochaines évolutions.
+
+---
+
+# Phase I — Foundation ✅
+
+## Objectif
+
+Construire un noyau robuste, modulaire et fortement testé.
+
+## Réalisations
+
+* Application
+* Dispatcher
+* Runtime
+* Services
+* Memory
+* Scheduler
 * EventBus
-* EventSubscription
-* Injection du EventBus dans l'Application
-* Dispatcher événementiel
-* Événements applicatifs
-* ServiceRegistry enrichi
-* 438 tests automatisés
-* Ruff conforme
-
----
-
-# Sprint 9 — Scheduler événementiel
-
-Objectif :
-
-Intégrer le Scheduler dans l'architecture événementielle existante sans modifier son fonctionnement interne.
-
-### Prévu
-
-* Publication des événements Scheduler
-* Cycle de vie du Scheduler
-* Exécution des tâches
-* Événements de déclenchement
-* Événements d'erreur
-* Intégration complète avec l'EventBus
-
----
-
-# Sprint 10 — Monitoring
-
-Objectif :
-
-Introduire l'observabilité du noyau.
-
-### Prévu
-
-* Collecte des événements système
-* Métriques runtime
-* Statistiques globales
-* Santé des composants
-* Journalisation centralisée
-
----
-
-# Sprint 11 — Auto-réparation avancée
-
-Objectif :
-
-Permettre au noyau de réagir automatiquement aux anomalies.
-
-### Prévu
-
-* Détection d'erreurs
-* Redémarrage automatique de composants
-* Stratégies de récupération
-* Surveillance permanente
-* Politiques de réparation
-
----
-
-# Sprint 12 — Capacités avancées
-
-Objectif :
-
-Faire évoluer le système de capacités.
-
-### Prévu
-
-* Chargement dynamique
-* Dépendances complexes
-* Priorités
-* Conditions d'activation
-* Désactivation automatique
-
----
-
-# Sprint 13 — MQTT avancé
-
-Objectif :
-
-Faire du bus MQTT un véritable transport distribué.
-
-### Prévu
-
-* Synchronisation entre agents
-* Découverte automatique
-* Publication distribuée
-* Haute disponibilité
-* Résilience réseau
-
----
-
-# Sprint 14 — Plugins dynamiques
-
-Objectif :
-
-Permettre le chargement et le déchargement de plugins à chaud.
-
-### Prévu
-
-* Découverte automatique
-* Cycle de vie complet
-* Isolation
-* Gestion des dépendances
-* Validation
-
----
-
-# Sprint 15 — API
-
-Objectif :
-
-Ouvrir le noyau vers l'extérieur.
-
-### Prévu
-
-* API REST
-* API WebSocket
-* Authentification
-* Documentation OpenAPI
-* Gestion des erreurs
-
----
-
-# Sprint 16 — Interface Web
-
-Objectif :
-
-Créer une interface d'administration.
-
-### Prévu
-
-* Tableau de bord
 * Monitoring
-* Gestion des plugins
-* Gestion de la mémoire
-* Visualisation des événements
+* MQTT Runtime
+* Architecture événementielle
+
+**État : Terminé**
 
 ---
 
-# Sprint 17 — Intelligence
+# Phase II — Modèle de capacités
 
-Objectif :
+## Objectif
 
-Préparer l'intégration de moteurs d'IA.
+Faire évoluer Ohanna-Agent d'un ordonnanceur de tâches vers un garant de capacités.
 
-### Prévu
+Une capacité représente un service attendu par l'infrastructure.
 
-* Gestionnaire de modèles
-* Sélection dynamique des LLM
-* Historique des conversations
-* Mémoire contextuelle
-* Routage intelligent
+Exemples :
+
+* DNS
+* DHCP
+* MQTT
+* Home Assistant
+* Sauvegardes
+* Téléinformation
+* Accès distant
+* Supervision
+* Notifications
+
+Chaque capacité possédera notamment :
+
+* un identifiant ;
+* une description ;
+* un état courant ;
+* un niveau de criticité ;
+* une fréquence de vérification ;
+* un ou plusieurs contrôles de santé.
+
+Le Scheduler exécutera des vérifications de capacités plutôt que de simples tâches techniques.
 
 ---
 
-# Sprint 18 — Distribution
+# Phase III — Fournisseurs de capacités
 
-Objectif :
+## Objectif
 
-Permettre le fonctionnement d'un réseau d'agents.
+Séparer les capacités de leurs implémentations techniques.
 
-### Prévu
+Une même capacité pourra être assurée par un ou plusieurs fournisseurs.
 
-* Fédération d'agents
-* Synchronisation
-* Élection
-* Répartition de charge
-* Communication sécurisée
+Exemple :
+
+**Capacité : DNS**
+
+Fournisseurs possibles :
+
+* AdGuard Home
+* Pi-hole
+* Unbound
+
+Le remplacement d'un logiciel ne devra jamais remettre en cause la capacité garantie.
+
+Cette abstraction permettra :
+
+* la redondance ;
+* la haute disponibilité ;
+* les migrations ;
+* les évolutions de l'infrastructure.
 
 ---
 
-# Objectifs transverses
+# Phase IV — Tableau de bord Web
 
-Ces objectifs sont poursuivis tout au long du développement :
+## Objectif
 
-## Qualité
+Créer une interface Web native permettant de superviser Ohanna-Agent sans dépendre d'un logiciel tiers.
 
-* Ruff sans avertissement
-* Couverture de tests en augmentation constante
-* Régression interdite
+Cette interface devra rester disponible même si Home Assistant est indisponible.
 
-## Documentation
+Le tableau de bord présentera notamment :
 
-Chaque sprint met systématiquement à jour :
+* les capacités disponibles ;
+* leur état de santé ;
+* leur niveau de disponibilité ;
+* les fournisseurs utilisés ;
+* les événements récents ;
+* les tâches planifiées ;
+* les alertes ;
+* les statistiques d'exécution.
 
-* README
-* CHANGELOG
-* Documentation d'architecture
-* ADR concernés
+À terme, cette interface constituera la console d'administration d'Ohanna-Agent.
 
-## Architecture
+---
 
-Maintenir :
+# Phase V — Intégration Home Assistant
 
-* Faible couplage
-* Injection de dépendances
-* Communication par événements
-* Composants indépendants
-* Interfaces simples
+## Objectif
+
+Intégrer naturellement Ohanna-Agent dans Home Assistant.
+
+Les capacités seront publiées sous forme d'entités Home Assistant.
+
+Exemples :
+
+* capteurs d'état ;
+* disponibilités ;
+* diagnostics ;
+* alertes ;
+* statistiques ;
+* événements.
+
+Home Assistant deviendra une interface de consultation et d'automatisation supplémentaire, sans être indispensable au fonctionnement d'Ohanna-Agent.
+
+---
+
+# Phase VI — Politiques de disponibilité
+
+## Objectif
+
+Définir ce que signifie une capacité "fonctionnelle".
+
+Chaque capacité pourra disposer de politiques telles que :
+
+* disponibilité minimale ;
+* fréquence maximale des erreurs ;
+* temps de réponse attendu ;
+* seuils d'alerte ;
+* périodes de maintenance.
+
+Les politiques permettront d'évaluer objectivement l'état des capacités.
+
+---
+
+# Phase VII — Diagnostic
+
+## Objectif
+
+Comprendre pourquoi une capacité est dégradée.
+
+Le moteur de diagnostic analysera :
+
+* les événements ;
+* l'historique ;
+* les dépendances ;
+* les fournisseurs ;
+* les symptômes observés.
+
+L'objectif est d'identifier automatiquement la cause la plus probable d'une dégradation.
+
+---
+
+# Phase VIII — Remédiation
+
+## Objectif
+
+Proposer ou exécuter des actions correctives.
+
+Exemples :
+
+* redémarrage d'un service ;
+* bascule vers un fournisseur secondaire ;
+* relance d'une tâche ;
+* notification de l'administrateur ;
+* exécution d'un scénario de secours.
+
+Chaque remédiation sera traçable et vérifiable.
+
+---
+
+# Phase IX — Autonomie
+
+## Objectif
+
+Permettre à Ohanna-Agent de maintenir les capacités sans intervention humaine.
+
+Le cycle deviendra :
+
+Observation
+
+↓
+
+Diagnostic
+
+↓
+
+Décision
+
+↓
+
+Action
+
+↓
+
+Validation
+
+↓
+
+Retour à un état nominal
+
+L'objectif est d'augmenter progressivement le niveau d'autonomie tout en conservant le contrôle de l'administrateur.
+
+---
+
+# Phase X — Intelligence assistée
+
+## Objectif
+
+Utiliser l'intelligence artificielle comme outil d'analyse et d'aide à la décision.
+
+L'IA pourra notamment :
+
+* expliquer les incidents ;
+* corréler plusieurs événements ;
+* détecter des tendances ;
+* anticiper des dégradations ;
+* proposer des améliorations de l'architecture ;
+* assister l'administrateur dans ses décisions.
+
+L'intelligence artificielle n'a pas vocation à remplacer le moteur de supervision.
+
+Elle vient enrichir les capacités d'analyse d'Ohanna-Agent.
+
+---
+
+# Principes directeurs
+
+Toutes les évolutions futures respecteront les principes suivants :
+
+* priorité aux capacités plutôt qu'aux logiciels ;
+* architecture modulaire ;
+* faible couplage ;
+* composants testables ;
+* développement guidé par les tests (TDD) ;
+* documentation systématiquement mise à jour ;
+* compatibilité ascendante autant que possible.
 
 ---
 
 # Vision à long terme
 
-À terme, Ohanna-Agent devra constituer un **noyau universel d'agents intelligents**, capable de fonctionner :
+À terme, Ohanna-Agent devra être capable de garantir qu'une capacité définie par l'architecture de référence reste disponible, quel que soit le logiciel, le matériel ou le fournisseur utilisé pour la mettre en œuvre.
 
-* sur une machine unique ;
-* dans un réseau local ;
-* dans une architecture distribuée ;
-* avec ou sans modèle d'IA ;
-* avec différents transports de communication ;
-* tout en conservant une architecture simple, testable et maintenable.
+Le logiciel ne sera plus au centre de la supervision.
 
-Chaque sprint devra renforcer cette vision sans compromettre la stabilité du noyau.
+La capacité rendue à l'utilisateur deviendra l'unité fondamentale du système.
+
+**Les logiciels changent. Les capacités demeurent.**

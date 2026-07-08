@@ -1,264 +1,314 @@
-# Architecture du cœur (Core)
+# Architecture du Kernel — Ohanna-Agent
 
-## Objectif
+## Version
 
-Le **Core** constitue le noyau d'Ohanna-Agent.
+**v0.9.0**
 
-Il fournit les services fondamentaux nécessaires au fonctionnement de l'agent, indépendamment :
+---
 
-* des modèles d'intelligence artificielle ;
-* des protocoles réseau ;
-* des interfaces utilisateur ;
-* des transports de communication.
+# Objectif
 
-Le Core est conçu pour rester **simple, modulaire, testable et extensible**.
+Le Kernel constitue le cœur d'Ohanna-Agent.
+
+Il fournit une architecture modulaire permettant de construire des agents intelligents robustes, extensibles et fortement découplés.
+
+Le Kernel ne contient aucune logique métier. Il fournit uniquement les mécanismes nécessaires à l'orchestration des composants.
 
 ---
 
 # Principes d'architecture
 
-Le noyau repose sur plusieurs principes fondamentaux.
+Le Kernel repose sur plusieurs principes fondamentaux :
 
-## Faible couplage
+* responsabilité unique ;
+* faible couplage ;
+* forte cohésion ;
+* injection de dépendances ;
+* architecture événementielle ;
+* composants facilement testables ;
+* interfaces minimales.
 
-Chaque composant dépend du minimum possible des autres composants.
-
-La communication entre services s'effectue principalement via le **EventBus**, limitant les dépendances directes.
-
----
-
-## Forte cohésion
-
-Chaque classe possède une responsabilité unique.
-
-Exemples :
-
-* `CommandDispatcher` : distribution des commandes.
-* `EventBus` : diffusion des événements.
-* `MemoryManager` : gestion de la mémoire.
-* `ServiceRegistry` : localisation des services.
-* `PluginManager` : gestion du cycle de vie des plugins.
+Chaque composant possède une responsabilité clairement définie et peut évoluer indépendamment des autres.
 
 ---
 
-## Injection de dépendances
-
-Les dépendances sont injectées autant que possible.
-
-Exemple :
-
-* `MemoryManager`
-* `EventBus`
-
-Cette approche facilite :
-
-* les tests unitaires ;
-* le remplacement des composants ;
-* les futures extensions.
-
----
-
-## Architecture événementielle
-
-Depuis le Sprint 8, le noyau adopte une communication orientée événements.
-
-Les composants publient des événements plutôt que d'appeler directement les autres composants.
-
-Cela réduit fortement le couplage interne.
-
----
-
-# Vue d'ensemble
+# Architecture générale
 
 ```text
-                         Application
-                               │
-      ┌────────────────────────┼────────────────────────┐
-      │                        │                        │
-      ▼                        ▼                        ▼
-CommandDispatcher         Scheduler              PluginManager
-      │                                              │
-      └──────────────────────┬───────────────────────┘
-                             ▼
-                         EventBus
-                             │
-          ┌──────────────────┼──────────────────┐
-          ▼                  ▼                  ▼
-    MemoryManager      ServiceRegistry    Plugins
+                           Application
+                                 │
+        ┌────────────────────────┼────────────────────────┐
+        │                        │                        │
+        ▼                        ▼                        ▼
+   Dispatcher               CapabilityManager          Services
+        │
+        ▼
+   Scheduler
+        │
+        ├──────────────► TaskRegistry
+        │
+        ├──────────────► TaskExecutor
+        │
+        ├──────────────► Runtime
+        │
+        └──────────────► EventBus
+                                │
+                                ▼
+                        Event Subscribers
+
+        ▼
+      Memory
 ```
+
+L'Application agit comme **composition root** : elle instancie les composants du Kernel et injecte leurs dépendances.
 
 ---
 
 # Application
 
-L'`Application` constitue le point d'entrée du noyau.
+L'Application est responsable de :
 
-Elle est responsable de :
+* créer les composants principaux ;
+* injecter les dépendances ;
+* initialiser le Runtime ;
+* coordonner le cycle de vie global.
 
-* l'initialisation des composants ;
-* l'injection des dépendances ;
-* l'enregistrement des services ;
-* le démarrage et l'arrêt du système.
-
-Elle orchestre le fonctionnement général sans contenir de logique métier.
+Elle ne contient aucune logique métier.
 
 ---
 
-# EventBus
+# Dispatcher
 
-Le **EventBus** est désormais le mécanisme central de communication interne.
+Le Dispatcher exécute les commandes enregistrées.
 
-Il permet :
+Responsabilités :
 
-* l'abonnement à un type d'événement ;
-* le désabonnement ;
-* la publication synchrone d'événements.
+* résolution des commandes ;
+* exécution ;
+* propagation des résultats.
 
-Le fonctionnement est volontairement simple afin de garantir :
-
-* de bonnes performances ;
-* une compréhension immédiate ;
-* une excellente testabilité.
+Le Dispatcher reste indépendant des autres composants.
 
 ---
 
-# EventSubscription
+# Capability Manager
 
-Chaque abonnement est représenté par une instance de `EventSubscription`.
+Le gestionnaire de capacités permet d'enregistrer dynamiquement les fonctionnalités disponibles.
 
-Une souscription associe :
+Chaque capacité est :
 
-* un type d'événement ;
-* un gestionnaire (handler).
-
-Cette abstraction permettra d'ajouter ultérieurement des fonctionnalités comme :
-
-* priorités ;
-* abonnements temporaires ;
-* activation/désactivation ;
-* filtrage.
+* indépendante ;
+* déclarative ;
+* validée avant utilisation.
 
 ---
 
-# CommandDispatcher
+# Services
 
-Le `CommandDispatcher` reçoit les commandes et les transmet au gestionnaire approprié.
+Les services représentent les composants techniques du Runtime.
 
-Il publie automatiquement plusieurs événements :
+Ils disposent :
 
-* `CommandDispatched`
-* `CommandSucceeded`
-* `CommandFailed`
-
-Cette publication est totalement transparente pour les gestionnaires de commandes.
+* d'un cycle de vie ;
+* d'une stratégie d'initialisation ;
+* d'une supervision.
 
 ---
 
-# ServiceRegistry
+# Memory
 
-Le `ServiceRegistry` permet aux composants de retrouver les services partagés.
+Le système mémoire est composé de plusieurs niveaux :
 
-Les principaux services enregistrés sont :
+* mémoire persistante ;
+* mémoire de session ;
+* mémoire d'exécution.
 
-* EventBus
-* Scheduler
-* MemoryManager
-* PluginManager
-* CommandDispatcher
+Il fournit également :
 
-Cette approche évite les dépendances circulaires.
-
----
-
-# PluginManager
-
-Le `PluginManager` assure le cycle de vie des plugins.
-
-Il est responsable de :
-
-* leur chargement ;
-* leur enregistrement ;
-* leur arrêt ;
-* leur accès aux services du noyau.
-
-Grâce au `EventBus`, les plugins peuvent réagir aux événements internes sans modifier le cœur du système.
-
----
-
-# MemoryManager
-
-Le `MemoryManager` centralise toutes les formes de mémoire utilisées par l'agent.
-
-Il prend en charge :
-
-* la mémoire de session ;
-* la mémoire persistante ;
-* la mémoire d'exécution ;
-* les statistiques.
-
-Son injection dans l'`Application` facilite les tests et les évolutions futures.
+* sérialisation ;
+* statistiques ;
+* scopes mémoire ;
+* gestion centralisée.
 
 ---
 
 # Scheduler
 
-Le Scheduler reste indépendant du reste du noyau.
+Le Scheduler orchestre l'exécution des tâches planifiées.
 
-À ce stade, il assure :
+Il est composé de plusieurs éléments :
 
-* la planification des tâches ;
-* la gestion des déclencheurs ;
-* les priorités ;
-* les statistiques ;
-* les états d'exécution.
+* Task
+* Trigger
+* OneShotTrigger
+* IntervalTrigger
+* CronTrigger
+* TaskRegistry
+* TaskExecutor
+* SchedulerRuntime
+* SchedulerStatistics
 
-Son intégration complète dans l'architecture événementielle est prévue lors d'un sprint ultérieur.
-
----
-
-# Qualité
-
-Le Core est développé avec plusieurs objectifs permanents :
-
-* couverture de tests élevée ;
-* absence de régressions ;
-* conformité Ruff ;
-* simplicité du code ;
-* documentation systématique.
-
-État actuel :
-
-* **438 tests automatisés**
-* **0 erreur Ruff**
-* **Architecture événementielle opérationnelle**
+Le Scheduler reste indépendant de toute logique métier.
 
 ---
 
-# Évolutions prévues
+# Scheduler événementiel
 
-Les prochaines évolutions du Core concernent principalement :
+Depuis le Sprint 9, le Scheduler est entièrement intégré à l'architecture événementielle.
 
-* intégration événementielle complète du Scheduler ;
-* monitoring ;
-* observabilité ;
-* métriques internes ;
-* auto-réparation ;
-* diagnostics.
+Il publie automatiquement les événements suivants :
 
-Toutes ces fonctionnalités exploiteront le `EventBus` afin de conserver un faible couplage entre les composants.
+* SchedulerStarted
+* SchedulerStopped
+* SchedulerTicked
+* ScheduledTaskTriggered
+* ScheduledTaskExecuted
+* ScheduledTaskFailed
+
+Les consommateurs d'événements peuvent ainsi observer l'activité du Scheduler sans dépendre de son implémentation.
+
+Cette approche améliore :
+
+* le découplage ;
+* l'observabilité ;
+* l'extensibilité ;
+* la testabilité.
 
 ---
 
-# Conclusion
+# EventBus
 
-Le Sprint 8 marque une évolution importante de l'architecture d'Ohanna-Agent.
+L'EventBus constitue le mécanisme de communication entre composants.
 
-Le noyau n'est plus seulement modulaire : il devient **événementiel**.
+Les producteurs publient des événements.
 
-Cette évolution prépare les prochaines fonctionnalités (Scheduler, Monitoring, MQTT distribué, plugins avancés) tout en conservant les principes fondateurs du projet :
+Les consommateurs s'y abonnent.
 
-* simplicité ;
-* modularité ;
-* testabilité ;
-* extensibilité ;
-* stabilité.
+Aucun composant ne dépend directement des autres.
+
+Cette architecture permet d'ajouter de nouveaux comportements sans modifier les producteurs d'événements.
+
+---
+
+# Runtime
+
+Chaque composant dispose d'un Runtime léger permettant de suivre son état.
+
+Le Runtime fournit notamment :
+
+* état courant ;
+* démarrage ;
+* arrêt ;
+* statistiques ;
+* supervision.
+
+---
+
+# Monitoring
+
+Le Monitoring permet de superviser l'état général du système.
+
+Il s'appuie sur les événements produits par les différents composants.
+
+Les futures évolutions pourront inclure :
+
+* métriques ;
+* tableaux de bord ;
+* alertes ;
+* supervision distribuée.
+
+---
+
+# Injection de dépendances
+
+Toutes les dépendances sont injectées depuis l'Application.
+
+Le Kernel privilégie les abstractions plutôt que les implémentations concrètes.
+
+Cette approche facilite :
+
+* les tests unitaires ;
+* le remplacement des composants ;
+* les évolutions futures.
+
+---
+
+# Cycle de vie
+
+```text
+Application
+      │
+      ▼
+Initialisation
+      │
+      ▼
+Création des composants
+      │
+      ▼
+Injection des dépendances
+      │
+      ▼
+Démarrage des services
+      │
+      ▼
+Démarrage du Scheduler
+      │
+      ▼
+Publication des événements
+      │
+      ▼
+Exécution des tâches
+      │
+      ▼
+Arrêt propre
+```
+
+---
+
+# Qualité logicielle
+
+Le projet applique une démarche de développement orientée qualité :
+
+* Test Driven Development (TDD) ;
+* typage Python moderne ;
+* dataclasses ;
+* injection de dépendances ;
+* architecture événementielle ;
+* composants faiblement couplés.
+
+Chaque Sprint est validé uniquement lorsque :
+
+* tous les tests passent ;
+* aucune régression n'est détectée ;
+* la qualité du code est conforme.
+
+---
+
+# État actuel du Kernel
+
+| Composant              | État |
+| ---------------------- | :--: |
+| Application            |   ✅  |
+| Dispatcher             |   ✅  |
+| Capabilities           |   ✅  |
+| Services               |   ✅  |
+| Memory                 |   ✅  |
+| Runtime                |   ✅  |
+| Scheduler              |   ✅  |
+| Scheduler événementiel |   ✅  |
+| EventBus               |   ✅  |
+| Monitoring             |   ✅  |
+
+---
+
+# Statistiques
+
+État du projet après le Sprint 9 :
+
+* **453 tests automatisés**
+* **0 avertissement**
+* **Ruff conforme**
+* **Architecture événementielle complète**
+* **Aucune régression détectée**
+
+Le Kernel est désormais suffisamment mature pour accueillir les prochains développements, notamment l'observabilité avancée, les workflows, le SDK de plugins et les futures capacités d'intelligence artificielle.

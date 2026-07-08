@@ -1,157 +1,163 @@
 # Ohanna-Agent
 
-> **Un noyau d'agent intelligent, modulaire et événementiel, conçu pour être extensible, testable et indépendant des modèles d'IA.**
+> **Un noyau d'agent IA modulaire, événementiel et extensible, conçu pour orchestrer des capacités, des services et des automatismes de manière fiable.**
 
 ![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)
-![Tests](https://img.shields.io/badge/tests-438-success)
+![Tests](https://img.shields.io/badge/tests-453%20passed-success)
 ![Ruff](https://img.shields.io/badge/lint-ruff-success)
-![Architecture](https://img.shields.io/badge/architecture-clean-success)
-![License](https://img.shields.io/badge/license-MIT-green)
+![Architecture](https://img.shields.io/badge/architecture-event--driven-blue)
+![Version](https://img.shields.io/badge/version-v0.9.0-orange)
 
 ---
 
-# Présentation
+# Vision
 
-**Ohanna-Agent** est un framework Python permettant de construire des agents intelligents autonomes.
+Ohanna-Agent est un **framework de développement d'agents intelligents**.
 
-Le projet est conçu autour de plusieurs principes fondamentaux :
+Son objectif est de fournir un **Kernel robuste** capable d'orchestrer :
 
-* Architecture modulaire
-* Injection de dépendances
-* Communication par événements
-* Faible couplage entre les composants
-* Forte couverture de tests
-* Documentation d'architecture complète
+* des capacités (Capabilities),
+* des services,
+* des commandes,
+* des workflows,
+* de la mémoire,
+* un ordonnanceur (Scheduler),
+* un bus d'événements.
 
-Le noyau est totalement indépendant :
-
-* des modèles d'IA
-* des LLM
-* des transports réseau
-* des interfaces utilisateur
-
-Il peut être utilisé aussi bien pour des assistants personnels que pour des agents industriels ou des services distribués.
+Le projet privilégie une architecture **simple, fortement testée et faiblement couplée**.
 
 ---
 
 # Philosophie
 
-Ohanna-Agent suit plusieurs principes de conception :
+Le Kernel ne contient aucune logique métier.
 
-* **Composition plutôt qu'héritage**
-* **Injection de dépendances**
-* **Architecture événementielle**
-* **Faible couplage**
-* **Haute testabilité**
-* **Documentation avant implémentation**
-* **Évolution incrémentale par sprints**
+Il fournit uniquement les briques nécessaires à la construction d'agents spécialisés.
+
+Chaque composant doit être :
+
+* indépendant ;
+* testable ;
+* remplaçable ;
+* découplé des autres composants.
+
+Les interactions passent principalement par des événements afin de limiter les dépendances directes.
 
 ---
 
-# Fonctionnalités actuelles
+# Fonctionnalités
 
-## Noyau
+## Kernel
 
-* Runtime
+* Gestion du cycle de vie de l'application
 * Dispatcher de commandes
-* Registre de services
-* Gestionnaire de plugins
-* Gestionnaire de mémoire
-* Scheduler
-* EventBus
-* EventSubscription
+* Gestion des capacités
+* Gestion des services
+* Injection des dépendances
+* Architecture modulaire
 
----
+## Runtime
 
-## Mémoire
+* Runtime supervisé
+* Heartbeat
+* Watchdog
+* Monitoring
+* Statistiques d'exécution
+
+## Memory
 
 * Mémoire persistante
 * Mémoire de session
-* Mémoire runtime
+* Mémoire d'exécution
 * Sérialisation
 * Statistiques
 * Scopes mémoire
 
----
-
 ## Scheduler
 
-* Tâches planifiées
 * Déclencheurs OneShot
 * Déclencheurs Interval
 * Déclencheurs Cron
-* Priorités
-* Runtime
+* Registre de tâches
+* Exécution de tâches
 * Statistiques
-* États
+* Runtime dédié
+* Scheduler événementiel
 
----
+## EventBus
 
-## Événements
+Le Scheduler est désormais totalement intégré au bus d'événements.
 
-Le noyau possède désormais un **EventBus** interne.
+Événements publiés :
 
-Les composants peuvent publier ou recevoir des événements sans dépendances directes.
+* SchedulerStarted
+* SchedulerStopped
+* SchedulerTicked
+* ScheduledTaskTriggered
+* ScheduledTaskExecuted
+* ScheduledTaskFailed
 
-Événements actuellement utilisés :
-
-* ApplicationStarted
-* ApplicationStopped
-* ApplicationTicked
-* CommandDispatched
-* CommandSucceeded
-* CommandFailed
-
-Cette architecture prépare les futures intégrations :
-
-* MQTT
-* Monitoring
-* WebSocket
-* Interface graphique
-* Plugins avancés
+Cette architecture permet d'observer l'activité du Scheduler sans créer de dépendance avec son implémentation.
 
 ---
 
 # Architecture
 
-```text
+```
                 Application
                       │
-      ┌───────────────┼────────────────┐
-      │               │                │
-      ▼               ▼                ▼
- CommandDispatcher  Scheduler     PluginManager
-      │
-      ▼
-   EventBus
-      │
- ┌────┼───────────────┐
- │    │               │
- ▼    ▼               ▼
-Memory Plugins   Future Services
+     ┌────────────────┼────────────────┐
+     │                │                │
+ Dispatcher       EventBus         Memory
+     │                ▲
+     │                │
+     └──────────── Scheduler
+                      │
+              Task Registry
+                      │
+               Task Executor
+                      │
+                 Triggers
 ```
+
+Le Scheduler publie désormais tous ses événements via l'EventBus.
+
+Les composants consommateurs restent totalement découplés.
 
 ---
 
-# Structure du projet
+# Qualité
 
-```text
+Le projet est développé selon une approche **Test Driven Development (TDD)**.
+
+État actuel :
+
+* **453 tests automatisés**
+* Ruff
+* Typage Python moderne
+* Dataclasses
+* Architecture découplée
+* Injection de dépendances
+
+Chaque Sprint est validé uniquement lorsque :
+
+* tous les tests passent ;
+* aucune régression n'est détectée ;
+* la qualité de code est conforme.
+
+---
+
+# Arborescence
+
+```
 application.py
 
 core/
-    dispatcher.py
-    events.py
-    event_subscription.py
-    services.py
-    plugins.py
-    runtime.py
-
 memory/
-
-scheduler/
-
+monitoring/
 mqtt/
-
+scheduler/
+services/
 tests/
 
 docs/
@@ -159,105 +165,104 @@ docs/
 
 ---
 
-# Qualité
-
-Le projet est développé avec une forte exigence de qualité.
-
-## Vérifications automatiques
-
-```bash
-ruff check .
-pytest
-```
-
-État actuel :
-
-* **438 tests**
-* **0 erreur Ruff**
-* **100 % des tests réussis**
-
----
-
-# Documentation
-
-Le projet est accompagné d'une documentation complète.
-
-* README
-* CHANGELOG
-* ROADMAP
-* Documentation d'architecture
-* ADR (Architecture Decision Records)
-
----
-
-# Roadmap
-
-Les prochaines évolutions prévues comprennent notamment :
-
-* Événements avancés du Scheduler
-* Monitoring
-* Auto-réparation
-* Capacités (Capabilities)
-* MQTT avancé
-* Plugins dynamiques
-* Observabilité
-* Métriques
-* API HTTP
-* Interface Web
-
----
-
 # Installation
 
 ```bash
-git clone https://github.com/<user>/Ohanna-Agent.git
+git clone https://github.com/<utilisateur>/Ohanna-Agent.git
 
 cd Ohanna-Agent
 
 python -m venv .venv
 
 source .venv/bin/activate
-# Windows
+```
+
+Windows :
+
+```powershell
 .venv\Scripts\activate
+```
 
-pip install -e .
+Installation :
 
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# Lancer les tests
+
+```bash
 pytest
 ```
 
 ---
 
-# Développement
+# Vérification qualité
 
-Le projet suit une évolution incrémentale.
-
-Chaque Sprint comprend :
-
-* conception
-* implémentation
-* couverture de tests
-* audit
-* documentation
-
-Cette méthode garantit une architecture stable tout au long du développement.
+```bash
+ruff check .
+```
 
 ---
 
-# État actuel
+# État du projet
 
-Version du noyau :
+| Élément                | Statut |
+| ---------------------- | :----: |
+| Kernel                 |    ✅   |
+| Runtime                |    ✅   |
+| Memory                 |    ✅   |
+| EventBus               |    ✅   |
+| Scheduler              |    ✅   |
+| Scheduler événementiel |    ✅   |
+| MQTT Runtime           |    ✅   |
+| Monitoring             |    ✅   |
+| Tests                  |  ✅ 453 |
 
-**Sprint 8 validé**
+---
 
-* Architecture événementielle en place
-* EventBus opérationnel
-* Dispatcher événementiel
-* Injection de dépendances consolidée
-* Documentation synchronisée
-* 438 tests verts
+# Roadmap
+
+Les prochaines évolutions prévues concernent notamment :
+
+* Observabilité avancée
+* Supervision Runtime
+* SDK de plugins
+* Workflows avancés
+* Capacités IA
+* Intégrations Home Assistant
+* Intégrations MQTT
+
+Voir le fichier **ROADMAP.md** pour le détail.
+
+---
+
+# Documentation
+
+La documentation du projet est disponible dans le dossier :
+
+```
+docs/
+```
+
+Elle comprend notamment :
+
+* Architecture du Kernel
+* ADR
+* Conventions
+* Roadmap
+* Changelog
 
 ---
 
 # Licence
 
-Projet distribué sous licence **MIT**.
+Ce projet est distribué sous licence MIT.
+
+---
+
+# Auteur
+
+Projet développé dans le cadre de **Ohanna**, une plateforme modulaire destinée à la création d'agents intelligents, autonomes et extensibles.

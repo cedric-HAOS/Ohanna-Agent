@@ -6,189 +6,187 @@ Le projet suit les principes du **Semantic Versioning**.
 
 ---
 
-# [0.8.0] - Sprint 8 - Architecture événementielle
+# v0.9.0 — Sprint 9 : Scheduler événementiel
 
-## Ajout
+## Ajouté
 
-### EventBus
+### Scheduler événementiel
 
-* Introduction d'un **EventBus** interne.
-* Publication synchrone des événements.
-* Abonnement par type d'événement.
-* Désabonnement des abonnés.
-* Architecture prête pour les futurs transports distribués.
+* Création d'un modèle d'événements dédié au Scheduler.
+* Ajout des événements :
 
-### EventSubscription
+  * `SchedulerStarted`
+  * `SchedulerStopped`
+  * `SchedulerTicked`
+  * `ScheduledTaskTriggered`
+  * `ScheduledTaskExecuted`
+  * `ScheduledTaskFailed`
 
-* Nouvelle classe `EventSubscription`.
-* Encapsulation des abonnements.
-* Utilisation de `dataclass(frozen=True, slots=True)`.
+### Publication d'événements
 
-### Application
+Le Scheduler publie désormais automatiquement ses événements de cycle de vie :
 
-* Injection du `EventBus`.
-* Enregistrement automatique du `EventBus` dans le `ServiceRegistry`.
-* Publication des événements :
+* démarrage ;
+* arrêt ;
+* tick.
 
-  * `ApplicationStarted`
-  * `ApplicationStopped`
-  * `ApplicationTicked`
+Les événements liés à l'exécution des tâches sont également publiés :
 
-### Dispatcher
+* déclenchement d'une tâche ;
+* exécution réussie ;
+* échec d'exécution.
 
-Le `CommandDispatcher` devient totalement événementiel.
+### Intégration avec l'Application
 
-Publication automatique des événements :
-
-* `CommandDispatched`
-* `CommandSucceeded`
-* `CommandFailed`
-
-Aucun changement de comportement métier.
-
-### Tests
-
-Ajout des tests couvrant :
-
-* EventBus
-* EventSubscription
-* Injection du EventBus
-* Publication des événements Application
-* Publication des événements Dispatcher
-
----
-
-## Amélioration
+* Injection automatique de l'EventBus dans le Scheduler.
+* Le Scheduler devient un producteur d'événements à part entière.
 
 ### Architecture
 
-Le projet évolue progressivement vers une architecture orientée événements.
+* Renforcement du découplage entre le Scheduler et les autres composants.
+* Utilisation d'un contrat minimal pour la publication des événements.
+* Amélioration de l'observabilité globale du Runtime.
 
-Les composants communiquent désormais via un bus d'événements plutôt que par dépendances directes.
+### Tests
 
-Cette évolution réduit fortement le couplage entre :
+Ajout de nouveaux tests couvrant notamment :
 
-* Application
-* Dispatcher
-* Plugins
-* Mémoire
-* Services
-
-### Injection de dépendances
-
-Uniformisation de l'injection :
-
-* MemoryManager
-* EventBus
-
-Préparation des prochaines injections de services.
-
-### Qualité
-
-Maintien d'une couverture de tests complète.
-
-Aucune régression fonctionnelle observée.
+* les événements du Scheduler ;
+* la publication des événements de cycle de vie ;
+* la publication des événements d'exécution ;
+* l'intégration avec l'Application.
 
 ---
 
-## Documentation
+## Amélioré
 
-Mise à jour de :
-
-* README
-* CHANGELOG
-* ROADMAP
-* Documentation d'architecture
-
----
-
-# [0.7.0] - Sprint 7 - Mémoire
-
-## Ajout
-
-* Intégration complète du `MemoryManager`.
-* Injection dans `Application`.
-* Services mémoire.
-* Tests d'injection.
-* Documentation.
+* Architecture événementielle plus cohérente.
+* Meilleure extensibilité du Scheduler.
+* Meilleure testabilité.
+* Réduction du couplage entre composants.
+* Amélioration de la qualité du code.
 
 ---
 
-# [0.6.0] - Sprint 6 - Scheduler
+## Corrigé
 
-## Ajout
+* Suppression des avertissements liés à l'utilisation de `datetime.utcnow()`.
+* Harmonisation des exports du package `scheduler`.
+* Stabilisation de l'intégration entre le Scheduler et l'Application.
+
+---
+
+## Statistiques
+
+* **453 tests automatisés**
+* **0 avertissement**
+* **Ruff : conforme**
+* **Aucune régression détectée**
+
+---
+
+# v0.8.0 — Sprint 8 : EventBus
+
+## Ajouté
+
+* Intégration complète de l'EventBus.
+* Publication et abonnement aux événements.
+* Architecture orientée événements.
+* Nouveaux tests de validation.
+
+---
+
+# v0.7.0 — Sprint 7 : Context & Memory
+
+## Ajouté
+
+* Gestionnaire de mémoire.
+* Mémoire persistante.
+* Mémoire de session.
+* Mémoire d'exécution.
+* Sérialisation.
+* Statistiques mémoire.
+
+---
+
+# v0.6.0 — Sprint 6 : Scheduler
+
+## Ajouté
 
 * Scheduler.
 * Runtime du Scheduler.
-* États.
-* Statistiques.
+* Triggers OneShot.
+* Triggers Interval.
+* Triggers Cron.
+* Registre de tâches.
 * Exécuteur de tâches.
-* Déclencheurs.
-* Couverture complète de tests.
+* Statistiques du Scheduler.
 
 ---
 
-# [0.5.0] - Sprint 5 - Capacités
+# v0.5.0 — Sprint 5 : Capacités
 
-## Ajout
+## Ajouté
 
 * Gestionnaire de capacités.
-* Dépendances.
-* Activation.
-* Désactivation.
-* Priorités.
-* Tests.
+* Capacités dynamiques.
+* Dépendances entre capacités.
+* Validation des capacités.
 
 ---
 
-# [0.4.0] - Sprint 4 - Auto-réparation
+# v0.4.0 — Sprint 4 : Auto-réparation
 
-## Ajout
+## Ajouté
 
-* Runtime enrichi.
-* Surveillance.
+* Runtime supervisé.
+* Watchdog.
 * Heartbeat.
 * Monitoring.
-* Reconnexion.
-* Politiques.
-* Tests.
+* Stratégies de récupération.
 
 ---
 
-# [0.3.0] - Sprint 3 - MQTT
+# v0.3.0 — Sprint 3 : Runtime MQTT
 
-## Ajout
+## Ajouté
 
-* Client MQTT.
-* Publisher.
-* Subscriber.
-* Messages.
-* Transport.
-* Reconnexion.
-* Tests.
+* Runtime MQTT.
+* Publication.
+* Souscription.
+* Reconnexion automatique.
+* Supervision MQTT.
 
 ---
 
-# [0.2.0] - Sprint 2 - Core Services
+# v0.2.0 — Sprint 2 : Services
 
-## Ajout
+## Ajouté
 
-* ServiceRegistry.
-* PluginManager.
-* Runtime.
+* Gestionnaire de services.
+* Injection des dépendances.
+* Runtime des services.
+
+---
+
+# v0.1.0 — Sprint 1 : Kernel
+
+## Ajouté
+
+* Noyau de l'application.
 * Dispatcher.
-* Exécuteur.
-* Tests.
+* Commandes.
+* Cycle de vie.
+* Architecture modulaire.
 
 ---
 
-# [0.1.0] - Sprint 1 - Fondations
+# v0.0.0 — Sprint 0 : Fondation
 
-## Ajout
+## Ajouté
 
-* Structure initiale du projet.
-* Commandes.
-* Événements.
-* Runtime minimal.
+* Initialisation du projet.
+* Architecture de référence.
+* ADR.
 * Documentation initiale.
-* Infrastructure de tests.
+* Configuration du dépôt Git.

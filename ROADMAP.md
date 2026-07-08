@@ -1,219 +1,291 @@
-# Roadmap
+# ROADMAP
 
-## Objectif
+Ce document décrit les grandes étapes de développement de **Shikamaru**, le noyau d'**Ohanna-Agent**.
 
-La roadmap décrit les grandes étapes de développement de **Shikamaru**, le premier agent du projet **Ohanna-Agent**.
-
-Chaque sprint poursuit un objectif clair et se termine par :
-
-- une revue d'architecture ;
-- un audit logiciel ;
-- une batterie de tests automatisés ;
-- un commit Git.
+La roadmap est organisée par phases fonctionnelles. Chaque phase construit progressivement les capacités du noyau tout en conservant une architecture simple, modulaire et fortement testée.
 
 ---
 
-# Sprint 0 — Vision & Architecture
-
-**Statut :** ✅ Terminé
+# Phase 0 — Fondation
 
 ## Objectif
 
-Définir les fondations du projet avant le développement.
+Définir la vision du projet et les principes d'architecture.
 
 ## Réalisations
 
-- [x] Vision
-- [x] Philosophie
-- [x] Capacités
-- [x] Architecture logicielle
-- [x] Cycle de vie
-- [x] États
-- [x] MQTT
-- [x] Message Model
-- [x] Configuration
-- [x] Documentation
-- [x] Roadmap
+* Vision
+* Philosophie
+* Capacités
+* Architecture logicielle
+* États
+* Plugins
+* MQTT
+* Configuration
+* Documentation
+* Roadmap
+* ADR initiales
 
-## Résultat
+## Statut
 
-Le projet est entièrement conçu avant l'écriture du premier composant.
+**Terminée**
 
 ---
 
-# Sprint 1 — Core Framework
-
-**Statut :** 🚧 En cours
+# Phase 1 — Core Framework
 
 ## Objectif
 
-Construire le noyau technique de Shikamaru.
+Construire les fondations techniques du noyau.
+
+## Réalisations
+
+* Lifecycle
+* Configuration
+* Logger
+* Health
+* Interfaces MQTT
+* Initialisation de l'application
+* Tests unitaires
+
+## Statut
+
+**Terminée**
 
 ---
 
-## Phase 1 — Foundations
+# Phase 2 — Core Services
 
-**Statut :** ✅ Terminée
+## Objectif
 
-### Architecture
+Mettre en place les services internes du noyau.
 
-- [x] ADR-0001 — Lifecycle
-- [x] ADR-0002 — Application
-- [x] ADR-0003 — Composition
-- [x] ADR-0004 — State Transitions
-- [x] ADR-0005 — Configuration Model
-- [x] ADR-0006 — Logging Strategy
+## Réalisations
 
-### Développement
+### Service Registry
 
-- [x] Lifecycle
-- [x] Configuration
-- [x] ConfigurationLoader
-- [x] YAML
-- [x] Tests
-- [x] Documentation
-- [x] README
+* Enregistrement des services
+* Recherche des services
+* Injection de dépendances
+
+### Event Model
+
+* Classe `Event`
+* Horodatage UTC
+* Identifiant unique
+
+### Event Bus
+
+* Publication d'événements
+* Abonnement
+* Désabonnement
+
+### Command Model
+
+* Classe `Command`
+* Horodatage UTC
+* Identifiant unique
+
+### Command Dispatcher
+
+* Enregistrement des commandes
+* Routage
+* Gestion des erreurs
+* Publication d'événements
+
+### Scheduler
+
+* Planification des tâches
+* Publication des événements d'exécution
+
+### Plugin Manager
+
+* Gestion du cycle de vie
+* États des plugins
+* Validation des transitions
+
+### Runtime
+
+* Création automatique des services
+* Enregistrement dans le Service Registry
+* Initialisation du noyau
 
 ### Qualité
 
-- [x] Ruff
-- [x] Pytest
-- [x] Pydantic
-- [x] Audit d'architecture
+* 76 tests unitaires
+* Ruff validé
+
+## ADR
+
+* ADR-0007 — Service Registry
+* ADR-0008 — Event Bus
+* ADR-0009 — Scheduler
+* ADR-0010 — Plugin Lifecycle
+* ADR-0011 — Command Dispatcher
+* ADR-0012 — Dependency Injection
+
+## Statut
+
+**Terminée**
 
 ---
 
-## Phase 2 — Core Services
-
-**Statut :** 🚧 À démarrer
-
-### Logging
-
-- [ ] LoggingConfigurator
-
-### Health
-
-- [ ] HealthMonitor
-
-### MQTT
-
-- [ ] MQTTClient
-
-### Plugins
-
-- [ ] PluginManager
-
----
-
-## Phase 3 — Application
-
-**Statut :** ⏳ À venir
-
-### Application
-
-- [ ] initialize()
-- [ ] run()
-- [ ] stop()
-
-### Intégration
-
-- [ ] Tests d'intégration
-- [ ] Validation finale
-- [ ] Audit logiciel
-- [ ] Sprint Review
-
----
-
-# Sprint 2 — Home Assistant
-
-**Statut :** ⏳ Prévu
+# Phase 3 — MQTT Runtime
 
 ## Objectif
 
-Intégrer Shikamaru dans Home Assistant.
+Construire le moteur de communication MQTT.
 
-### Fonctionnalités
+## Prévisions
 
-- [ ] MQTT Discovery
-- [ ] Device Information
-- [ ] Entités
-- [ ] Services
-- [ ] Diagnostics
+* Client MQTT
+* Reconnexion automatique
+* Publications
+* Souscriptions
+* Gestion des commandes
+* Gestion des événements
+* Heartbeat
+* Découverte automatique
+* Tests unitaires
+
+## Statut
+
+**À réaliser**
 
 ---
 
-# Sprint 3 — Interface Web
+# Phase 4 — DNS
 
-**Statut :** ⏳ Prévu
+## Objectif
+
+Développer le plugin DNS.
+
+## Prévisions
+
+* Résolution DNS
+* Cache
+* Reload dynamique
+* Statistiques
+* Supervision
+
+## Statut
+
+**À réaliser**
+
+---
+
+# Phase 5 — DHCP
+
+## Objectif
+
+Développer le plugin DHCP.
+
+## Prévisions
+
+* Attribution des baux
+* Réservations
+* Supervision
+* Publication MQTT
+
+## Statut
+
+**À réaliser**
+
+---
+
+# Phase 6 — NTP
+
+## Objectif
+
+Développer le plugin NTP.
+
+## Prévisions
+
+* Synchronisation
+* Publication de l'état
+* Surveillance de la dérive
+
+## Statut
+
+**À réaliser**
+
+---
+
+# Phase 7 — Supervision
+
+## Objectif
+
+Centraliser les métriques du noyau.
+
+## Prévisions
+
+* CPU
+* Mémoire
+* Disque
+* Réseau
+* Santé des plugins
+* Temps de fonctionnement
+* Métriques internes
+
+## Statut
+
+**À réaliser**
+
+---
+
+# Phase 8 — Home Assistant
+
+## Objectif
+
+Intégrer Shikamaru à Home Assistant.
+
+## Prévisions
+
+* Découverte MQTT
+* Entités
+* Diagnostics
+* Contrôle des plugins
+* Configuration
+
+## Statut
+
+**À réaliser**
+
+---
+
+# Phase 9 — Interface Web
 
 ## Objectif
 
 Créer une interface d'administration.
 
-### Fonctionnalités
+## Prévisions
 
-- [ ] Dashboard
-- [ ] Monitoring
-- [ ] Logs
-- [ ] Plugins
-- [ ] Configuration
+* Tableau de bord
+* Santé du système
+* Journaux
+* Plugins
+* Commandes
+* Configuration
+* Diagnostics
 
----
+## Statut
 
-# Sprint 4 — Auto-réparation
-
-**Statut :** ⏳ Prévu
-
-## Objectif
-
-Permettre à Shikamaru de surveiller et réparer automatiquement certains dysfonctionnements.
-
-### Fonctionnalités
-
-- [ ] Auto-diagnostic
-- [ ] Auto-réparation
-- [ ] Watchdog
-- [ ] Recovery
-- [ ] Notifications
+**À réaliser**
 
 ---
 
-# Vision
+# Vision long terme
 
-À l'issue de la roadmap, Shikamaru sera un agent capable de :
+À terme, Shikamaru doit devenir un noyau générique permettant de développer des agents spécialisés tout en partageant une infrastructure commune.
 
-- gérer son propre cycle de vie ;
-- charger une configuration validée ;
-- publier son état de santé ;
-- communiquer via MQTT ;
-- charger dynamiquement des plugins ;
-- s'intégrer à Home Assistant ;
-- être administré via une interface Web ;
-- détecter et corriger certaines anomalies automatiquement.
+Les futurs agents (DNS, DHCP, NTP, supervision, Home Assistant, etc.) utiliseront tous les mêmes services du noyau :
 
----
+* Lifecycle
+* Service Registry
+* Event Bus
+* Command Dispatcher
+* Scheduler
+* Plugin Manager
 
-# Méthodologie
-
-Chaque évolution du projet suit le cycle suivant :
-
-1. Discussion
-2. ADR
-3. Implémentation
-4. Tests
-5. Audit
-6. Commit Git
-
-Cette approche garantit une architecture cohérente, documentée et durable.
-
----
-
-# État du projet
-
-| Sprint | Statut |
-|---------|--------|
-| Sprint 0 | ✅ Terminé |
-| Sprint 1 | 🚧 En cours |
-| Sprint 2 | ⏳ Prévu |
-| Sprint 3 | ⏳ Prévu |
-| Sprint 4 | ⏳ Prévu |
+Cette architecture garantit un faible couplage, une excellente testabilité et une grande évolutivité.

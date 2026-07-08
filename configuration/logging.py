@@ -13,8 +13,8 @@ Author:
 
 from __future__ import annotations
 
-from configuration.enums import LogLevel
 from configuration.base import Config
+from configuration.enums import LogLevel
 
 
 class LoggingConfig(Config):

@@ -1,249 +1,282 @@
-# 🌳 Ohanna-Agent
+# Shikamaru
 
-**Ohanna-Agent** est un framework Python modulaire dont le premier agent est **Shikamaru**.
+**Shikamaru** est le noyau logiciel d'**Ohanna-Agent**.
 
-Son objectif est de fournir un noyau robuste, extensible et autonome capable d'orchestrer des capacités techniques telles que la configuration, la supervision, MQTT, les plugins et, à terme, l'intégration avec Home Assistant.
+Son objectif est de fournir une plateforme légère, modulaire et orientée événements permettant de développer des agents autonomes dédiés à l'administration et à la supervision d'infrastructures.
 
-Le projet est développé selon une approche **Architecture First** : les décisions d'architecture sont prises et documentées avant l'écriture du code.
+Le projet privilégie une architecture simple, fortement testée et indépendante de tout framework externe.
+
+---
+
+# Objectifs
+
+Shikamaru fournit les services fondamentaux nécessaires à tous les agents :
+
+* gestion du cycle de vie de l'application ;
+* gestion centralisée de la configuration ;
+* registre des services ;
+* communication par événements ;
+* traitement des commandes ;
+* planification des tâches ;
+* gestion des plugins ;
+* supervision interne ;
+* intégration MQTT ;
+* extensibilité par composants.
 
 ---
 
 # Philosophie
 
-Shikamaru repose sur quelques principes simples.
+Le noyau repose sur plusieurs principes :
 
-- L'architecture précède le code.
-- Une responsabilité par composant.
-- Une classe par fichier.
-- Une configuration fortement typée.
-- Des composants simples, testables et indépendants.
-- Les bibliothèques standards Python sont privilégiées lorsqu'elles répondent déjà au besoin.
-- Les décisions importantes sont documentées dans des ADR.
-
----
-
-# Fonctionnalités
-
-## Actuellement
-
-- ✅ Gestion du cycle de vie de l'agent
-- ✅ Configuration typée avec Pydantic
-- ✅ Chargement YAML
-- ✅ Validation automatique de la configuration
-- ✅ Infrastructure de tests
-- ✅ Vérification du style avec Ruff
-
-## En cours
-
-- 🚧 Logging
-- 🚧 MQTT
-- 🚧 Health Monitoring
-- 🚧 Plugin Manager
-
-## À venir
-
-- Home Assistant
-- Interface Web
-- Auto-réparation
-- Supervision
-- Découverte automatique des plugins
+* une responsabilité unique par composant ;
+* un faible couplage entre les modules ;
+* une architecture orientée événements ;
+* des dépendances explicites ;
+* des composants facilement testables ;
+* aucune dépendance inutile envers des frameworks externes.
 
 ---
 
 # Architecture
 
-```
-Ohanna-Agent
-│
-├── config/                 # Configuration YAML
-│
-├── configuration/          # Modèles Pydantic
-│
-├── core/                   # Noyau de l'agent
-│
-├── docs/
-│   ├── adr/
-│   ├── architecture/
-│   └── standards/
-│
-├── tests/
-│
-├── requirements.txt
-├── pyproject.toml
-└── README.md
+```text
+                           Application
+                                 │
+               ┌─────────────────┴─────────────────┐
+               │                                   │
+        Service Registry                   Core Runtime
+               │                                   │
+               ├───────────────┬───────────────────┤
+               │               │                   │
+           EventBus       Scheduler       CommandDispatcher
+               │               │                   │
+               └───────────────┼───────────────────┘
+                               │
+                        PluginManager
+                               │
+                            Plugins
 ```
 
 ---
 
-# Installation
+# Composants du noyau
 
-Créer un environnement virtuel.
+## Application
 
-```powershell
-python -m venv .venv
-```
+Point d'entrée du noyau.
 
-Installer les dépendances.
+Responsable de :
 
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+* l'initialisation ;
+* la création des services ;
+* l'enregistrement des composants ;
+* le démarrage ;
+* l'arrêt propre.
+
+---
+
+## Lifecycle
+
+Gestion du cycle de vie de l'application.
+
+États :
+
+* CREATED
+* INITIALIZING
+* READY
+* RUNNING
+* STOPPING
+* STOPPED
+* ERROR
+
+---
+
+## Configuration
+
+Chargement de la configuration YAML.
+
+Basée sur Pydantic.
+
+---
+
+## Service Registry
+
+Point d'accès unique aux services internes.
+
+Responsable de :
+
+* l'enregistrement ;
+* la recherche ;
+* l'injection de dépendances.
+
+---
+
+## Event
+
+Classe de base de tous les événements.
+
+Chaque événement possède :
+
+* un identifiant unique ;
+* un horodatage UTC.
+
+---
+
+## Event Bus
+
+Mécanisme de communication interne.
+
+Les composants publient des événements sans connaître leurs destinataires.
+
+---
+
+## Command
+
+Classe de base de toutes les commandes.
+
+Chaque commande possède :
+
+* un identifiant unique ;
+* un horodatage UTC.
+
+---
+
+## Command Dispatcher
+
+Point d'entrée unique pour toutes les commandes.
+
+Responsable du routage des commandes vers leurs gestionnaires.
+
+---
+
+## Scheduler
+
+Planifie les tâches périodiques du noyau.
+
+Publie des événements lors de l'exécution des tâches.
+
+---
+
+## Plugin Manager
+
+Gestion du cycle de vie des plugins.
+
+États :
+
+* REGISTERED
+* INITIALIZED
+* RUNNING
+* STOPPED
+
+---
+
+## Health
+
+Responsable de la supervision interne.
+
+---
+
+## MQTT
+
+Interface de communication avec les systèmes externes.
+
+L'implémentation complète sera réalisée lors d'une phase ultérieure.
+
+---
+
+# Organisation du projet
+
+```text
+src/
+│
+├── application.py
+│
+├── configuration/
+│
+├── core/
+│   ├── command.py
+│   ├── dispatcher.py
+│   ├── event.py
+│   ├── events.py
+│   ├── lifecycle.py
+│   ├── plugins.py
+│   ├── scheduler.py
+│   └── services.py
+│
+├── health/
+│
+├── logger/
+│
+└── mqtt/
 ```
 
 ---
 
-# Vérification
+# Tests
 
-Vérifier le style.
+Le projet est développé selon une approche **Test First**.
 
-```powershell
-.\.venv\Scripts\python.exe -m ruff check .
-```
+Chaque composant possède ses propres tests unitaires.
 
-Lancer les tests.
+À la fin de la Phase 2 :
 
-```powershell
-.\.venv\Scripts\python.exe -m pytest
-```
-
----
-
-# Configuration
-
-La configuration minimale se trouve dans :
-
-```
-config/shikamaru.yaml
-```
-
-Le fichier de référence documentant toutes les options est :
-
-```
-config/shikamaru.example.yaml
-```
-
-Les valeurs par défaut sont définies dans le code Python.
-
-Le fichier YAML ne contient que les surcharges nécessaires.
+* **76 tests unitaires**
+* **100 % des tests réussis**
+* **Ruff validé**
 
 ---
 
 # Documentation
 
-Le projet est documenté selon plusieurs niveaux.
+Le projet est documenté au travers :
 
-## ADR
-
-Les décisions d'architecture sont conservées dans :
-
-```
-docs/adr/
-```
-
-## Architecture
-
-Les documents décrivant l'architecture sont conservés dans :
-
-```
-docs/architecture/
-```
-
-## Standards
-
-Les conventions de développement sont décrites dans :
-
-```
-docs/standards/
-```
-
----
-
-# Qualité
-
-Le projet utilise :
-
-- Python 3.13
-- Pydantic
-- PyYAML
-- Pytest
-- Ruff
-
-Les tests automatisés garantissent la stabilité du noyau.
-
----
-
-# État du projet
-
-Version actuelle :
-
-```
-Sprint 1
-```
-
-Composants terminés :
-
-- Lifecycle
-- Configuration
-
-Composants en cours :
-
-- Logging
-- Health
-- MQTT
+* des ADR (Architecture Decision Records) ;
+* de la documentation d'architecture ;
+* de la roadmap ;
+* des guides de développement.
 
 ---
 
 # Roadmap
 
-## Sprint 1
+Le développement est organisé en plusieurs phases :
 
-Fondations du noyau
-
-- Lifecycle
-- Configuration
-- Logging
-- MQTT
-- Health
-- Plugins
-
-## Sprint 2
-
-Intégration Home Assistant
-
-## Sprint 3
-
-Interface Web
-
-## Sprint 4
-
-Auto-réparation
+* Phase 0 — Fondation
+* Phase 1 — Core Framework
+* Phase 2 — Core Services
+* Phase 3 — MQTT Runtime
+* Phase 4 — DNS
+* Phase 5 — DHCP
+* Phase 6 — NTP
+* Phase 7 — Supervision
+* Phase 8 — Home Assistant
+* Phase 9 — Interface Web
 
 ---
 
-# Développement
+# État du projet
 
-Le projet suit une démarche **Architecture Driven Development**.
+**Version :** Sprint 2
 
-Chaque évolution suit les étapes suivantes :
+## Fondation
 
-1. Discussion
-2. ADR
-3. Implémentation
-4. Tests
-5. Audit
-6. Commit
+* ✅ Terminée
 
-Cette méthode garantit une architecture cohérente et durable.
+## Core Framework
+
+* ✅ Terminé
+
+## Core Services
+
+* ✅ Terminé
+
+## MQTT Runtime
+
+* 🚧 À venir
 
 ---
 
 # Licence
 
-Projet personnel de recherche et développement.
-
----
-
-# Auteur
-
-**Cédric Harnois**
-
-avec l'assistance de **ChatGPT**.
+Ce projet est distribué sous licence MIT.

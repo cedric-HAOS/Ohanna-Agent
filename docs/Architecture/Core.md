@@ -1,347 +1,310 @@
-# Core
+# Architecture du noyau Shikamaru
 
-> **Le Core ne fait rien. Le Core orchestre tout.**
+## Objectif
 
----
+Le noyau **Shikamaru** fournit l'ensemble des services fondamentaux utilisés par les agents Ohanna.
 
-# Objectif
+Il est conçu autour d'une architecture modulaire, orientée événements et faiblement couplée.
 
-Le Core constitue le cœur de **Shikamaru**.
-
-Il est responsable du cycle de vie de l'agent et de la coordination des composants principaux.
-
-Le Core ne contient aucune logique métier.
-
-Son rôle est exclusivement d'orchestrer le fonctionnement de l'application.
+Chaque composant possède une responsabilité clairement définie et communique avec les autres exclusivement au travers des services du noyau.
 
 ---
 
-# Philosophie
+# Vue d'ensemble
 
-Chaque composant possède une responsabilité unique.
-
-Le Core ne réalise jamais directement le travail d'un composant.
-
-Il demande simplement aux composants d'effectuer leur propre travail.
-
-Cette séparation garantit :
-
-- un faible couplage ;
-- une architecture lisible ;
-- une excellente testabilité ;
-- une évolution progressive du projet.
-
----
-
-# Principe fondamental
-
-Le Core applique le principe :
-
-> **Le Core ne fait rien. Le Core orchestre tout.**
-
-Exemples :
-
-✔ Le Core demande au composant MQTT de se connecter.
-
-✔ Le Core demande au composant Plugins de charger les plugins.
-
-✔ Le Core demande au composant Health de publier son état.
-
-En revanche :
-
-✘ Le Core ne publie jamais directement un message MQTT.
-
-✘ Le Core ne lit jamais directement un fichier YAML.
-
-✘ Le Core n'exécute jamais un plugin.
-
----
-
-# Architecture
-
-```
-                    Application
-                          │
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-     Config            Logger          Lifecycle
-                                              │
-                     ┌────────────┬────────────┴────────────┐
-                     │            │                         │
-                   MQTT        Plugins                  Health
-```
-
-La classe `Application` constitue le point d'entrée unique du Core.
-
----
-
-# Les composants du Core
-
-## Application
-
-Chef d'orchestre de l'application.
-
-Responsabilités :
-
-- créer les composants principaux ;
-- initialiser l'application ;
-- lancer l'exécution ;
-- arrêter proprement l'application ;
-- superviser le cycle de vie.
-
-Elle ne réalise jamais le travail spécifique des composants.
-
----
-
-## Lifecycle
-
-Responsable de l'état global de l'application.
-
-Il expose les différents états définis dans :
-
-- ADR-0001 — Lifecycle
-
-Il permet à tous les composants de connaître l'état courant de Shikamaru.
-
----
-
-## Config
-
-Responsable du chargement de la configuration.
-
-Il centralise l'accès à tous les paramètres de l'application.
-
-Le Core ne lit jamais directement un fichier YAML.
-
----
-
-## Logger
-
-Responsable de la journalisation.
-
-Tous les composants utilisent le même logger.
-
-Le Core ne produit pas directement de sortie console.
-
----
-
-# Cycle de vie
-
-Le cycle de vie est entièrement défini par :
-
-ADR-0001 — Lifecycle
-
-Le Core applique ce cycle sans le modifier.
-
-```
-CREATED
-    │
-INITIALIZING
-    │
-READY
-    │
-RUNNING
-    │
-STOPPING
-    │
-STOPPED
-
-ERROR
+```text
+                           Application
+                                 │
+               ┌─────────────────┴─────────────────┐
+               │                                   │
+        Service Registry                   Core Runtime
+               │                                   │
+               ├───────────────┬───────────────────┤
+               │               │                   │
+           EventBus       Scheduler       CommandDispatcher
+               │               │                   │
+               └───────────────┼───────────────────┘
+                               │
+                        PluginManager
+                               │
+                            Plugins
 ```
 
 ---
 
-# Séquence d'exécution
+# Principes d'architecture
 
-Au démarrage :
-
-```
-Application
-
-↓
-
-INITIALIZING
-
-↓
-
-Config
-
-↓
-
-Logger
-
-↓
-
-MQTT
-
-↓
-
-Plugins
-
-↓
-
-Health
-
-↓
-
-READY
-
-↓
-
-RUNNING
-```
-
-À l'arrêt :
-
-```
-RUNNING
-
-↓
-
-STOPPING
-
-↓
-
-Plugins
-
-↓
-
-MQTT
-
-↓
-
-Logger
-
-↓
-
-STOPPED
-```
-
-L'ordre d'arrêt est volontairement l'inverse de l'ordre d'initialisation.
-
----
-
-# Communication
-
-Les composants ne communiquent jamais directement entre eux.
-
-Exemple interdit :
-
-```
-MQTT
-   │
-   ▼
-Plugin
-```
-
-Exemple autorisé :
-
-```
-Plugin
-
-↓
-
-Application
-
-↓
-
-MQTT
-```
-
-Cette règle réduit fortement le couplage entre les modules.
-
----
-
-# Dépendances
-
-Les dépendances autorisées sont :
-
-```
-Application
-
-↓
-
-Config
-
-↓
-
-Logger
-
-↓
-
-Lifecycle
-
-↓
-
-MQTT
-
-↓
-
-Plugins
-
-↓
-
-Health
-```
-
-Les dépendances circulaires sont interdites.
-
-Un composant ne doit jamais créer un autre composant.
-
----
-
-# Règles d'architecture
-
-Le Core applique les principes suivants.
+Le noyau repose sur plusieurs principes fondamentaux.
 
 ## Responsabilité unique
 
-Chaque composant possède une responsabilité clairement définie.
+Chaque composant possède une seule responsabilité.
+
+Par exemple :
+
+* EventBus transporte les événements.
+* Scheduler planifie les tâches.
+* PluginManager gère les plugins.
 
 ---
 
-## Orchestration
+## Faible couplage
 
-Le Core coordonne.
+Les composants ne communiquent jamais directement entre eux.
 
-Les composants exécutent.
+Toutes les interactions passent par :
 
----
-
-## Simplicité
-
-La solution retenue doit être la plus simple répondant au besoin.
-
-La complexité n'est introduite que lorsqu'elle résout un problème réel.
+* le Service Registry ;
+* l'Event Bus ;
+* le Command Dispatcher.
 
 ---
 
-## Extensibilité
+## Injection de dépendances
 
-L'ajout d'un nouveau composant ne doit pas nécessiter de modifier les composants existants.
+Les composants ne créent jamais eux-mêmes leurs dépendances.
 
-Seule `Application` est responsable de son intégration.
-
----
-
-# Évolutions prévues
-
-Le Core accueillera progressivement :
-
-- Scheduler
-- Memory
-- AI
-- MCP
-- HTTP API
-- CLI
-- Web UI
-
-Ces composants devront respecter les principes décrits dans ce document.
+L'Application construit les services puis les enregistre dans le Service Registry.
 
 ---
 
-# Références
+## Architecture orientée événements
 
-- ADR-0001 — Lifecycle
-- ADR-0002 — Application
-- ADR-0003 — Composition
+Les composants publient des événements sans connaître leurs consommateurs.
+
+Cette approche facilite :
+
+* l'extension du système ;
+* les tests ;
+* l'ajout de nouveaux plugins.
+
+---
+
+# Les composants
+
+## Application
+
+Point d'entrée du noyau.
+
+Responsabilités :
+
+* créer les services ;
+* enregistrer les services ;
+* démarrer le runtime ;
+* arrêter proprement l'application.
+
+---
+
+## Service Registry
+
+Point d'accès unique aux services du noyau.
+
+Fonctions :
+
+* enregistrer un service ;
+* récupérer un service ;
+* vérifier la présence d'un service ;
+* supprimer un service.
+
+---
+
+## Event
+
+Classe de base de tous les événements.
+
+Chaque événement possède automatiquement :
+
+* un identifiant unique ;
+* un horodatage UTC.
+
+Les événements sont immuables une fois publiés.
+
+---
+
+## Event Bus
+
+Assure la communication interne.
+
+Fonctions :
+
+* abonnement ;
+* désabonnement ;
+* publication.
+
+Le bus ne contient aucune logique métier.
+
+---
+
+## Command
+
+Classe de base de toutes les commandes.
+
+Chaque commande possède automatiquement :
+
+* un identifiant unique ;
+* un horodatage UTC.
+
+Les commandes représentent des demandes d'action adressées au noyau ou à ses plugins.
+
+---
+
+## Command Dispatcher
+
+Point d'entrée unique des commandes.
+
+Responsabilités :
+
+* enregistrer les gestionnaires ;
+* router les commandes ;
+* publier les événements d'exécution.
+
+Le Dispatcher ne contient aucune logique métier.
+
+---
+
+## Scheduler
+
+Planifie les tâches périodiques.
+
+Responsabilités :
+
+* enregistrer les tâches ;
+* déclencher leur exécution ;
+* publier un événement après chaque exécution.
+
+---
+
+## Plugin
+
+Les plugins implémentent les fonctionnalités métier.
+
+Ils utilisent exclusivement les services fournis par le noyau.
+
+---
+
+## Plugin Manager
+
+Responsable du cycle de vie des plugins.
+
+États :
+
+* REGISTERED
+* INITIALIZED
+* RUNNING
+* STOPPED
+
+Le Plugin Manager garantit la validité des transitions entre ces états.
+
+---
+
+# Communication interne
+
+Deux mécanismes complémentaires sont utilisés.
+
+## Les événements
+
+Les événements permettent de diffuser une information.
+
+Exemples :
+
+* MQTT connecté ;
+* tâche exécutée ;
+* plugin démarré ;
+* changement d'état.
+
+Les événements transitent par l'Event Bus.
+
+---
+
+## Les commandes
+
+Les commandes représentent une demande d'action.
+
+Exemples :
+
+* démarrer un plugin ;
+* arrêter un plugin ;
+* publier un message ;
+* recharger une configuration.
+
+Les commandes transitent par le Command Dispatcher.
+
+---
+
+# Cycle de vie du noyau
+
+```text
+Application
+      │
+      ▼
+Création des services
+      │
+      ▼
+Enregistrement dans le Service Registry
+      │
+      ▼
+Initialisation des plugins
+      │
+      ▼
+Démarrage du Scheduler
+      │
+      ▼
+Exécution du noyau
+      │
+      ▼
+Arrêt des plugins
+      │
+      ▼
+Arrêt du Scheduler
+      │
+      ▼
+Fin de l'application
+```
+
+---
+
+# Organisation du code
+
+```text
+src/
+│
+├── application.py
+│
+├── configuration/
+│
+├── core/
+│   ├── command.py
+│   ├── dispatcher.py
+│   ├── event.py
+│   ├── events.py
+│   ├── lifecycle.py
+│   ├── plugins.py
+│   ├── scheduler.py
+│   └── services.py
+│
+├── health/
+│
+├── logger/
+│
+└── mqtt/
+```
+
+---
+
+# Principes de développement
+
+Tout nouveau composant doit respecter les règles suivantes :
+
+* responsabilité unique ;
+* dépendances explicites ;
+* communication par événements ou commandes ;
+* intégration via le Service Registry ;
+* couverture complète par des tests unitaires.
+
+---
+
+# État actuel
+
+Le noyau Shikamaru dispose désormais de tous les services fondamentaux nécessaires au développement des futurs agents.
+
+Les prochaines phases du projet pourront se concentrer sur les fonctionnalités métier (MQTT, DNS, DHCP, NTP, supervision et intégration Home Assistant) sans remettre en cause l'architecture du noyau.

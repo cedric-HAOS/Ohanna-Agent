@@ -13,8 +13,8 @@ Author:
 
 from __future__ import annotations
 
-from configuration.enums import Environment
 from configuration.base import Config
+from configuration.enums import Environment
 
 
 class AgentConfig(Config):

@@ -5,6 +5,7 @@ from core.dispatcher import CommandDispatcher
 from core.events import EventBus
 from core.plugins import PluginManager
 from core.services import ServiceRegistry
+from memory import MemoryManager, MemoryScope
 from scheduler import DispatcherTaskExecutor, Scheduler
 
 
@@ -100,3 +101,39 @@ def test_application_tick_calls_scheduler() -> None:
     app.start()
 
     assert app.tick() == []
+
+def test_application_creates_default_memory() -> None:
+    app = Application()
+
+    assert isinstance(app.memory, MemoryManager)
+
+
+def test_application_uses_injected_memory() -> None:
+    memory = MemoryManager()
+
+    app = Application(memory=memory)
+
+    assert app.memory is memory
+
+def test_application_memory_can_store_values() -> None:
+    app = Application()
+
+    app.memory.set("temperature", 24)
+
+    assert app.memory.get("temperature") == 24
+
+
+def test_application_session_memory() -> None:
+    app = Application()
+
+    app.memory.set("user", "cedric", scope=MemoryScope.SESSION)
+
+    assert app.memory.get("user", scope=MemoryScope.SESSION) == "cedric"
+
+
+def test_application_persistent_memory() -> None:
+    app = Application()
+
+    app.memory.set("device", "pool", scope=MemoryScope.PERSISTENT)
+
+    assert app.memory.get("device", scope=MemoryScope.PERSISTENT) == "pool"

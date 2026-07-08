@@ -4,17 +4,19 @@ from core.dispatcher import CommandDispatcher
 from core.events import EventBus
 from core.plugins import PluginManager
 from core.services import ServiceRegistry
+from memory import MemoryManager
 from scheduler import DispatcherTaskExecutor, Scheduler
 
 
 class Application:
     """Main Shikamaru application."""
 
-    def __init__(self) -> None:
+    def __init__(self, memory: MemoryManager | None = None) -> None:
         self.services = ServiceRegistry()
 
         self.event_bus = EventBus()
         self.command_dispatcher = CommandDispatcher(self.event_bus)
+        self.memory = memory if memory is not None else MemoryManager()
         self.scheduler = Scheduler(
             executor=DispatcherTaskExecutor(self.command_dispatcher),
         )
@@ -29,6 +31,7 @@ class Application:
         self.services.register(Scheduler, self.scheduler)
         self.services.register(PluginManager, self.plugin_manager)
         self.services.register(CommandDispatcher, self.command_dispatcher)
+        self.services.register(MemoryManager, self.memory)
 
     def start(self) -> None:
         """Start application services."""

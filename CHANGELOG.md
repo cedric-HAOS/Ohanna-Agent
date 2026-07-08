@@ -1,235 +1,173 @@
 # Changelog
 
-Toutes les évolutions notables du projet **Ohanna-Agent** sont documentées dans ce fichier.
+Toutes les évolutions importantes du projet **Ohanna-Agent** sont documentées dans ce fichier.
 
-Le format suit les recommandations de **Keep a Changelog** et respecte autant que possible les principes du **Versioning Sémantique (SemVer)**.
+Le format s'inspire de **Keep a Changelog** et respecte le **Versioning Sémantique**.
+
+---
+
+# [0.8.0] - 2026-07-08
+
+## Sprint 7 — Memory
+
+### Ajouté
+
+#### Memory
+
+- Ajout du package `memory`
+- Introduction du `MemoryManager`
+- Ajout de `RuntimeMemory`
+- Ajout de `SessionMemory`
+- Ajout de `PersistentMemory`
+- Ajout des `MemoryScope`
+- Ajout des `MemoryEntry`
+
+#### Persistance
+
+- Ajout de `MemoryStorage`
+- Persistance JSON
+- Chargement de la mémoire persistante
+- Sauvegarde explicite
+- Injection du backend de stockage
+
+#### Sérialisation
+
+- Ajout de `MemorySerializer`
+- Découplage stockage / sérialisation
+- Préparation de futurs backends (SQLite, Redis…)
+
+#### Statistiques
+
+- Ajout de `MemoryStatistics`
+- Comptage des :
+  - hits
+  - misses
+  - sets
+  - deletes
+  - clears
+  - saves
+  - loads
+
+#### Application
+
+- Intégration du `MemoryManager`
+- Injection de dépendances
+- Enregistrement dans le `ServiceRegistry`
+
+#### Architecture
+
+- ADR-0025 — Gestion de la mémoire
+- ADR-0026 — Politique de persistance
+
+### Refactoring
+
+- Remplacement du routage conditionnel par une table de routage (`MemoryScope` → implémentation mémoire)
+- Amélioration du découplage des composants mémoire
+- Séparation des responsabilités entre gestion, stockage et sérialisation
+
+### Tests
+
+- Plus de **420 tests automatisés**
+- Couverture des nouveaux composants mémoire
+- Validation des trois scopes mémoire
+- Validation de la persistance JSON
+- Validation de la sérialisation
+- Validation des statistiques
+- Validation de l'intégration dans `Application`
+
+---
+
+# [0.7.0] - 2026-07-08
+
+## Sprint 6 — Scheduler
+
+### Ajouté
+
+- Scheduler
+- DispatcherTaskExecutor
+- SchedulerState
+- SchedulerStatistics
+- Runtime Scheduler
+- Gestion des tâches planifiées
+
+### Architecture
+
+- Découplage Scheduler / Dispatcher
+- Introduction des statistiques Scheduler
+
+---
+
+# [0.6.0] - 2026-07-08
+
+## Sprint 5 — Capacités
+
+### Ajouté
+
+- Capability
+- CapabilityManager
+- Gestion des capacités
+- Activation / désactivation
+- Découverte des capacités
+
+---
+
+# [0.5.0] - 2026-07-08
+
+## Sprint 4 — Auto-réparation
+
+### Ajouté
+
+- Auto-réparation
+- Gestion des erreurs
+- Runtime Recovery
 
 ---
 
 # [0.4.0] - 2026-07-08
 
-## Autonomous Core
+## Sprint 3 — MQTT Runtime
 
-Cette version marque une étape majeure dans l'évolution d'Ohanna-Agent.
+### Ajouté
 
-Le projet passe d'un moteur orienté événements à un framework capable de planifier et d'orchestrer ses propres traitements.
-
-Le noyau introduit une architecture complète de planification reposant sur un Scheduler modulaire et un ensemble de nouvelles abstractions communes.
-
----
-
-## Added
-
-### Scheduler
-
-* Ajout du Scheduler.
-* Gestion des tâches planifiées.
-* Gestion du cycle de vie du Scheduler.
-* Intégration du Scheduler Runtime.
-* Intégration des statistiques du Scheduler.
-
-### Triggers
-
-Ajout des déclencheurs :
-
-* BaseTrigger
-* IntervalTrigger
-* OneShotTrigger
-* CronTrigger
-
-### Task Model
-
-Ajout de :
-
-* Task
-* TaskState
-* Priorités
-* Observabilité
-* Statistiques d'exécution
-
-### Task Registry
-
-Ajout du :
-
-* TaskRegistry
-
-Le Scheduler ne manipule plus directement les collections de tâches.
-
-### Task Executors
-
-Ajout de :
-
-* TaskExecutor
-* DryRunTaskExecutor
-* DispatcherTaskExecutor
-* FailingTaskExecutor
-
-L'exécution des tâches est désormais complètement découplée du Scheduler.
-
-### Runtime Model
-
-Ajout de :
-
-* SchedulerRuntime
-* SchedulerState
-* SchedulerStatistics
-
-Le Runtime devient responsable de l'état d'exécution du Scheduler.
-
-### Core abstractions
-
-Création du package :
-
-```text
-core/
-```
-
-Ajout des abstractions :
-
-* Runtime
-* Statistics
-* Registry
-* Executor
-
-Ces composants constituent désormais le socle architectural du framework.
-
-### Tests
-
-Ajout de nombreux tests couvrant :
-
-* Scheduler
-* Triggers
-* Task
-* Runtime
-* Registry
-* Executor
-
-Le projet atteint désormais plus de **315 tests unitaires**.
-
----
-
-## Changed
-
-### Architecture
-
-Refactorisation importante du noyau.
-
-Le Scheduler est désormais construit autour des composants suivants :
-
-```text
-Scheduler
-│
-├── Runtime
-├── Registry
-├── Executor
-├── Clock
-└── Task
-```
-
-### Responsabilités
-
-Séparation stricte entre :
-
-* planification ;
-* stockage ;
-* exécution ;
-* état d'exécution.
-
-### Runtime
-
-Le Runtime devient un concept commun du framework.
-
-Les nouveaux services sont encouragés à utiliser cette architecture.
-
-### Documentation
-
-Refonte complète de la documentation :
-
-* README
-* CORE
-* ROADMAP
-* ADR
-
----
-
-## Fixed
-
-* Diverses améliorations de cohérence interne.
-* Harmonisation des responsabilités.
-* Nettoyage de plusieurs dépendances internes.
-* Amélioration de la lisibilité du Scheduler.
-* Uniformisation des conventions d'architecture.
-
----
-
-## Performance
-
-* Plus de **315 tests unitaires**.
-* Exécution complète de la suite de tests en environ **0,4 seconde**.
-* Maintien d'une architecture légère et fortement découplée.
+- Runtime MQTT
+- Gestion des événements MQTT
+- Dispatcher MQTT
 
 ---
 
 # [0.3.0] - 2026-07-08
 
-## MQTT Runtime
+## Sprint 2 — Core Services
 
-### Added
+### Ajouté
 
-* Runtime MQTT complet.
-* Heartbeat.
-* Monitor.
-* Reconnexion automatique.
-* Publisher.
-* Subscriber.
-* Watchdog.
-* Auto-réparation.
-
-### Changed
-
-* Refonte de l'architecture MQTT.
-* Stabilisation du Runtime.
+- ServiceRegistry
+- EventBus
+- PluginManager
+- Dispatcher
 
 ---
 
-# [0.2.0] - 2026-07-08
+# [0.2.0] - 2026-07-07
 
-## Core Services
+## Sprint 1 — Lifecycle
 
-### Added
+### Ajouté
 
-* Dispatcher.
-* Dependency Graph.
-* Configuration.
-* Services principaux.
-* Plugins.
-* Gestionnaire de capacités.
+- États applicatifs
+- Gestion du cycle de vie
+- LifecycleManager
 
 ---
 
 # [0.1.0] - 2026-07-07
 
-## Foundation
+## Sprint 0 — Architecture
 
-### Added
+### Ajouté
 
-* Initialisation du projet.
-* Architecture du Kernel.
-* Dispatcher.
-* MQTT.
-* Documentation.
-* ADR.
-* Suite de tests initiale.
-
----
-
-# Versions futures
-
-Les évolutions prévues sont décrites dans le fichier **ROADMAP.md**.
-
----
-
-# Références
-
-* Semantic Versioning : https://semver.org/
-* Keep a Changelog : https://keepachangelog.com/
+- Architecture initiale
+- ADR fondateurs
+- Documentation
+- Structure du projet
+- Philosophie

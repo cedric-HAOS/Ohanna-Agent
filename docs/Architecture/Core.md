@@ -1,1242 +1,1031 @@
-# CORE.md
+# Architecture du cœur d'Ohanna-Agent
 
-# Manuel d'Architecture d'Ohanna-Agent
+Version : **0.8.0**
 
-Version : **4.0**
-
-Version du Framework : **v0.4.0 – Autonomous Core**
+Dernière mise à jour : **08 juillet 2026**
 
 ---
 
-# Préface
+# 1. Objectif
 
-## Pourquoi ce document ?
+Ce document décrit l'architecture interne du cœur (**Core**) d'Ohanna-Agent.
 
-Le présent document constitue la référence architecturale officielle d'Ohanna-Agent.
+Il constitue la référence technique du projet et explique :
 
-Contrairement au `README.md`, dont l'objectif est de présenter le projet et de faciliter sa découverte, le document **CORE.md** décrit en détail les principes de conception, les composants internes et les règles qui structurent le framework.
+- les responsabilités des principaux composants ;
+- leurs interactions ;
+- les décisions d'architecture (ADR) ;
+- les principes de conception retenus ;
+- les points d'extension prévus pour les futurs sprints.
 
-Il s'adresse principalement :
-
-* aux développeurs souhaitant contribuer au projet ;
-* aux architectes logiciels ;
-* aux mainteneurs du framework ;
-* à toute personne désirant comprendre en profondeur le fonctionnement interne d'Ohanna-Agent.
-
-Ce document n'a pas vocation à expliquer l'utilisation quotidienne du framework. Son rôle est de décrire son architecture, les choix qui la sous-tendent et les règles qui garantissent sa cohérence au fil des évolutions.
+L'objectif est de garantir une architecture stable, modulaire et évolutive.
 
 ---
 
-# 1. Vision
+# 2. Vision
 
-## 1.1 Origine du projet
+Ohanna-Agent est un framework Python permettant de construire des agents autonomes, pilotés par événements et composés de composants faiblement couplés.
 
-Ohanna-Agent est né d'un constat simple.
+Le framework ne cherche pas à fournir un agent unique, mais une infrastructure sur laquelle différents agents pourront être développés.
 
-La majorité des solutions d'automatisation sont construites autour d'une accumulation de fonctionnalités répondant à des besoins immédiats. Avec le temps, ces projets deviennent souvent difficiles à maintenir, fortement couplés et complexes à faire évoluer.
-
-L'objectif d'Ohanna-Agent est différent.
-
-Le framework est conçu autour d'une architecture stable, modulaire et extensible, dans laquelle chaque nouvelle fonctionnalité vient naturellement s'intégrer sans remettre en cause les fondations existantes.
-
-L'architecture précède les fonctionnalités.
-
----
-
-## 1.2 Vision à long terme
-
-Ohanna-Agent ambitionne de devenir un framework généraliste permettant de construire des agents logiciels autonomes.
-
-Ces agents doivent être capables de :
-
-* recevoir des événements provenant de différentes sources ;
-* analyser leur contexte ;
-* planifier des traitements ;
-* orchestrer plusieurs actions ;
-* prendre des décisions selon des règles définies ;
-* communiquer via MQTT ou d'autres transports ;
-* évoluer sans modifier le noyau du framework.
-
-Le projet privilégie la robustesse de son architecture plutôt que la multiplication rapide des fonctionnalités.
-
----
-
-## 1.3 Le rôle du Kernel
-
-Le noyau d'Ohanna-Agent constitue une plateforme d'exécution.
-
-Il ne contient volontairement aucune logique métier spécifique.
-
-Son rôle est de fournir les mécanismes communs nécessaires à tous les agents :
-
-* gestion du cycle de vie ;
-* exécution des commandes ;
-* planification des tâches ;
-* communication par événements ;
-* gestion des capacités ;
-* infrastructure MQTT ;
-* supervision de l'état d'exécution.
-
-Toutes les fonctionnalités métier doivent être construites au-dessus de ce noyau.
-
-Cette séparation garantit la pérennité de l'architecture.
-
----
-
-## 1.4 Une architecture orientée plateforme
-
-À partir de la version **0.4.0**, Ohanna-Agent n'est plus simplement un agent logiciel.
-
-Il constitue désormais une plateforme sur laquelle peuvent être développés plusieurs moteurs spécialisés.
-
-Par exemple :
-
-* moteur de workflows ;
-* moteur de règles ;
-* moteur de pipelines ;
-* moteur d'événements complexes ;
-* capacités métier spécialisées.
-
-Tous ces composants s'appuient sur les mêmes abstractions définies par le noyau.
-
----
-
-# 2. Philosophie
-
-## 2.1 L'architecture avant les fonctionnalités
-
-Chaque évolution commence par une réflexion architecturale.
-
-Une fonctionnalité n'est intégrée que lorsqu'elle peut trouver naturellement sa place dans le modèle existant.
-
-Lorsque ce n'est pas le cas, c'est généralement le signe que le problème n'est pas encore suffisamment compris.
-
-Cette discipline permet d'éviter la création de composants redondants ou fortement couplés.
-
----
-
-## 2.2 Une responsabilité unique
-
-Chaque composant possède un rôle clairement identifié.
-
-Le Scheduler orchestre les tâches.
-
-Le Dispatcher exécute les commandes.
-
-Le Runtime décrit l'état d'exécution.
-
-Une Registry stocke des objets.
-
-Un Executor réalise une action.
-
-Aucun composant ne cumule plusieurs responsabilités.
-
-Cette règle constitue l'un des principes fondamentaux du framework.
-
----
-
-## 2.3 Le découplage comme principe directeur
-
-Les différents services du noyau ne communiquent jamais directement avec leurs implémentations concrètes.
-
-Ils utilisent des contrats, des abstractions ou des protocoles.
-
-Cette approche permet notamment :
-
-* de remplacer une implémentation sans modifier les consommateurs ;
-* de faciliter les tests unitaires ;
-* d'introduire de nouvelles stratégies d'exécution ;
-* de limiter les dépendances entre modules.
-
-Le découplage est systématiquement privilégié lorsqu'il améliore la lisibilité et l'évolutivité du projet.
-
----
-
-## 2.4 La testabilité comme exigence
-
-Chaque composant est conçu pour être testé indépendamment.
-
-Cette exigence influence directement les choix d'architecture.
-
-Ainsi :
-
-* les accès au temps utilisent une abstraction (`Clock`) ;
-* les registres sont isolés ;
-* les exécuteurs sont interchangeables ;
-* les dépendances sont injectées plutôt que créées localement.
-
-Grâce à cette approche, l'ensemble du framework peut être validé rapidement par une suite de plusieurs centaines de tests unitaires.
-
----
-
-## 2.5 La simplicité
-
-La sophistication d'une architecture ne doit jamais provenir de la complexité de ses composants.
-
-Elle doit résulter de leur combinaison.
-
-Chaque classe doit rester suffisamment petite pour être comprise rapidement.
-
-Chaque méthode doit exprimer clairement son intention.
-
-Chaque composant doit pouvoir évoluer indépendamment.
-
-La simplicité constitue un objectif permanent.
-
----
-
-## 2.6 La stabilité du noyau
-
-Le Kernel représente la partie la plus stable du framework.
-
-Les fonctionnalités évoluent.
-
-Les capacités évoluent.
-
-Les plugins évoluent.
-
-Le noyau, lui, doit rester aussi stable que possible.
-
-Cette stabilité est obtenue grâce à des interfaces bien définies, des responsabilités clairement séparées et une architecture pensée pour durer.
-
----
-
-## 2.7 L'amélioration continue
-
-L'architecture d'Ohanna-Agent n'est pas figée.
-
-Elle évolue progressivement au rythme des retours d'expérience, des audits d'architecture et des nouveaux besoins.
-
-Toute évolution importante suit le même processus :
-
-1. analyse du besoin ;
-2. conception de l'architecture ;
-3. implémentation ;
-4. tests unitaires ;
-5. revue d'architecture ;
-6. documentation ;
-7. publication.
-
-Ce cycle garantit une évolution maîtrisée du framework.
-
----
-
-## Conclusion
-
-La philosophie d'Ohanna-Agent repose sur une idée simple :
-
-**Construire un framework dont l'architecture reste plus stable que les fonctionnalités qu'il héberge.**
-
-Cette approche demande davantage de rigueur au début du projet, mais elle offre en retour une excellente évolutivité, une forte testabilité et une maintenance simplifiée.
-
-Les chapitres suivants décrivent les principes d'architecture qui permettent d'atteindre cet objectif.
+Chaque composant possède une responsabilité clairement définie et peut évoluer indépendamment des autres.
 
 ---
 
 # 3. Principes d'architecture
 
-Les principes décrits dans ce chapitre constituent les règles fondamentales de conception d'Ohanna-Agent.
+Le développement du cœur repose sur plusieurs principes.
 
-Ils s'appliquent à l'ensemble du noyau, aux services, aux plugins et aux futures extensions.
+## Simplicité
 
-Toute évolution du framework doit respecter ces principes afin de préserver la cohérence globale de l'architecture.
+Chaque composant doit être simple à comprendre et à maintenir.
 
----
-
-## 3.1 Responsabilité unique
-
-Chaque composant possède une responsabilité clairement définie.
-
-Le Scheduler planifie.
-
-Le Dispatcher exécute.
-
-Le Runtime décrit l'état d'exécution.
-
-Une Registry stocke des objets.
-
-Un Executor réalise une exécution.
-
-Cette séparation volontaire limite le couplage entre les différentes parties du framework.
-
-Une classe qui commence à remplir plusieurs rôles doit être refactorisée.
+Les abstractions ne sont introduites que lorsqu'elles répondent à un besoin réel.
 
 ---
 
-## 3.2 Découplage
+## Responsabilité unique
 
-Le découplage constitue le principe directeur de l'ensemble du projet.
-
-Les services ne doivent jamais connaître les détails d'implémentation des autres services.
-
-Par exemple :
-
-```text
-Scheduler
-      │
-      ▼
-TaskExecutor
-```
-
-et non :
-
-```text
-Scheduler
-      │
-      ▼
-Dispatcher
-```
-
-Le Scheduler ignore complètement la manière dont une tâche est exécutée.
-
-Il délègue cette responsabilité à un `TaskExecutor`.
-
-Cette approche permet de remplacer une implémentation sans modifier le Scheduler.
-
----
-
-## 3.3 Composition
-
-Ohanna-Agent privilégie systématiquement la composition.
-
-Les composants collaborent.
-
-Ils ne s'héritent pas.
-
-Par exemple :
-
-```text
-Scheduler
-│
-├── TaskRegistry
-├── TaskExecutor
-├── SchedulerRuntime
-└── Clock
-```
-
-Le Scheduler ne dérive d'aucune de ces classes.
-
-Il les utilise.
-
-Cette approche réduit les dépendances et facilite les évolutions.
-
----
-
-## 3.4 Injection des dépendances
-
-Les dépendances sont injectées lors de la construction des composants.
-
-Exemple :
-
-```python
-scheduler = Scheduler(
-    executor=DispatcherTaskExecutor(dispatcher),
-    clock=FakeClock(),
-)
-```
-
-Le Scheduler ne crée jamais lui-même son exécuteur ou son horloge.
-
-Cette règle améliore considérablement la testabilité du framework.
-
----
-
-## 3.5 Contrats avant implémentations
-
-Les composants communiquent au travers de contrats clairement définis.
-
-Par exemple :
-
-* `TaskExecutor`
-* `Registry`
-* `Executor`
-
-Les implémentations concrètes restent interchangeables.
-
-Cette séparation permet notamment :
-
-* l'utilisation de doubles de test ;
-* l'évolution indépendante des implémentations ;
-* l'introduction de nouvelles stratégies sans casser l'API.
-
----
-
-## 3.6 Runtime séparé
-
-Chaque service possède un objet Runtime.
-
-Le Runtime contient exclusivement les informations liées à l'exécution :
-
-* état courant ;
-* dates de démarrage ;
-* dates d'arrêt ;
-* statistiques ;
-* informations temporaires.
-
-Il ne contient jamais de logique métier.
-
-Cette séparation permet de distinguer clairement :
-
-* la logique du service ;
-* son état d'exécution.
-
----
-
-## 3.7 Objets spécialisés
-
-Chaque concept important du framework possède son propre type.
-
-Par exemple :
-
-* Runtime
-* Registry
-* Statistics
-* State
-* Executor
-
-Cette approche augmente la lisibilité du code et facilite les évolutions futures.
-
----
-
-## 3.8 Interfaces stables
-
-Les API publiques doivent rester stables.
-
-Les changements d'implémentation ne doivent pas modifier le contrat visible par les autres composants.
-
-Cette stabilité constitue une condition essentielle pour permettre l'évolution indépendante des modules.
-
----
-
-# 4. Architecture globale
-
-L'architecture d'Ohanna-Agent est organisée autour d'un noyau modulaire.
-
-Chaque service possède une responsabilité unique et communique avec les autres services au travers de contrats bien définis.
-
-Le schéma suivant représente l'organisation générale du framework.
-
-```text
-                        Application
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        ▼                     ▼                     ▼
-
-  Configuration          Dispatcher          Scheduler
-        │                     │                     │
-        │                     ▼                     ▼
-        │                 Command             TaskRegistry
-        │                     │                     │
-        │                     ▼                     ▼
-        │                  Action                 Task
-        │                                           │
-        │                                           ▼
-        │                                      BaseTrigger
-        │
-        ├───────────────────────────────────────────────┐
-        ▼                                               ▼
-
- Capability Manager                              MQTT Runtime
-        │                                               │
-        ▼                                               ▼
-
-   Capabilities                                 Publisher
-                                                 Subscriber
-```
-
----
-
-## 4.1 Le rôle de l'Application
-
-L'Application constitue le point d'entrée du framework.
-
-Elle est responsable de :
-
-* l'initialisation des services ;
-* leur cycle de vie ;
-* leur orchestration générale.
-
-Elle ne contient aucune logique métier.
-
-Son rôle est uniquement de composer les différents composants du noyau.
-
----
-
-## 4.2 Les services du Kernel
-
-Le noyau est composé de plusieurs services indépendants.
-
-Chaque service est spécialisé.
-
-### Configuration
-
-Gestion de la configuration.
-
-### Dispatcher
-
-Exécution des commandes.
-
-### Scheduler
-
-Planification des traitements.
-
-### MQTT Runtime
-
-Communication avec le broker MQTT.
-
-### Capability Manager
-
-Gestion des capacités disponibles.
-
-### Event Bus
-
-Diffusion des événements internes.
-
----
-
-## 4.3 Les dépendances
-
-Les dépendances suivent une seule direction.
-
-```text
-Application
-      │
-      ▼
-Scheduler
-      │
-      ▼
-TaskExecutor
-      │
-      ▼
-Dispatcher
-      │
-      ▼
-Command
-      │
-      ▼
-Action
-```
-
-Aucune couche ne dépend d'une couche supérieure.
-
-Cette règle est impérative.
-
----
-
-## 4.4 Les composants spécialisés
-
-Chaque grand service est lui-même composé de plusieurs sous-composants.
-
-Par exemple :
-
-```text
-Scheduler
-
-Runtime
-
-Registry
-
-Executor
-
-Task
-
-Trigger
-
-Clock
-```
-
-Cette organisation facilite les tests et limite la taille de chaque classe.
-
----
-
-## 4.5 Une architecture orientée plateforme
-
-Le noyau ne contient volontairement aucune logique métier.
-
-Il fournit uniquement les mécanismes communs nécessaires aux futurs moteurs :
-
-* Workflow Engine
-* Rule Engine
-* Pipeline Engine
-* Event Engine
-
-Ces moteurs viendront s'appuyer sur le Kernel sans modifier son architecture.
-
-Cette séparation garantit la stabilité du framework sur le long terme.
-
----
-
-# 5. Le Kernel
-
-## 5.1 Présentation
-
-Le **Kernel** constitue le cœur d'Ohanna-Agent.
-
-Il fournit l'ensemble des services fondamentaux nécessaires au fonctionnement du framework.
-
-Contrairement aux capacités, aux plugins ou aux futurs moteurs (Workflow, Rule Engine, Pipeline), le Kernel ne contient aucune logique métier.
-
-Son rôle est exclusivement de fournir une infrastructure stable, modulaire et extensible.
-
-L'ensemble des composants du framework repose sur ce noyau.
-
----
-
-## 5.2 Responsabilités du Kernel
-
-Le Kernel est responsable de :
-
-* l'initialisation du framework ;
-* la gestion du cycle de vie des services ;
-* la réception et l'exécution des commandes ;
-* la planification des traitements ;
-* la diffusion des événements internes ;
-* la gestion des capacités ;
-* l'infrastructure de communication MQTT ;
-* les abstractions communes utilisées par les différents services.
-
-Toutes les fonctionnalités métier sont volontairement construites au-dessus de cette couche.
-
----
-
-## 5.3 Vue d'ensemble
-
-Le Kernel est composé de plusieurs services spécialisés.
-
-```text
-                             Application
-                                   │
-     ┌───────────────┬─────────────┼─────────────┬───────────────┐
-     ▼               ▼             ▼             ▼               ▼
-
-Configuration   Dispatcher    Scheduler   Capability Manager   MQTT Runtime
-                                      │
-                                      ▼
-                                 Event Bus
-```
-
-Chaque service possède une responsabilité unique.
-
-Aucun service ne cumule plusieurs rôles.
-
----
-
-# 5.4 L'Application
-
-L'Application constitue le point d'entrée du framework.
-
-Elle assemble les différents services du noyau.
-
-Son rôle est volontairement limité.
-
-L'Application :
-
-* construit les composants ;
-* injecte leurs dépendances ;
-* initialise le Kernel ;
-* démarre les services ;
-* orchestre leur arrêt.
-
-Elle ne contient aucune logique métier.
-
-Elle ne traite aucun message MQTT.
-
-Elle ne prend aucune décision.
-
-Elle agit uniquement comme orchestrateur.
-
----
-
-## Cycle de vie
-
-Le cycle de vie d'une Application suit la séquence suivante.
-
-```text
-CREATED
-    │
-    ▼
-INITIALIZING
-    │
-    ▼
-RUNNING
-    │
-    ▼
-STOPPING
-    │
-    ▼
-STOPPED
-```
-
-Chaque transition est explicite.
-
----
-
-# 5.5 Le Dispatcher
-
-Le Dispatcher constitue le centre d'exécution du framework.
-
-Tous les traitements passent obligatoirement par lui.
-
-Sa responsabilité est simple :
-
-> Recevoir une commande et déclencher l'action correspondante.
-
-Le Dispatcher ignore totalement l'origine de cette commande.
-
-Elle peut provenir :
-
-* du Scheduler ;
-* du Runtime MQTT ;
-* d'un Plugin ;
-* d'une Capability ;
-* d'un futur Workflow Engine.
-
-Toutes ces sources sont traitées de manière identique.
-
----
-
-## Architecture
-
-```text
-Dispatcher
-      │
-      ▼
-Command
-      │
-      ▼
-Action
-```
-
-Le Dispatcher ne connaît jamais les implémentations concrètes des Actions.
-
----
-
-# 5.6 Le Scheduler
-
-Le Scheduler introduit dans la version **0.4.0** constitue le premier composant permettant à Ohanna-Agent de devenir autonome.
-
-Contrairement au Dispatcher, qui réagit aux événements, le Scheduler est capable d'initier des traitements.
-
-Il ne prend toutefois aucune décision métier.
-
-Sa responsabilité consiste uniquement à déterminer quelles tâches doivent être exécutées.
-
----
-
-## Architecture
-
-```text
-Scheduler
-     │
-     ├── Runtime
-     ├── Registry
-     ├── Executor
-     ├── Clock
-     └── Tasks
-```
-
-Chaque sous-composant possède une responsabilité clairement identifiée.
-
----
-
-## Principe d'exécution
-
-```text
-Clock
-   │
-   ▼
-Trigger
-   │
-   ▼
-Task
-   │
-   ▼
-TaskRegistry
-   │
-   ▼
-Scheduler
-   │
-   ▼
-TaskExecutor
-   │
-   ▼
-Dispatcher
-```
-
-Le Scheduler ignore complètement la manière dont une tâche est réellement exécutée.
-
-Il délègue cette responsabilité au `TaskExecutor`.
-
-Cette séparation garantit un découplage fort entre la planification et l'exécution.
-
----
-
-# 5.7 Le Capability Manager
-
-Le Capability Manager gère l'ensemble des capacités installées dans le framework.
-
-Une capacité représente une fonctionnalité autonome pouvant être activée ou désactivée indépendamment.
+Chaque classe possède une responsabilité clairement identifiée.
 
 Exemples :
 
-* Health
-* Monitor
-* Watchdog
-* Heartbeat
-* Auto-Recovery
-
-Chaque capacité possède son propre cycle de vie.
-
-Le Capability Manager ne connaît pas leur logique interne.
+- `CommandDispatcher` route les commandes.
+- `Scheduler` planifie les tâches.
+- `MemoryManager` orchestre la mémoire.
+- `MemoryStorage` gère la persistance.
+- `MemorySerializer` convertit les objets mémoire.
 
 ---
 
-# 5.8 Le Runtime MQTT
+## Faible couplage
 
-Le Runtime MQTT assure la communication avec le broker.
+Les composants communiquent principalement via :
 
-Ses responsabilités sont volontairement limitées :
+- les événements ;
+- les interfaces publiques ;
+- l'injection de dépendances.
 
-* établir la connexion ;
-* publier les messages ;
-* recevoir les abonnements ;
-* gérer les reconnexions ;
-* notifier le Dispatcher.
-
-Le Runtime MQTT ne contient aucune logique métier.
+Ils ne doivent pas dépendre directement de l'implémentation interne des autres composants.
 
 ---
 
-## Architecture
+## Forte cohésion
+
+Toutes les responsabilités liées à un même domaine sont regroupées dans un package dédié.
+
+Exemple :
 
 ```text
-MQTT Runtime
-      │
-      ├── Publisher
-      ├── Subscriber
-      ├── Monitor
-      ├── Reconnect
-      └── Transport
+memory/
 ```
 
-Chaque sous-composant reste indépendant.
-
----
-
-# 5.9 L'Event Bus
-
-L'Event Bus constitue le mécanisme de communication interne du Kernel.
-
-Il permet aux différents services de publier des événements sans connaître leurs consommateurs.
-
-Cette approche réduit fortement les dépendances entre modules.
-
-Le Scheduler pourra, par exemple, publier :
-
-```text
-task.started
-
-task.finished
-
-task.failed
-```
-
-sans connaître les composants qui les traiteront.
-
----
-
-# 5.10 Les abstractions communes
-
-L'ensemble des services du Kernel repose sur plusieurs abstractions partagées.
-
-```text
-core/
-
-Runtime
-
-Statistics
-
-Registry
-
-Executor
-```
-
-Ces abstractions constituent le langage commun du framework.
-
-Tous les nouveaux services sont encouragés à les utiliser lorsqu'elles répondent à leur besoin.
-
----
-
-# Conclusion
-
-Le Kernel représente la partie la plus stable d'Ohanna-Agent.
-
-Son objectif n'est pas de fournir des fonctionnalités métier, mais une infrastructure fiable, cohérente et extensible sur laquelle pourront être construits les moteurs intelligents des prochaines versions.
-
-Les chapitres suivants détaillent les abstractions communes (`Runtime`, `Registry`, `Executor`, `State`, `Statistics`) qui permettent à l'ensemble des services du Kernel de partager un modèle architectural homogène.
-
----
-
-# 6. Les Contrats du Kernel (`core`)
-
-## 6.1 Introduction
-
-L'une des évolutions majeures introduites avec la version **0.4.0** est l'apparition d'un ensemble d'abstractions communes regroupées dans le package `core`.
-
-Ces abstractions ne représentent pas des fonctionnalités.
-
-Elles définissent un **langage architectural** partagé par l'ensemble du framework.
-
-Chaque nouveau service peut s'appuyer sur ces contrats afin de respecter les mêmes principes de conception.
-
-Cette approche favorise :
-
-* la cohérence du code ;
-* le découplage entre les composants ;
-* la réutilisation des concepts ;
-* la simplicité de maintenance ;
-* l'évolutivité du framework.
-
----
-
-# 6.2 Les abstractions communes
-
-Le package `core` regroupe les contrats fondamentaux suivants.
-
-```text
-core/
-
-Runtime
-
-Statistics
-
-Registry
-
-Executor
-```
-
-Ces quatre concepts constituent la base de l'ensemble des services du Kernel.
-
----
-
-# 6.3 Runtime
-
-## Objectif
-
-Un **Runtime** représente exclusivement l'état d'exécution d'un service.
-
-Il ne contient jamais de logique métier.
-
-Le Runtime est un objet d'observation.
-
-Il décrit le fonctionnement courant d'un composant sans participer à son comportement.
-
----
-
-## Responsabilités
-
-Un Runtime peut notamment contenir :
-
-* état courant ;
-* date de démarrage ;
-* date d'arrêt ;
-* dernier événement ;
-* informations temporaires ;
-* statistiques d'exécution.
-
-Il ne réalise jamais de traitement.
-
----
-
-## Exemple
-
-```text
-Scheduler
-      │
-      ▼
-SchedulerRuntime
-```
-
-Le Scheduler reste responsable de l'orchestration.
-
-Le Runtime décrit uniquement son état.
-
----
-
-## Règles
-
-Un Runtime :
-
-* ne contient aucune logique métier ;
-* ne décide jamais ;
-* n'appelle aucun autre service ;
-* peut être observé à tout moment ;
-* est sérialisable si nécessaire.
-
----
-
-# 6.4 Statistics
-
-## Objectif
-
-Les statistiques représentent des mesures cumulées produites par un service.
-
-Elles sont volontairement séparées du Runtime afin de distinguer :
-
-* l'état courant ;
-* les indicateurs historiques.
-
----
-
-## Exemples
-
-```text
-SchedulerStatistics
-
-tasks_executed
-
-tasks_failed
-
-tick_count
-```
-
----
-
-D'autres services pourront disposer de leurs propres statistiques :
-
-```text
-HeartbeatStatistics
-
-ReconnectStatistics
-
-MonitorStatistics
-```
-
-Chaque service reste libre de définir les métriques qui lui sont pertinentes.
-
----
-
-## Règles
-
-Une classe Statistics :
-
-* contient uniquement des compteurs ;
-* ne possède aucune logique métier complexe ;
-* ne déclenche jamais d'action ;
-* peut être remise à zéro.
-
----
-
-# 6.5 Registry
-
-## Objectif
-
-Une Registry est responsable du stockage et de la recherche d'objets.
-
-Elle constitue l'unique point d'accès à une collection.
-
-Elle remplace l'utilisation directe des structures de données internes.
-
----
-
-## Exemple
-
-```text
-TaskRegistry
-
-Task
-
-Task
-
-Task
-```
-
-Le Scheduler ne manipule jamais directement une collection de tâches.
-
-Toute interaction passe par le TaskRegistry.
-
----
-
-## Avantages
-
-Cette approche facilite :
-
-* le remplacement du stockage ;
-* l'ajout de persistance ;
-* les recherches avancées ;
-* la validation des accès ;
-* la journalisation.
-
----
-
-## Futures implémentations
-
-À terme, une Registry pourra s'appuyer sur :
-
-* un dictionnaire mémoire ;
-* SQLite ;
-* PostgreSQL ;
-* Redis ;
-* un stockage distribué.
-
-Le reste du framework restera inchangé.
-
----
-
-## Règles
-
-Une Registry :
-
-* ne contient aucune logique métier ;
-* ne prend aucune décision ;
-* ne déclenche aucune exécution ;
-* gère uniquement une collection.
-
----
-
-# 6.6 Executor
-
-## Objectif
-
-Un Executor représente le composant responsable d'une exécution.
-
-Il ne décide jamais quoi exécuter.
-
-Il exécute ce qui lui est demandé.
-
----
-
-## Exemple
-
-```text
-Scheduler
-      │
-      ▼
-TaskExecutor
-      │
-      ▼
-DispatcherTaskExecutor
-```
-
-Le Scheduler décide qu'une tâche doit être exécutée.
-
-Le TaskExecutor réalise effectivement cette exécution.
-
----
-
-## Pourquoi cette séparation ?
-
-Cette architecture permet de remplacer facilement l'implémentation.
-
-Par exemple :
-
-```text
-TaskExecutor
-      │
-      ├── DispatcherTaskExecutor
-      ├── DryRunTaskExecutor
-      ├── AsyncTaskExecutor
-      ├── RemoteTaskExecutor
-      └── WorkflowTaskExecutor
-```
-
-Le Scheduler reste strictement identique.
-
----
-
-## Règles
-
-Un Executor :
-
-* exécute ;
-* ne planifie jamais ;
-* ne stocke jamais ;
-* ne décide jamais.
-
----
-
-# 6.7 Les contrats comme langage commun
-
-L'ensemble du Kernel repose désormais sur quatre concepts simples.
-
-```text
-Service
-      │
-      ├── Runtime
-      ├── Statistics
-      ├── Registry
-      └── Executor
-```
-
-Chaque nouveau service est invité à réutiliser ces abstractions lorsque cela est pertinent.
-
-Cette homogénéité facilite la compréhension du framework.
-
----
-
-# 6.8 Évolution des services
-
-Le modèle suivant est désormais recommandé.
-
-```text
-Service
-│
-├── Runtime
-├── Statistics
-├── State
-├── Registry
-├── Executor
-└── Models
-```
-
-Tous les services n'utiliseront pas nécessairement chacun de ces composants.
-
-Ils constituent cependant une boîte à outils commune permettant de construire une architecture cohérente.
-
----
-
-# 6.9 Les bénéfices
-
-L'introduction des contrats `core` apporte plusieurs avantages majeurs.
-
-## Cohérence
-
-Tous les services partagent désormais le même vocabulaire architectural.
+contient uniquement les composants liés à la mémoire.
 
 ---
 
 ## Testabilité
 
-Les composants peuvent être testés indépendamment grâce à des contrats clairement définis.
+Chaque composant doit pouvoir être testé isolément.
+
+Les dépendances sont injectables afin de faciliter les tests unitaires.
+
+L'objectif est de privilégier les tests rapides et déterministes.
 
 ---
 
-## Évolutivité
+## Architecture incrémentale
 
-Les implémentations peuvent évoluer sans modifier les consommateurs.
+Le framework évolue par petits sprints.
+
+Chaque sprint :
+
+- introduit une nouvelle fonctionnalité ;
+- met à jour les ADR ;
+- enrichit la documentation ;
+- ajoute les tests associés.
 
 ---
 
-## Lisibilité
+# 4. Vue d'ensemble
 
-Les responsabilités sont immédiatement identifiables.
+L'architecture actuelle est organisée autour d'un noyau central.
 
-Le nom d'une classe indique clairement son rôle.
+```text
+                    Application
+                          │
+        ┌─────────────────┼─────────────────┐
+        │                 │                 │
+        ▼                 ▼                 ▼
+ CommandDispatcher    Scheduler      PluginManager
+        │
+        ▼
+     EventBus
+        │
+        ▼
+ ServiceRegistry
+        │
+        ▼
+  MemoryManager
+```
+
+Chaque composant est indépendant.
+
+L'application agit comme un point d'assemblage.
 
 ---
 
-## Maintenabilité
+# 5. Architecture des packages
 
-Les évolutions futures peuvent s'appuyer sur des concepts déjà présents dans le framework plutôt que d'introduire de nouveaux modèles.
+Le projet est organisé en packages spécialisés.
+
+```text
+application.py
+
+core/
+├── dispatcher/
+├── events/
+├── plugins/
+└── services/
+
+memory/
+├── memory_entry.py
+├── memory_manager.py
+├── memory_scope.py
+├── memory_serializer.py
+├── memory_statistics.py
+├── memory_storage.py
+├── persistent_memory.py
+├── runtime_memory.py
+└── session_memory.py
+
+scheduler/
+
+tests/
+
+docs/
+├── adr/
+└── architecture/
+```
+
+Cette organisation facilite :
+
+- la maintenance ;
+- la réutilisation ;
+- les tests ;
+- l'évolution du framework.
+
+---
+
+# 6. Le rôle de l'Application
+
+La classe `Application` constitue le point d'entrée du framework.
+
+Elle est responsable de :
+
+- créer les composants principaux ;
+- assembler les dépendances ;
+- enregistrer les services cœur ;
+- démarrer et arrêter le runtime.
+
+Elle ne contient aucune logique métier.
+
+Son unique responsabilité est l'assemblage des composants.
+
+---
+
+# 7. Les composants du cœur
+
+À la fin du Sprint 7, le cœur d'Ohanna-Agent est constitué des composants suivants.
+
+| Composant | Responsabilité |
+|-----------|----------------|
+| Application | Assemblage des composants |
+| ServiceRegistry | Registre des services |
+| EventBus | Communication par événements |
+| CommandDispatcher | Routage des commandes |
+| Scheduler | Exécution planifiée |
+| PluginManager | Gestion des plugins |
+| MemoryManager | Gestion unifiée de la mémoire |
+
+Chaque composant est développé indépendamment et possède ses propres tests unitaires.
+
+---
+
+# 8. La mémoire
+
+Le Sprint 7 introduit une nouvelle brique fondamentale : la mémoire.
+
+L'objectif est de fournir un contexte partagé entre les différents composants du framework.
+
+L'architecture retenue est la suivante :
+
+```text
+                 MemoryManager
+                       │
+      ┌────────────────┼────────────────┐
+      ▼                ▼                ▼
+RuntimeMemory   SessionMemory   PersistentMemory
+                                        │
+                                        ▼
+                                 MemoryStorage
+                                        │
+                                        ▼
+                                MemorySerializer
+```
+
+Cette architecture respecte les principes suivants :
+
+- séparation des responsabilités ;
+- faible couplage ;
+- forte testabilité ;
+- extensibilité ;
+- injection de dépendances.
+
+Les composants mémoire sont totalement indépendants du Scheduler, du Dispatcher et du système de plugins.
+
+Ils pourront évoluer sans impact sur le reste du framework.
+
+---
+
+# 9. ServiceRegistry
+
+Le `ServiceRegistry` constitue le conteneur de services du framework.
+
+Il permet de partager les composants principaux sans créer de dépendances directes entre eux.
+
+## Responsabilités
+
+- Enregistrer les services cœur
+- Fournir un point d'accès unique
+- Faciliter l'injection de dépendances
+- Réduire le couplage entre composants
+
+Le registre ne contient aucune logique métier.
+
+---
+
+# 10. EventBus
+
+Le `EventBus` implémente le modèle **Publish / Subscribe**.
+
+Les composants peuvent publier des événements sans connaître leurs consommateurs.
+
+## Responsabilités
+
+- Publication d'événements
+- Souscription d'écouteurs
+- Diffusion interne
+- Découplage des composants
+
+Le bus d'événements constitue le principal moyen de communication interne du framework.
+
+---
+
+# 11. CommandDispatcher
+
+Le `CommandDispatcher` est responsable du routage des commandes.
+
+Une commande représente une intention métier.
+
+Le dispatcher recherche le gestionnaire approprié et déclenche son exécution.
+
+## Responsabilités
+
+- Réception des commandes
+- Validation
+- Routage
+- Exécution
+- Gestion des erreurs
+
+Le dispatcher ne contient aucune logique métier.
+
+---
+
+# 12. Scheduler
+
+Le `Scheduler` exécute des tâches planifiées.
+
+Il constitue le moteur d'exécution périodique du framework.
+
+## Architecture
+
+```text
+Scheduler
+      │
+      ▼
+DispatcherTaskExecutor
+      │
+      ▼
+CommandDispatcher
+```
+
+Cette architecture garantit que toutes les commandes utilisent le même point d'entrée.
+
+## Responsabilités
+
+- Gestion des tâches
+- Planification
+- Déclenchement
+- Exécution
+- Statistiques
+
+Le Scheduler est totalement indépendant des plugins et de la mémoire.
+
+---
+
+# 13. PluginManager
+
+Le `PluginManager` permet d'étendre Ohanna-Agent sans modifier son cœur.
+
+Les plugins utilisent les services publics exposés par le framework.
+
+## Responsabilités
+
+- Chargement
+- Initialisation
+- Arrêt
+- Gestion du cycle de vie
+- Isolation des extensions
+
+L'objectif est de conserver un cœur minimal tout en permettant des extensions puissantes.
+
+---
+
+# 14. MemoryManager
+
+Le Sprint 7 introduit le sous-système mémoire.
+
+Le `MemoryManager` devient le point d'entrée unique de toute manipulation mémoire.
+
+Les autres composants ne connaissent jamais les implémentations concrètes.
+
+## Architecture
+
+```text
+MemoryManager
+      │
+ ┌────┼──────────────┐
+ ▼    ▼              ▼
+Runtime Session Persistent
+```
+
+Le manager sélectionne automatiquement l'implémentation appropriée selon le `MemoryScope`.
+
+---
+
+# 15. RuntimeMemory
+
+La mémoire runtime est entièrement volatile.
+
+Elle disparaît à l'arrêt de l'application.
+
+## Cas d'utilisation
+
+- Variables temporaires
+- État courant
+- Résultats intermédiaires
+- Cache local
+
+Aucune persistance n'est réalisée.
+
+---
+
+# 16. SessionMemory
+
+La mémoire de session conserve les informations nécessaires pendant toute la durée de vie de l'application.
+
+Elle est indépendante de la mémoire runtime.
+
+## Cas d'utilisation
+
+- Dernière commande exécutée
+- Contexte courant
+- Informations utilisateur
+- Variables de session
+
+La mémoire de session n'est pas persistée.
+
+---
+
+# 17. PersistentMemory
+
+La mémoire persistante contient les données devant survivre à un redémarrage.
+
+Elle est indépendante des deux autres scopes.
+
+## Cas d'utilisation
+
+- Préférences
+- Configuration dynamique
+- État sauvegardé
+- Informations durables
+
+Les données persistantes sont enregistrées via `MemoryStorage`.
+
+---
+
+# 18. MemoryStorage
+
+Le composant `MemoryStorage` est responsable de la persistance.
+
+Sa responsabilité est volontairement limitée.
+
+## Responsabilités
+
+- Sauvegarde
+- Chargement
+- Vérification d'existence
+- Suppression du stockage
+
+Il ne connaît pas la structure interne des objets mémoire.
+
+---
+
+# 19. MemorySerializer
+
+Le `MemorySerializer` transforme les objets Python en représentation persistable.
+
+Cette séparation permet de remplacer ultérieurement le format de stockage sans modifier `MemoryStorage`.
+
+Les formats potentiels sont notamment :
+
+- JSON
+- YAML
+- TOML
+- MessagePack
+- CBOR
+- SQLite
+
+Cette décision prépare l'évolution future du framework.
+
+---
+
+# 20. MemoryStatistics
+
+Le `MemoryManager` expose des statistiques d'utilisation.
+
+Les compteurs actuellement disponibles sont :
+
+- hits
+- misses
+- sets
+- deletes
+- clears
+- saves
+- loads
+
+Ces informations seront utilisées par les futurs composants :
+
+- Health Manager
+- Monitoring
+- Diagnostics
+- Observabilité
+
+Cette instrumentation a été introduite dès le Sprint 7 afin de préparer les évolutions futures sans modifier l'API publique.
+
+---
+
+# 21. Flux d'exécution
+
+L'application agit comme un point d'assemblage des différents composants.
+
+Le flux général d'exécution est le suivant :
+
+```text
+Application
+      │
+      ▼
+Initialisation
+      │
+      ▼
+Enregistrement des services
+      │
+      ▼
+Chargement des plugins
+      │
+      ▼
+Démarrage du Scheduler
+      │
+      ▼
+Boucle d'exécution
+```
+
+Chaque composant reste indépendant des autres.
+
+---
+
+# 22. Flux d'une commande
+
+Une commande suit toujours le même chemin d'exécution.
+
+```text
+Commande
+    │
+    ▼
+CommandDispatcher
+    │
+    ▼
+Handler
+    │
+    ▼
+EventBus
+```
+
+Le Scheduler ne traite jamais directement une commande.
+
+Toutes les commandes transitent par le `CommandDispatcher`.
+
+Cette règle garantit un comportement homogène dans tout le framework.
+
+---
+
+# 23. Flux du Scheduler
+
+Le Scheduler n'exécute jamais directement de logique métier.
+
+```text
+Scheduler
+      │
+      ▼
+DispatcherTaskExecutor
+      │
+      ▼
+CommandDispatcher
+      │
+      ▼
+Commande
+```
+
+Cette architecture évite la duplication de logique.
+
+Le Scheduler devient ainsi un simple orchestrateur.
+
+---
+
+# 24. Flux mémoire
+
+Toutes les opérations mémoire passent systématiquement par le `MemoryManager`.
+
+```text
+Application
+      │
+      ▼
+MemoryManager
+      │
+      ├───────────────┐
+      ▼               ▼
+RuntimeMemory   SessionMemory
+      │
+      ▼
+PersistentMemory
+      │
+      ▼
+MemoryStorage
+      │
+      ▼
+MemorySerializer
+```
+
+Les composants du framework ne manipulent jamais directement une implémentation mémoire.
+
+---
+
+# 25. Dépendances
+
+Le principe retenu est simple :
+
+Les dépendances doivent toujours pointer vers le cœur.
+
+Jamais l'inverse.
+
+```text
+Application
+│
+├── Dispatcher
+├── Scheduler
+├── EventBus
+├── PluginManager
+├── MemoryManager
+└── ServiceRegistry
+```
+
+Les composants communiquent uniquement via leurs interfaces publiques.
+
+---
+
+# 26. Injection de dépendances
+
+Tous les composants principaux sont injectables.
+
+Par exemple :
+
+```python
+Application(
+    memory=my_memory,
+)
+```
+
+ou
+
+```python
+MemoryManager(
+    storage=my_storage,
+)
+```
+
+Cette approche facilite :
+
+- les tests ;
+- les extensions ;
+- les futurs plugins.
+
+---
+
+# 27. Découplage
+
+Le framework applique plusieurs règles.
+
+## Les composants ne connaissent pas leurs implémentations
+
+Exemple :
+
+Le `MemoryManager` connaît l'interface de stockage.
+
+Il ne dépend pas du format JSON.
+
+---
+
+## Les composants communiquent via leurs API publiques
+
+Aucun composant ne doit accéder aux attributs privés d'un autre.
+
+Les interactions passent exclusivement par les méthodes publiques.
+
+---
+
+## Les responsabilités sont isolées
+
+Exemple :
+
+```text
+MemoryStorage
+```
+
+ne réalise aucune sérialisation.
+
+Inversement :
+
+```text
+MemorySerializer
+```
+
+ne réalise aucun accès disque.
+
+---
+
+# 28. ADR
+
+Toutes les décisions d'architecture importantes sont documentées.
+
+Les ADR constituent la mémoire technique du projet.
+
+Ils permettent :
+
+- d'expliquer les choix ;
+- de documenter les alternatives ;
+- de conserver l'historique des décisions.
+
+À la fin du Sprint 7, les principales décisions couvrent notamment :
+
+- architecture du cœur ;
+- dispatcher ;
+- scheduler ;
+- plugins ;
+- services ;
+- mémoire ;
+- politique de persistance.
+
+---
+
+# 29. Principes SOLID
+
+Le développement du framework suit les principes SOLID.
+
+## Single Responsibility
+
+Chaque classe possède une responsabilité unique.
+
+---
+
+## Open / Closed
+
+Les composants sont ouverts à l'extension sans nécessiter de modification du cœur.
+
+---
+
+## Liskov Substitution
+
+Les implémentations mémoire sont interchangeables.
+
+---
+
+## Interface Segregation
+
+Les composants exposent uniquement les méthodes nécessaires.
+
+---
+
+## Dependency Inversion
+
+Les composants dépendent d'abstractions et de leurs interfaces publiques.
+
+---
+
+# 30. Tests
+
+La qualité du framework repose sur une stratégie de tests systématiques.
+
+Chaque nouveau composant est accompagné de tests unitaires.
+
+À la fin du Sprint 7 :
+
+- plus de **420 tests automatisés** ;
+- exécution en moins d'une demi-seconde ;
+- couverture homogène des composants cœur.
+
+Cette stratégie permet un développement incrémental tout en limitant fortement les risques de régression.
+
+---
+
+# 31. Extensibilité
+
+L'architecture d'Ohanna-Agent a été conçue pour évoluer progressivement sans remettre en cause les composants existants.
+
+Chaque nouveau sprint doit enrichir le framework par composition plutôt que par modification du cœur.
+
+Les principaux points d'extension sont :
+
+- nouveaux plugins ;
+- nouveaux handlers de commandes ;
+- nouveaux types d'événements ;
+- nouveaux backends de stockage ;
+- nouveaux sérialiseurs ;
+- nouvelles capacités ;
+- nouveaux moteurs de raisonnement.
+
+L'objectif est de conserver une API stable malgré l'ajout de nouvelles fonctionnalités.
+
+---
+
+# 32. Évolutions prévues
+
+L'architecture actuelle prépare les prochains sprints.
+
+## Workflows
+
+Le Scheduler et le Dispatcher serviront de base au moteur de workflows.
+
+Architecture cible :
+
+```text
+Workflow
+     │
+     ▼
+WorkflowRunner
+     │
+     ▼
+Scheduler
+     │
+     ▼
+CommandDispatcher
+```
+
+---
+
+## Observabilité
+
+Les statistiques déjà présentes dans plusieurs composants permettront de construire un système complet de supervision.
+
+Exemples :
+
+- SchedulerStatistics
+- MemoryStatistics
+
+Ces informations alimenteront ultérieurement :
+
+- Health Manager
+- Diagnostics
+- Monitoring
+- Dashboard
+
+---
+
+## Mémoire avancée
+
+Le système mémoire pourra évoluer sans modifier son API publique.
+
+Évolutions envisagées :
+
+- TTL
+- expiration automatique
+- cache
+- SQLite
+- Redis
+- stockage distribué
+- chiffrement
+- compression
+
+Grâce à la séparation entre `MemoryManager`, `MemoryStorage` et `MemorySerializer`, ces évolutions resteront transparentes pour les autres composants.
+
+---
+
+## Intelligence
+
+Le framework est conçu pour accueillir un moteur de décision.
+
+Les futurs composants pourront notamment inclure :
+
+- Context Engine
+- Goal Manager
+- Decision Engine
+- Rule Engine
+- Prompt Manager
+- LLM Provider
+
+Ils s'appuieront sur les briques déjà présentes :
+
+- EventBus
+- Scheduler
+- MemoryManager
+- ServiceRegistry
+
+---
+
+# 33. Conventions de développement
+
+Les conventions suivantes sont appliquées dans tout le projet.
+
+## Typage
+
+Toutes les API publiques sont entièrement typées.
+
+---
+
+## Documentation
+
+Chaque module possède :
+
+- une docstring de module ;
+- des docstrings de classes ;
+- des docstrings de méthodes publiques.
+
+---
+
+## Tests
+
+Chaque fonctionnalité est accompagnée de tests unitaires.
+
+Les nouvelles fonctionnalités ne sont intégrées qu'après validation complète de la suite de tests.
+
+---
+
+## Style
+
+Le projet respecte :
+
+- Ruff
+- PEP 8
+- annotations de types
+- importations explicites
+
+---
+
+## Architecture
+
+Les dépendances doivent toujours respecter le sens suivant :
+
+```text
+Application
+        │
+        ▼
+Core Components
+        │
+        ▼
+Infrastructure
+```
+
+Jamais l'inverse.
+
+---
+
+# 34. Objectif v1.0.0
+
+La version 1.0.0 sera considérée comme atteinte lorsque les objectifs suivants seront remplis.
+
+## Architecture
+
+- Architecture stabilisée
+- API publique figée
+- Documentation complète
+
+---
+
+## Fonctionnalités
+
+- Scheduler avancé
+- SDK Plugins
+- Workflows
+- Observabilité
+- Raisonnement
+- Mémoire avancée
+
+---
+
+## Qualité
+
+- Plus de 1 000 tests automatisés
+- Documentation ADR complète
+- Couverture homogène
+- Refactoring continu
+
+---
+
+# 35. État actuel du projet
+
+À la fin du Sprint 7, Ohanna-Agent dispose :
+
+## Composants
+
+- Application
+- ServiceRegistry
+- EventBus
+- CommandDispatcher
+- Scheduler
+- PluginManager
+- MemoryManager
+
+---
+
+## Mémoire
+
+- RuntimeMemory
+- SessionMemory
+- PersistentMemory
+- MemoryStorage
+- MemorySerializer
+- MemoryStatistics
+
+---
+
+## Documentation
+
+- ADR
+- README
+- ROADMAP
+- CHANGELOG
+- CORE
+
+---
+
+## Qualité
+
+- Plus de **420 tests automatisés**
+- Architecture modulaire
+- Forte séparation des responsabilités
+- Faible couplage
+- Forte testabilité
+- Injection de dépendances
 
 ---
 
 # Conclusion
 
-Les abstractions du package `core` constituent désormais le socle architectural d'Ohanna-Agent.
+Ohanna-Agent est désormais structuré autour d'un noyau applicatif stable et modulaire.
 
-Elles ne représentent pas des fonctionnalités du framework.
+Les sept premiers sprints ont permis de construire les fondations du framework :
 
-Elles définissent sa manière de construire des composants.
+- architecture ;
+- cycle de vie ;
+- services cœur ;
+- communication par événements ;
+- scheduler ;
+- plugins ;
+- capacités ;
+- mémoire.
 
-Grâce à ces contrats, les futurs services (Workflow Engine, Rule Engine, Pipeline Engine, moteurs d'événements ou nouvelles capacités) pourront être développés selon les mêmes principes de conception, garantissant ainsi la cohérence et la pérennité de l'architecture.
+Les prochains sprints se concentreront principalement sur l'orchestration, le raisonnement et l'intelligence, en s'appuyant sur ces briques déjà éprouvées.
+
+L'objectif reste inchangé :
+
+> construire un framework d'agents autonome, robuste, extensible et durable, dont l'architecture puisse évoluer pendant de nombreuses années sans remettre en cause ses fondations.
+
+---
+
+**Version du document :** v0.8.0
+
+**Sprint :** 7 — Memory
+
+**État :** Validé
+
+**Tests associés :** 422/422 ✔

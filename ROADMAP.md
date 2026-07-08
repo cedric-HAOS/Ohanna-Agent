@@ -1,254 +1,343 @@
-# ROADMAP
+# Roadmap
 
-# Ohanna-Agent
+Cette feuille de route présente les évolutions prévues d'Ohanna-Agent.
 
-## Vision du projet
-
-Ohanna-Agent est un framework open source destiné à la création d'agents logiciels autonomes, modulaires et pilotés par événements.
-
-L'objectif du projet est de fournir un noyau robuste, extensible et durable sur lequel pourront être construits différents moteurs d'orchestration, de décision et d'automatisation.
-
-La feuille de route présentée ci-dessous décrit les grandes étapes de cette évolution.
-
----
-
-# État actuel
-
-## Version en développement
-
-**v0.4.0 – Autonomous Core**
-
-### Réalisé
-
-* Architecture modulaire
-* Dispatcher
-* Runtime MQTT
-* Event Bus
-* Gestionnaire de capacités
-* Auto-réparation
-* Scheduler
-* Runtime unifié
-* Registry
-* Executor
-* Plus de **315 tests unitaires**
-* Documentation d'architecture complète
-* ADR
-* Audits d'architecture
-
-Le noyau du framework est désormais considéré comme fonctionnel et stable.
-
-Les prochaines versions porteront principalement sur les services construits au-dessus du Kernel.
+Les fonctionnalités sont organisées par sprints afin de conserver une évolution incrémentale, fortement testée et guidée par l'architecture.
 
 ---
 
 # Vision
 
-L'évolution d'Ohanna-Agent est organisée autour de deux grandes phases.
+L'objectif d'Ohanna-Agent est de devenir un framework Python moderne permettant de construire des agents autonomes, modulaires et événementiels.
 
-## Phase 1 — Construction du Kernel
+Le projet repose sur plusieurs principes :
 
-Objectif :
-
-Construire une architecture robuste, modulaire et fortement découplée.
-
-Statut :
-
-**Terminée avec la version v0.4.0.**
-
-Cette phase comprend :
-
-* Dispatcher
-* MQTT Runtime
-* Scheduler
-* Capability Manager
-* Event Bus
-* Contrats `core`
-* Runtime
-* Registry
-* Executor
-* Statistics
-* State
+- Architecture modulaire
+- Faible couplage
+- Forte cohésion
+- Injection de dépendances
+- Communication par événements
+- Testabilité
+- Documentation par ADR
+- Évolution incrémentale
 
 ---
 
-## Phase 2 — Construction des Services intelligents
+# État actuel
 
-Objectif :
+## Sprint 0 — Architecture
 
-Développer les moteurs qui utiliseront le Kernel pour construire des comportements autonomes.
+✅ Terminé
 
-Cette phase débute avec la version **0.5.0**.
+- Architecture initiale
+- Documentation
+- ADR fondateurs
 
 ---
 
-# Feuille de route
+## Sprint 1 — Lifecycle
 
-## v0.5.0 — Workflow Engine
+✅ Terminé
 
-Objectif :
+- États applicatifs
+- Gestion du cycle de vie
 
-Introduire un moteur de workflows permettant d'orchestrer plusieurs tâches.
+---
+
+## Sprint 2 — Core Services
+
+✅ Terminé
+
+- ServiceRegistry
+- EventBus
+- PluginManager
+- Dispatcher
+
+---
+
+## Sprint 3 — MQTT Runtime
+
+✅ Terminé
+
+- Runtime MQTT
+- Dispatcher MQTT
+- Gestion des événements
+
+---
+
+## Sprint 4 — Auto-réparation
+
+✅ Terminé
+
+- Runtime Recovery
+- Gestion des erreurs
+- Auto-réparation
+
+---
+
+## Sprint 5 — Capacités
+
+✅ Terminé
+
+- CapabilityManager
+- Activation
+- Découverte
+- Gestion des capacités
+
+---
+
+## Sprint 6 — Scheduler
+
+✅ Terminé
+
+- Scheduler
+- DispatcherTaskExecutor
+- Runtime Scheduler
+- Statistiques Scheduler
+
+---
+
+## Sprint 7 — Memory
+
+✅ Terminé
+
+- RuntimeMemory
+- SessionMemory
+- PersistentMemory
+- MemoryManager
+- MemoryStorage
+- MemorySerializer
+- MemoryStatistics
+- Intégration dans Application
+
+---
+
+# Sprint 8 — Workflows
+
+## Objectif
+
+Permettre l'enchaînement de plusieurs actions sous forme de workflows.
 
 ### Prévu
 
-* Workflow
-* WorkflowRuntime
-* WorkflowExecutor
-* Dépendances entre tâches
-* Conditions d'exécution
-* Gestion des délais
-* Reprise automatique
-* Annulation d'un workflow
+- Workflow
+- WorkflowStep
+- WorkflowContext
+- WorkflowRunner
+- Conditions
+- Variables
+- Branchements
+- Gestion des erreurs
+- Reprise d'exécution
 
 ---
 
-## v0.6.0 — Rule Engine
+# Sprint 9 — Plugin SDK
 
-Objectif :
+## Objectif
 
-Permettre aux agents de prendre des décisions à partir de règles déclaratives.
+Stabiliser le développement de plugins.
 
 ### Prévu
 
-* Rule Engine
-* Évaluation de conditions
-* Priorités
-* Expressions
-* Variables
-* Contexte d'exécution
-* Décisions automatiques
+- Plugin SDK
+- API publique
+- Cycle de vie des plugins
+- Dépendances
+- Découverte automatique
+- Validation
+- Packaging
 
 ---
 
-## v0.7.0 — Pipeline Engine
+# Sprint 10 — Observabilité
 
-Objectif :
+## Objectif
 
-Orchestrer des traitements séquentiels ou parallèles.
+Fournir une vision complète de l'état interne du framework.
 
 ### Prévu
 
-* Pipeline
-* Étapes
-* Exécution parallèle
-* Gestion des erreurs
-* Reprise
-* Rollback
-* Timeout
+- Health Manager
+- Diagnostics
+- Metrics
+- Monitoring
+- Logging avancé
+- Export Prometheus
+- Dashboard
 
 ---
 
-## v0.8.0 — Persistence
+# Sprint 11 — Raisonnement
 
-Objectif :
+## Objectif
 
-Ajouter une couche de persistance indépendante du Kernel.
+Ajouter un moteur de décision.
 
 ### Prévu
 
-* SQLite
-* Persistance des tâches
-* Persistance des workflows
-* Historique
-* Sauvegarde automatique
-* Chargement au démarrage
+- Context Engine
+- Rule Engine
+- Goal Manager
+- Decision Engine
+- Planification
+- Priorités
 
 ---
 
-## v0.9.0 — Administration
+# Sprint 12 — Intelligence
 
-Objectif :
+## Objectif
 
-Faciliter l'exploitation et la supervision du framework.
+Préparer l'intégration de modèles d'IA.
 
 ### Prévu
 
-* API REST
-* Supervision
-* Interface Web
-* Gestion des tâches
-* Visualisation des workflows
-* Statistiques avancées
-* Tableau de bord
+- LLM Provider
+- Prompt Manager
+- Conversation Context
+- Long-Term Memory
+- Tool Calling
+- Agent Reasoning
 
 ---
 
-## v1.0.0 — Stable
+# Sprint 13 — Distribution
 
-Première version stable du framework.
+## Objectif
 
-### Objectifs
+Permettre plusieurs agents coopératifs.
 
-* Architecture stabilisée
-* API publique documentée
-* Documentation complète
-* Compatibilité garantie
-* Couverture de tests élevée
-* Performances validées
-* Première version de production
+### Prévu
 
----
-
-# Principes d'évolution
-
-Chaque nouvelle fonctionnalité suit le même processus :
-
-1. Analyse du besoin.
-2. Conception de l'architecture.
-3. Rédaction ou mise à jour d'un ADR si nécessaire.
-4. Implémentation.
-5. Tests unitaires.
-6. Audit d'architecture.
-7. Mise à jour de la documentation.
-8. Publication d'une nouvelle version.
-
-Cette discipline garantit une évolution progressive et maîtrisée du framework.
+- Agent Discovery
+- Remote Commands
+- Shared Events
+- Distributed Scheduler
+- Shared Memory
+- Cluster Runtime
 
 ---
 
-# Objectifs de qualité
+# Évolutions techniques
 
-Chaque release doit respecter les critères suivants :
+## Mémoire
 
-* Tous les tests passent.
-* Ruff ne remonte aucune erreur.
-* La documentation est à jour.
-* Les responsabilités restent clairement séparées.
-* Les nouvelles fonctionnalités sont accompagnées de tests.
-* Les décisions importantes sont documentées.
+Prévu :
 
----
-
-# Au-delà de la version 1.0
-
-Après la stabilisation du Kernel et des principaux moteurs, plusieurs axes d'évolution sont envisagés :
-
-* Exécution distribuée
-* Multi-agents
-* Clustering
-* Haute disponibilité
-* Persistance distribuée
-* Exécution distante
-* Observabilité avancée
-* Intégration avec d'autres transports (HTTP, AMQP, Kafka, etc.)
-* SDK pour le développement de capacités et de plugins
-
-Ces évolutions resteront guidées par les principes fondateurs du projet :
-
-* modularité ;
-* découplage ;
-* testabilité ;
-* simplicité ;
-* maintenabilité.
+- TTL
+- Expiration
+- Cache
+- SQLite
+- Redis
+- Chiffrement
+- Compression
+- Transactions
 
 ---
 
-# Conclusion
+## Scheduler
 
-La version **0.4.0 – Autonomous Core** marque la fin de la construction du Kernel d'Ohanna-Agent.
+Prévu :
 
-Les prochaines versions ne viseront plus à renforcer les fondations, mais à développer des services intelligents capables d'exploiter pleinement cette architecture.
+- Cron
+- Priorités
+- Réessais
+- Délais
+- Backoff exponentiel
+- Files d'attente
 
-L'objectif reste inchangé :
+---
 
-**Construire un framework d'agents autonomes, modulaire, robuste et durable, capable d'évoluer sans remettre en cause son noyau.**
+## Dispatcher
+
+Prévu :
+
+- Middlewares
+- Pipeline
+- Validation
+- Autorisation
+- Traces
+
+---
+
+## MQTT
+
+Prévu :
+
+- QoS avancé
+- Sessions persistantes
+- Découverte automatique
+- Rétention
+- Reconnexion intelligente
+
+---
+
+## Plugins
+
+Prévu :
+
+- Marketplace
+- Signature
+- Isolation
+- Sandbox
+- Hot Reload
+
+---
+
+# Documentation
+
+Chaque sprint comprend :
+
+- ADR
+- README
+- ROADMAP
+- CHANGELOG
+- CORE
+- Tests
+- Audit d'architecture
+
+---
+
+# Objectif v1.0.0
+
+La version 1.0.0 sera atteinte lorsque le framework proposera :
+
+- Architecture stable
+- API publique stabilisée
+- SDK Plugins
+- Mémoire complète
+- Scheduler avancé
+- Observabilité
+- Workflows
+- Raisonnement
+- Documentation complète
+- Plus de 1 000 tests automatisés
+
+---
+
+# État actuel
+
+Version :
+
+**v0.8.0**
+
+Tests :
+
+**422**
+
+Architecture :
+
+Stable
+
+Documentation :
+
+À jour
+
+Sprint actuel :
+
+✅ Sprint 7 terminé
+
+Prochaine étape :
+
+➡️ Sprint 8 — Workflows

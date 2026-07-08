@@ -1,0 +1,25 @@
+# -----------------------------------------------------------------------------
+# Ohanna-Agent
+# Shikamaru Configuration
+# -----------------------------------------------------------------------------
+
+version: 1
+
+agent:
+  name: Shikamaru
+  environment: development
+
+mqtt:
+  host: localhost
+  port: 1883
+
+logging:
+  level: INFO
+
+health:
+  enabled: true
+  interval_seconds: 30
+
+plugins:
+  enabled: true
+  directory: ./plugins

@@ -1,149 +1,461 @@
-# CHANGELOG
+# Changelog
 
-Toutes les évolutions importantes du projet **Shikamaru** sont documentées dans ce fichier.
+Toutes les évolutions importantes du projet **Ohanna-Agent** sont documentées dans ce fichier.
 
-Le projet suit une approche de développement incrémentale basée sur des phases fonctionnelles.
+Le format suit les recommandations de **Keep a Changelog** et respecte le versioning **Semantic Versioning (SemVer)**.
 
 ---
 
-# Version 0.2.0 — Core Services
+# [3.0.0] - 2026-07-08
 
-**Date :** 08/07/2026
+## 🎉 Version majeure
+
+Cette version marque la fin des fondations du noyau d'Ohanna-Agent.
+
+Le projet dispose désormais :
+
+- d'une architecture hexagonale complète ;
+- d'un runtime MQTT opérationnel ;
+- d'un système d'événements robuste ;
+- d'un moteur de commandes ;
+- d'un cycle de vie complet ;
+- d'une architecture validée par ADR ;
+- d'une couverture de tests complète.
+
+Le projet est désormais prêt à accueillir les premiers plugins métiers.
+
+---
+
+# ✨ Ajouts
+
+## Architecture
+
+Ajout de l'architecture hexagonale complète.
+
+Mise en place des couches :
+
+- Domain
+- Application
+- Infrastructure
+- Runtime
+
+---
+
+## Cycle de vie
+
+Ajout du cycle de vie complet :
+
+- CREATED
+- INITIALIZING
+- STARTING
+- RUNNING
+- STOPPING
+- STOPPED
+- ERROR
+
+---
+
+## Bus d'événements
+
+Création du moteur d'événements.
+
+Ajout :
+
+- Event Dispatcher
+- Event Handler
+- Event Publisher
+- Event Subscription
+- propagation synchrone
+- propagation typée
+
+---
+
+## Commandes
+
+Ajout du système de commandes.
+
+Fonctionnalités :
+
+- Command
+- Handler
+- Validation
+- Dispatcher
+- typage
+
+---
+
+## Configuration
+
+Ajout du système de configuration.
+
+Fonctionnalités :
+
+- chargement YAML
+- valeurs par défaut
+- validation
+- injection de configuration
+
+---
+
+## Runtime MQTT
+
+Implémentation complète du runtime MQTT.
+
+Ajouts :
+
+- connexion automatique
+
+- reconnexion automatique
+
+- publication
+
+- abonnement
+
+- routage des messages
+
+- sérialisation
+
+- désérialisation
+
+- QoS configurable
+
+- gestion des erreurs réseau
+
+- découplage Infrastructure / Domaine
+
+---
+
+## Messages
+
+Ajout :
+
+- MessageEnvelope
+
+- EventMessage
+
+- CommandMessage
+
+- MessageSerializer
+
+- MessageDeserializer
+
+---
+
+## Application
+
+Création de la façade principale :
+
+Application
+
+Responsabilités :
+
+- démarrage
+
+- arrêt
+
+- initialisation
+
+- gestion des services
+
+- orchestration
+
+---
+
+## Services
+
+Ajout des services principaux :
+
+- ConfigurationService
+
+- EventDispatcher
+
+- MQTT Runtime
+
+- Command Dispatcher
+
+---
+
+## Documentation
+
+Création de la documentation complète :
+
+README
+
+ROADMAP
+
+CORE
+
+ADR
+
+Architecture
+
+Philosophie
+
+Plugins
+
+MQTT
+
+Message Model
+
+Configuration
+
+Capacités
+
+États
+
+Conventions MQTT
+
+---
+
+# 🏗 Architecture
+
+Architecture entièrement documentée.
+
+Validation de :
+
+- découplage métier
+- inversion des dépendances
+- ports/adapters
+- injection des dépendances
+- responsabilité unique
+
+---
+
+# 📑 ADR
+
+Validation des ADR :
+
+- ADR-0001
+- ADR-0002
+- ADR-0003
+- ADR-0004
+- ADR-0005
+- ADR-0006
+- ADR-0007
+- ADR-0008
+- ADR-0009
+- ADR-0010
+- ADR-0011
+- ADR-0012
+- ADR-0013
+- ADR-0014
+
+---
+
+# 🧪 Tests
+
+Couverture complète des composants.
+
+156 tests unitaires.
+
+Tests :
+
+- Application
+
+- Dispatcher
+
+- Events
+
+- Commands
+
+- Lifecycle
+
+- MQTT
+
+- Configuration
+
+- Runtime
+
+- Serialization
+
+- Infrastructure
+
+Tous les tests sont validés.
+
+---
+
+# 🔧 Qualité
+
+Validation complète :
+
+- Ruff
+
+- Pytest
+
+- Typage
+
+- Architecture
+
+- ADR
+
+- Documentation
+
+---
+
+# 🚀 Performances
+
+Optimisations :
+
+- réduction des dépendances
+
+- initialisation plus rapide
+
+- réduction des allocations
+
+- simplification du dispatcher
+
+- amélioration du routage MQTT
+
+---
+
+# 📚 Documentation
+
+Nouvelle documentation V3.
+
+Ajout :
+
+README
+
+ROADMAP
+
+CORE
+
+CHANGELOG
+
+Architecture
+
+ADR
+
+Documentation développeur
+
+Conventions MQTT
+
+Guide d'extension
+
+---
+
+# 🔒 Fiabilité
+
+Amélioration :
+
+- gestion des erreurs
+
+- isolation des composants
+
+- robustesse MQTT
+
+- validation des messages
+
+- arrêt propre
+
+- démarrage sécurisé
+
+---
+
+# 🎯 Objectif atteint
+
+Le cœur d'Ohanna-Agent est désormais considéré comme stable.
+
+Le projet est prêt pour :
+
+- les plugins métiers
+
+- Home Assistant
+
+- ESPHome
+
+- Zigbee2MQTT
+
+- Node-RED
+
+- MQTT distribué
+
+- scénarios domotiques complexes
+
+---
+
+# [2.0.0] - 2026-07-08
 
 ## Ajouts
 
-### Modèle d'événements
+### Phase 2 — Core Services
 
-* Ajout de la classe `Event`.
-* Génération automatique d'un identifiant unique.
-* Horodatage UTC automatique.
+Création :
 
-### Event Bus
+- Application
+- Dispatcher
+- Services
+- Configuration
+- Tests unitaires
 
-* Publication d'événements.
-* Gestion des abonnements.
-* Gestion des désabonnements.
-* Événements typés.
-
-### Modèle de commandes
-
-* Ajout de la classe `Command`.
-* Génération automatique d'un identifiant unique.
-* Horodatage UTC automatique.
-
-### Command Dispatcher
-
-* Enregistrement des commandes.
-* Routage des commandes.
-* Gestion des erreurs.
-* Publication des événements d'exécution.
-
-### Service Registry
-
-* Enregistrement des services.
-* Recherche des services.
-* Vérification de leur présence.
-* Suppression des services.
-
-### Scheduler
-
-* Planification des tâches.
-* Exécution synchrone.
-* Publication d'événements après exécution.
-
-### Plugin Manager
-
-* Gestion centralisée des plugins.
-* Cycle de vie des plugins.
-* Validation des transitions d'état.
-* États :
-
-  * REGISTERED
-  * INITIALIZED
-  * RUNNING
-  * STOPPED
-
-### Runtime
-
-* Création automatique des services du noyau.
-* Enregistrement automatique dans le Service Registry.
-* Initialisation du runtime via `Application`.
-
-### Documentation
-
-* ADR-0007 à ADR-0012.
-* Mise à jour du README.
-* Mise à jour de la Roadmap.
-* Mise à jour de l'architecture du noyau.
-
-### Tests
-
-* Ajout de tests unitaires pour :
-
-  * Event
-  * EventBus
-  * Command
-  * CommandDispatcher
-  * ServiceRegistry
-  * Scheduler
-  * PluginManager
-  * Application
-
-* **76 tests unitaires**
-
-* **100 % des tests réussis**
-
-* **Ruff validé**
+76 tests validés.
 
 ---
 
-# Version 0.1.0 — Core Framework
+# [1.0.0] - 2026-07-07
 
-**Date :** 07/07/2026
+## Première version publique
 
-## Ajouts
+Création des fondations du projet.
 
-### Fondation du noyau
+Ajouts :
 
-* Lifecycle
-* Configuration
-* Logger
-* Health
-* Interfaces MQTT
-
-### Documentation
-
-* Vision
-* Philosophie
-* Capacités
-* Architecture logicielle
-* États
-* Plugins
-* MQTT
-* Configuration
-* Roadmap
-
-### Architecture
-
-* ADR-0001 à ADR-0006
-
-### Qualité
-
-* Mise en place des tests unitaires.
-* Intégration de Ruff.
-* Premiers composants du noyau.
+- architecture hexagonale
+- événements
+- commandes
+- lifecycle
+- conventions MQTT
+- philosophie
+- documentation initiale
 
 ---
 
-# Version 0.0.1 — Fondation
+# Versions futures
 
-**Date :** 07/07/2026
+Les prochaines versions introduiront :
 
-## Création du projet
+## Version 3.1
 
-* Initialisation du dépôt Git.
-* Mise en place de l'environnement Python.
-* Configuration de Ruff.
-* Configuration de Pytest.
-* Première structure du projet.
-* Première documentation d'architecture.
+- Plugin Manager
+- découverte automatique des plugins
+- chargement dynamique
+- dépendances entre plugins
+
+---
+
+## Version 3.2
+
+- Scheduler
+- tâches planifiées
+- timers
+- cron
+
+---
+
+## Version 3.3
+
+- supervision
+- métriques
+- Health API
+- monitoring
+
+---
+
+## Version 3.4
+
+- Web API
+- REST
+- WebSocket
+
+---
+
+## Version 4.0
+
+Première version LTS d'Ohanna-Agent.
+
+Objectifs :
+
+- stabilité long terme
+- API figée
+- compatibilité des plugins
+- documentation utilisateur

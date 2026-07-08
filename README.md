@@ -1,214 +1,229 @@
-# Shikamaru
+# README.md
 
-**Shikamaru** est le noyau logiciel d'**Ohanna-Agent**.
+# Ohanna-Agent
 
-Son objectif est de fournir une plateforme légère, modulaire et orientée événements permettant de développer des agents autonomes dédiés à l'administration et à la supervision d'infrastructures.
+> **Un noyau d'automatisation événementiel, modulaire et extensible, conçu pour orchestrer des agents intelligents via MQTT.**
 
-Le projet privilégie une architecture simple, fortement testée et indépendante de tout framework externe.
+![Python](https://img.shields.io/badge/Python-3.13-blue)
+![Licence](https://img.shields.io/badge/Licence-MIT-green)
+![Tests](https://img.shields.io/badge/Tests-156-success)
+![Couverture](https://img.shields.io/badge/Architecture-Clean-success)
+![MQTT](https://img.shields.io/badge/MQTT-v5-orange)
 
 ---
 
-# Objectifs
+# Vision
 
-Shikamaru fournit les services fondamentaux nécessaires à tous les agents :
+**Ohanna-Agent** est un moteur logiciel destiné à piloter des agents autonomes.
 
-* gestion du cycle de vie de l'application ;
-* gestion centralisée de la configuration ;
-* registre des services ;
-* communication par événements ;
-* traitement des commandes ;
-* planification des tâches ;
-* gestion des plugins ;
-* supervision interne ;
-* intégration MQTT ;
-* extensibilité par composants.
+Il ne cherche pas à être un assistant conversationnel, mais un **runtime générique** capable de :
+
+* recevoir des événements,
+* prendre des décisions,
+* exécuter des commandes,
+* communiquer avec d'autres agents,
+* évoluer grâce à un système de plugins.
+
+Le projet est pensé pour fonctionner aussi bien :
+
+* sur Raspberry Pi,
+* sur mini-PC,
+* sur serveur,
+* dans Docker,
+* ou dans le Cloud.
+
+L'objectif est de construire un **noyau robuste**, indépendant de toute intelligence artificielle particulière.
 
 ---
 
 # Philosophie
 
-Le noyau repose sur plusieurs principes :
+Ohanna-Agent repose sur quelques principes simples :
 
-* une responsabilité unique par composant ;
-* un faible couplage entre les modules ;
-* une architecture orientée événements ;
-* des dépendances explicites ;
-* des composants facilement testables ;
-* aucune dépendance inutile envers des frameworks externes.
+* architecture claire
+* faible couplage
+* forte cohésion
+* composants testables
+* événements avant appels directs
+* aucune dépendance métier dans le noyau
+* plugins isolés
+* configuration simple
+* extensibilité maximale
+
+Le cœur du projet ne contient volontairement aucune logique métier.
+
+Toutes les fonctionnalités sont apportées par des composants spécialisés.
+
+---
+
+# État actuel du projet
+
+## Sprint 0 — Documentation
+
+✔ Terminé
+
+* Vision
+* Philosophie
+* Architecture
+* États
+* MQTT
+* Conventions
+* Roadmap
+* ADR-0001 à ADR-0006
+
+---
+
+## Sprint 1 — Core Runtime
+
+✔ Terminé
+
+Implémentation du noyau :
+
+* Event Bus
+* Dispatcher
+* Registry
+* Commandes
+* Configuration
+* Cycle de vie
+* États
+* Health
+* Journalisation
+
+ADR validées :
+
+* ADR-0007
+* ADR-0008
+* ADR-0009
+* ADR-0010
+
+---
+
+## Sprint 2 — Core Services
+
+✔ Terminé
+
+Ajouts :
+
+* Services internes
+* Cycle de vie complet
+* Health Checks
+* Diagnostics
+* Architecture des services
+* Refactoring du runtime
+
+ADR validées :
+
+* ADR-0011
+* ADR-0012
+
+---
+
+## Sprint 3 — MQTT Runtime
+
+✔ Terminé
+
+Le runtime dispose désormais d'une couche MQTT complète.
+
+Fonctionnalités :
+
+* Client MQTT
+* Reconnexion automatique
+* Publication
+* Souscription
+* Dispatch des messages
+* Événements MQTT
+* Découplage du cœur
+* Runtime entièrement événementiel
+
+ADR validées :
+
+* ADR-0013
+* ADR-0014
+
+---
+
+# Avancement
+
+| Élément       | Statut |
+| ------------- | ------ |
+| Architecture  | ✅      |
+| Runtime       | ✅      |
+| Event Bus     | ✅      |
+| Dispatcher    | ✅      |
+| Registry      | ✅      |
+| Lifecycle     | ✅      |
+| Configuration | ✅      |
+| Services      | ✅      |
+| MQTT Runtime  | ✅      |
+| Plugins       | 🚧     |
+| Scheduler     | 🚧     |
+| API REST      | 🚧     |
+| IA            | ⏳      |
 
 ---
 
 # Architecture
 
-```text
-                           Application
-                                 │
-               ┌─────────────────┴─────────────────┐
-               │                                   │
-        Service Registry                   Core Runtime
-               │                                   │
-               ├───────────────┬───────────────────┤
-               │               │                   │
-           EventBus       Scheduler       CommandDispatcher
-               │               │                   │
-               └───────────────┼───────────────────┘
-                               │
-                        PluginManager
-                               │
-                            Plugins
+```
+                +----------------------+
+                |      Application     |
+                +----------+-----------+
+                           |
+                           v
+                 +--------------------+
+                 |     Dispatcher     |
+                 +---------+----------+
+                           |
+            +--------------+--------------+
+            |                             |
+            v                             v
+      EventBus                      CommandBus
+            |                             |
+            +--------------+--------------+
+                           |
+                           v
+                    Service Registry
+                           |
+        +------------------+------------------+
+        |                  |                  |
+        v                  v                  v
+   Lifecycle          MQTT Runtime        Plugins
+        |                  |                  |
+        +------------------+------------------+
+                           |
+                           v
+                     External Systems
 ```
 
 ---
 
-# Composants du noyau
+# Structure du dépôt
 
-## Application
+```
+ohanna-agent/
 
-Point d'entrée du noyau.
-
-Responsable de :
-
-* l'initialisation ;
-* la création des services ;
-* l'enregistrement des composants ;
-* le démarrage ;
-* l'arrêt propre.
-
----
-
-## Lifecycle
-
-Gestion du cycle de vie de l'application.
-
-États :
-
-* CREATED
-* INITIALIZING
-* READY
-* RUNNING
-* STOPPING
-* STOPPED
-* ERROR
-
----
-
-## Configuration
-
-Chargement de la configuration YAML.
-
-Basée sur Pydantic.
-
----
-
-## Service Registry
-
-Point d'accès unique aux services internes.
-
-Responsable de :
-
-* l'enregistrement ;
-* la recherche ;
-* l'injection de dépendances.
-
----
-
-## Event
-
-Classe de base de tous les événements.
-
-Chaque événement possède :
-
-* un identifiant unique ;
-* un horodatage UTC.
-
----
-
-## Event Bus
-
-Mécanisme de communication interne.
-
-Les composants publient des événements sans connaître leurs destinataires.
-
----
-
-## Command
-
-Classe de base de toutes les commandes.
-
-Chaque commande possède :
-
-* un identifiant unique ;
-* un horodatage UTC.
-
----
-
-## Command Dispatcher
-
-Point d'entrée unique pour toutes les commandes.
-
-Responsable du routage des commandes vers leurs gestionnaires.
-
----
-
-## Scheduler
-
-Planifie les tâches périodiques du noyau.
-
-Publie des événements lors de l'exécution des tâches.
-
----
-
-## Plugin Manager
-
-Gestion du cycle de vie des plugins.
-
-États :
-
-* REGISTERED
-* INITIALIZED
-* RUNNING
-* STOPPED
-
----
-
-## Health
-
-Responsable de la supervision interne.
-
----
-
-## MQTT
-
-Interface de communication avec les systèmes externes.
-
-L'implémentation complète sera réalisée lors d'une phase ultérieure.
-
----
-
-# Organisation du projet
-
-```text
-src/
-│
 ├── application.py
+├── configuration.py
+├── dispatcher.py
+├── events.py
+├── event.py
+├── command.py
+├── lifecycle.py
+├── mqtt.py
+├── registry.py
+├── services.py
 │
-├── configuration/
+├── tests/
 │
-├── core/
-│   ├── command.py
-│   ├── dispatcher.py
-│   ├── event.py
-│   ├── events.py
-│   ├── lifecycle.py
-│   ├── plugins.py
-│   ├── scheduler.py
-│   └── services.py
+├── docs/
+│   ├── ADR/
+│   ├── CORE.md
+│   ├── ROADMAP.md
+│   └── ...
 │
-├── health/
-│
-├── logger/
-│
-└── mqtt/
+├── pyproject.toml
+├── requirements.txt
+└── README.md
 ```
 
 ---
@@ -217,66 +232,293 @@ src/
 
 Le projet est développé selon une approche **Test First**.
 
-Chaque composant possède ses propres tests unitaires.
+Chaque composant du runtime est couvert par des tests unitaires.
 
-À la fin de la Phase 2 :
+État actuel :
 
-* **76 tests unitaires**
-* **100 % des tests réussis**
-* **Ruff validé**
+* **156 tests**
+* Tous validés
+* Ruff : OK
+* Pytest : OK
+
+Exécution :
+
+```bash
+ruff check .
+pytest
+```
+
+---
+
+# Installation
+
+## Cloner
+
+```bash
+git clone https://github.com/<utilisateur>/Ohanna-Agent.git
+
+cd Ohanna-Agent
+```
+
+---
+
+## Créer un environnement virtuel
+
+Windows
+
+```powershell
+python -m venv .venv
+
+.venv\Scripts\activate
+```
+
+Linux
+
+```bash
+python -m venv .venv
+
+source .venv/bin/activate
+```
+
+---
+
+## Installer
+
+```bash
+pip install -e .
+
+pip install -r requirements.txt
+```
+
+---
+
+# Lancer les tests
+
+```bash
+pytest
+```
+
+---
+
+# Vérification qualité
+
+```bash
+ruff check .
+
+ruff format .
+```
 
 ---
 
 # Documentation
 
-Le projet est documenté au travers :
+La documentation est disponible dans :
 
-* des ADR (Architecture Decision Records) ;
-* de la documentation d'architecture ;
-* de la roadmap ;
-* des guides de développement.
+```
+docs/
+```
 
----
+Elle contient notamment :
 
-# Roadmap
-
-Le développement est organisé en plusieurs phases :
-
-* Phase 0 — Fondation
-* Phase 1 — Core Framework
-* Phase 2 — Core Services
-* Phase 3 — MQTT Runtime
-* Phase 4 — DNS
-* Phase 5 — DHCP
-* Phase 6 — NTP
-* Phase 7 — Supervision
-* Phase 8 — Home Assistant
-* Phase 9 — Interface Web
+* Vision
+* Philosophie
+* Architecture
+* États
+* MQTT
+* Conventions
+* ADR
+* CORE
+* ROADMAP
 
 ---
 
-# État du projet
+# Architecture documentaire
 
-**Version :** Sprint 2
+```
+docs/
 
-## Fondation
+├── ADR/
+│
+├── Architecture-Logicielle.md
+├── Capacites.md
+├── Commandes.md
+├── Configuration.md
+├── CORE.md
+├── Etats.md
+├── MQTT.md
+├── MQTT-Convention.md
+├── Message-Model.md
+├── Philosophie.md
+├── Plugins.md
+└── ROADMAP.md
+```
 
-* ✅ Terminée
+---
 
-## Core Framework
+# ADR
 
-* ✅ Terminé
+Les décisions d'architecture sont documentées dans :
 
-## Core Services
+```
+docs/ADR/
+```
 
-* ✅ Terminé
+Décisions validées :
 
-## MQTT Runtime
+* ADR-0001
+* ADR-0002
+* ADR-0003
+* ADR-0004
+* ADR-0005
+* ADR-0006
+* ADR-0007
+* ADR-0008
+* ADR-0009
+* ADR-0010
+* ADR-0011
+* ADR-0012
+* ADR-0013
+* ADR-0014
 
-* 🚧 À venir
+Chaque ADR est immuable une fois validée.
+
+---
+
+# Feuille de route
+
+## Sprint 0
+
+Documentation
+
+✅ terminé
+
+---
+
+## Sprint 1
+
+Core Runtime
+
+✅ terminé
+
+---
+
+## Sprint 2
+
+Core Services
+
+✅ terminé
+
+---
+
+## Sprint 3
+
+MQTT Runtime
+
+✅ terminé
+
+---
+
+## Sprint 4
+
+Plugins
+
+Prévu :
+
+* Plugin Manager
+* Chargement dynamique
+* Cycle de vie des plugins
+* Isolation
+* Découverte automatique
+* Dépendances
+
+---
+
+## Sprint 5
+
+Scheduler
+
+Prévu :
+
+* tâches planifiées
+* timers
+* cron
+* événements différés
+
+---
+
+## Sprint 6
+
+Persistance
+
+Prévu :
+
+* stockage
+* snapshots
+* restauration
+
+---
+
+## Sprint 7
+
+API
+
+Prévu :
+
+* REST
+* WebSocket
+* supervision
+
+---
+
+## Sprint 8
+
+Observabilité
+
+Prévu :
+
+* métriques
+* traces
+* Prometheus
+* OpenTelemetry
+
+---
+
+## Sprint 9
+
+Intelligence
+
+Prévu :
+
+* agents IA
+* outils
+* mémoire
+* orchestration
+
+---
+
+# Pourquoi "Ohanna" ?
+
+Le nom **Ohanna** représente l'idée d'un ensemble d'agents coopérant au sein d'un même écosystème.
+
+Chaque agent possède une responsabilité claire, communique par événements et contribue au fonctionnement global sans dépendre directement des autres.
+
+Le noyau garantit cette coordination grâce à une architecture modulaire, résiliente et extensible.
 
 ---
 
 # Licence
 
-Ce projet est distribué sous licence MIT.
+Projet distribué sous licence **MIT**.
+
+---
+
+# Remerciements
+
+Ohanna-Agent est développé avec une approche orientée qualité :
+
+* architecture pilotée par les ADR ;
+* développement incrémental par sprints ;
+* tests automatisés à chaque étape ;
+* documentation maintenue au même niveau d'exigence que le code.
+
+L'objectif est de construire un runtime pérenne, fiable et facilement extensible, capable de servir de fondation à une nouvelle génération d'agents intelligents.

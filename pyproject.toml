@@ -10,3 +10,10 @@ ignore = []
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+
+[project]
+dependencies = [
+    "PyYAML",
+    "pydantic",
+    "dnspython>=2.7.0",
+]

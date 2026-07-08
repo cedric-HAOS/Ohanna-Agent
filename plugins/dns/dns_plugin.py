@@ -1,0 +1,116 @@
+from typing import Any
+
+from plugin.plugin import Plugin
+from plugin.plugin_manifest import PluginManifest
+from plugin.plugin_runtime import PluginState
+from plugins.dns.dns_capability_runtime import DNSCapabilityRuntime
+from plugins.dns.dns_check import DNSCheck
+from plugins.dns.dns_check_result import DNSCheckResult
+from plugins.dns.dns_config import DNSConfig
+from plugins.dns.dns_events import DNSCheckFailed, DNSCheckStarted, DNSCheckSucceeded
+from plugins.dns.dns_runtime import DNSRuntime
+from plugins.dns.dns_server import DNSServer
+from plugins.dns.dns_statistics import DNSStatistics
+
+
+class DNSPlugin(Plugin):
+    """Plugin responsible for DNS capability checks."""
+
+    def __init__(
+        self,
+        check: DNSCheck | None = None,
+        event_bus: Any | None = None,
+        runtime: DNSRuntime | None = None,
+        config: DNSConfig | None = None,
+        capability_runtime: DNSCapabilityRuntime | None = None,
+    ) -> None:
+        self._state = PluginState.LOADED
+        self._check = check or DNSCheck()
+        self._event_bus = event_bus
+        self.runtime = runtime or DNSRuntime()
+        self.config = config or DNSConfig()
+        self.capability_runtime = capability_runtime or DNSCapabilityRuntime()
+        self.servers = [
+            DNSServer(config=server_config)
+            for server_config in self.config.servers
+        ]
+
+    @property
+    def name(self) -> str:
+        return "dns"
+
+    @property
+    def state(self) -> PluginState:
+        return self._state
+
+    def manifest(self) -> PluginManifest:
+        return PluginManifest(
+            name="dns",
+            version="0.1.0",
+            description="DNS capability plugin for Ohanna-Agent.",
+        )
+
+    def register(self) -> None:
+        self._state = PluginState.LOADED
+
+    def check(self, hostname: str) -> DNSCheckResult:
+        self._publish(DNSCheckStarted(hostname=hostname))
+
+        result = self._check.check(hostname)
+
+        if result.healthy:
+            self.runtime.record_success(
+                hostname=result.hostname,
+                address=result.address,
+            )
+            self._publish(
+                DNSCheckSucceeded(
+                    hostname=result.hostname,
+                    address=result.address,
+                )
+            )
+        else:
+            self.runtime.record_failure(
+                hostname=result.hostname,
+                error=result.error,
+            )
+            self._publish(
+                DNSCheckFailed(
+                    hostname=result.hostname,
+                    error=result.error,
+                )
+            )
+
+        return result
+
+    def _publish(self, event: object) -> None:
+        if self._event_bus is not None:
+            self._event_bus.publish(event)
+    
+    def statistics(self) -> DNSStatistics:
+        return DNSStatistics.from_runtime(self.runtime)
+    
+    def update_capability_runtime(self) -> DNSCapabilityRuntime:
+        healthy_servers = sum(
+            1 for server in self.servers if server.runtime.healthy is True
+        )
+
+        self.capability_runtime.update(
+            total_servers=len(self.servers),
+            healthy_servers=healthy_servers,
+            minimum_healthy_servers=(
+                self.config.policy.minimum_healthy_servers
+            ),
+        )
+
+        return self.capability_runtime
+    
+    def check_all(self) -> DNSCapabilityRuntime:
+        for server in self.servers:
+            if not server.enabled:
+                continue
+
+            for hostname in self.config.queries:
+                server.check(hostname)
+
+        return self.update_capability_runtime()

@@ -1,0 +1,78 @@
+import dns.exception
+import dns.resolver
+
+from plugins.dns.dns_resolver import DNSResolver
+
+
+class FakeAnswer:
+    def __init__(self, address: str) -> None:
+        self.address = address
+
+    def to_text(self) -> str:
+        return self.address
+
+
+class FakeResolver:
+    def __init__(self, configure: bool) -> None:
+        self.configure = configure
+        self.nameservers: list[str] = []
+
+    def resolve(self, hostname: str, record_type: str) -> list[FakeAnswer]:
+        assert hostname == "example.com"
+        assert record_type == "A"
+        return [FakeAnswer("93.184.216.34")]
+
+
+class FailingResolver(FakeResolver):
+    def resolve(self, hostname: str, record_type: str) -> list[FakeAnswer]:
+        assert hostname == "missing.local"
+        assert record_type == "A"
+        raise dns.exception.DNSException("host not found")
+
+
+def test_dns_resolver_returns_success(monkeypatch) -> None:
+    monkeypatch.setattr(dns.resolver, "Resolver", FakeResolver)
+
+    resolver = DNSResolver()
+
+    result = resolver.resolve(
+        hostname="example.com",
+        server="192.168.1.54",
+    )
+
+    assert result.server == "192.168.1.54"
+    assert result.hostname == "example.com"
+    assert result.success is True
+    assert result.address == "93.184.216.34"
+    assert result.error is None
+
+
+def test_dns_resolver_returns_failure(monkeypatch) -> None:
+    monkeypatch.setattr(dns.resolver, "Resolver", FailingResolver)
+
+    resolver = DNSResolver()
+
+    result = resolver.resolve(
+        hostname="missing.local",
+        server="192.168.1.55",
+    )
+
+    assert result.server == "192.168.1.55"
+    assert result.hostname == "missing.local"
+    assert result.success is False
+    assert result.address is None
+    assert result.error == "host not found"
+
+
+def test_dns_resolver_accepts_no_explicit_server(monkeypatch) -> None:
+    monkeypatch.setattr(dns.resolver, "Resolver", FakeResolver)
+
+    resolver = DNSResolver()
+
+    result = resolver.resolve("example.com")
+
+    assert result.hostname == "example.com"
+    assert result.server is None
+    assert result.success is True
+    assert result.address == "93.184.216.34"
+    assert result.error is None

@@ -1,6 +1,11 @@
 """Tests for the Shikamaru application runtime."""
 
 from application import Application
+from core.application_events import (
+    ApplicationStarted,
+    ApplicationStopped,
+    ApplicationTicked,
+)
 from core.dispatcher import CommandDispatcher
 from core.events import EventBus
 from core.plugins import PluginManager
@@ -137,3 +142,61 @@ def test_application_persistent_memory() -> None:
     app.memory.set("device", "pool", scope=MemoryScope.PERSISTENT)
 
     assert app.memory.get("device", scope=MemoryScope.PERSISTENT) == "pool"
+
+def test_application_creates_default_event_bus() -> None:
+    app = Application()
+
+    assert isinstance(app.event_bus, EventBus)
+
+
+def test_application_uses_injected_event_bus() -> None:
+    event_bus = EventBus()
+
+    app = Application(event_bus=event_bus)
+
+    assert app.event_bus is event_bus
+
+def test_application_start_publishes_started_event() -> None:
+    event_bus = EventBus()
+    received: list[ApplicationStarted] = []
+
+    def handler(event: ApplicationStarted) -> None:
+        received.append(event)
+
+    event_bus.subscribe(ApplicationStarted, handler)
+
+    app = Application(event_bus=event_bus)
+    app.start()
+
+    assert len(received) == 1
+
+
+def test_application_stop_publishes_stopped_event() -> None:
+    event_bus = EventBus()
+    received: list[ApplicationStopped] = []
+
+    def handler(event: ApplicationStopped) -> None:
+        received.append(event)
+
+    event_bus.subscribe(ApplicationStopped, handler)
+
+    app = Application(event_bus=event_bus)
+    app.stop()
+
+    assert len(received) == 1
+
+
+def test_application_tick_publishes_ticked_event() -> None:
+    event_bus = EventBus()
+    received: list[ApplicationTicked] = []
+
+    def handler(event: ApplicationTicked) -> None:
+        received.append(event)
+
+    event_bus.subscribe(ApplicationTicked, handler)
+
+    app = Application(event_bus=event_bus)
+    result = app.tick()
+
+    assert len(received) == 1
+    assert received[0].result is result

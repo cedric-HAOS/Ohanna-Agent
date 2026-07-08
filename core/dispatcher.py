@@ -52,9 +52,9 @@ class CommandFailed(Event):
 class CommandDispatcher:
     """Route commands to registered handlers."""
 
-    def __init__(self, event_bus: EventBus) -> None:
-        self._event_bus = event_bus
-        self._handlers: dict[type[Command], CommandHandler[Any]] = {}
+    def __init__(self, event_bus: EventBus | None = None) -> None:
+        self.event_bus = event_bus if event_bus is not None else EventBus()
+        self._handlers: dict[str, CommandHandler] = {}
 
     def register(self, command_type: type[C], handler: CommandHandler[C]) -> None:
         """Register a command handler."""
@@ -65,38 +65,44 @@ class CommandDispatcher:
 
         self._handlers[command_type] = handler
 
-    def dispatch(self, command: Command) -> Any:
+    def dispatch(self, command: object) -> object:
         """Dispatch a command to its registered handler."""
         command_type = type(command)
 
         if command_type not in self._handlers:
-            raise CommandNotFoundError(f"Command not found: {command_type.__name__}")
+         raise CommandNotFoundError(
+               f"Command handler not found: {command_type.__name__}"
+            )
 
-        self._event_bus.publish(
+        handler = self._handlers[command_type]
+        command_id = getattr(command, "id", "")
+
+        self.event_bus.publish(
             CommandDispatched(
-                command_id=command.id,
+                command_id=command_id,
                 command_type=command_type.__name__,
             )
         )
 
         try:
-            result = self._handlers[command_type](command)
-        except Exception as exc:
-            self._event_bus.publish(
+            result = handler(command)
+        except Exception as error:
+            self.event_bus.publish(
                 CommandFailed(
-                    command_id=command.id,
+                    command_id=command_id,
                     command_type=command_type.__name__,
-                    error=str(exc),
+                    error=str(error),
                 )
             )
             raise
 
-        self._event_bus.publish(
+        self.event_bus.publish(
             CommandSucceeded(
-                command_id=command.id,
+                command_id=command_id,
                 command_type=command_type.__name__,
             )
         )
+
         return result
 
     def has(self, command_type: type[Command]) -> bool:

@@ -7,6 +7,11 @@ from scheduler.dispatcher_task_executor import DispatcherLike, DispatcherTaskExe
 from scheduler.interval_trigger import IntervalTrigger
 from scheduler.oneshot_trigger import OneShotTrigger
 from scheduler.scheduler import Scheduler
+from scheduler.scheduler_events import (
+    SchedulerStarted,
+    SchedulerStopped,
+    SchedulerTicked,
+)
 from scheduler.scheduler_runtime import SchedulerRuntime
 from scheduler.scheduler_state import SchedulerState
 from scheduler.scheduler_statistics import SchedulerStatistics
@@ -40,4 +45,9 @@ __all__ = [
     "SchedulerState",
     "SchedulerStatistics",
     "SchedulerRuntime",
+    "Scheduler",
+    "SchedulerRuntime",
+    "SchedulerStarted",
+    "SchedulerStopped",
+    "SchedulerTicked",
 ]

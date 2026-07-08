@@ -4,6 +4,8 @@ from collections import defaultdict
 from collections.abc import Callable
 from typing import TypeVar
 
+from core.event_subscription import EventSubscription
+
 T = TypeVar("T")
 
 
@@ -19,28 +21,42 @@ class EventBus:
     """Synchronous event bus used to publish events to subscribers."""
 
     def __init__(self) -> None:
-        self._subscribers: dict[type[object], list[Callable[[object], None]]] = (
-            defaultdict(list)
+        self._subscribers: dict[type[object], list[EventSubscription]] = defaultdict(
+            list
         )
 
     def subscribe(self, event_type: type[T], handler: Callable[[T], None]) -> None:
         """Subscribe a handler to an event type."""
-        self._subscribers[event_type].append(handler)  # type: ignore[arg-type]
+        subscription = EventSubscription(
+            event_type=event_type,
+            handler=handler,  # type: ignore[arg-type]
+        )
+
+        self._subscribers[event_type].append(subscription)
 
     def unsubscribe(self, event_type: type[T], handler: Callable[[T], None]) -> None:
         """Unsubscribe a handler from an event type."""
-        handlers = self._subscribers[event_type]
+        subscriptions = self._subscribers[event_type]
 
-        if handler not in handlers:
+        matching_subscription = next(
+            (
+                subscription
+                for subscription in subscriptions
+                if subscription.handler is handler
+            ),
+            None,
+        )
+
+        if matching_subscription is None:
             raise EventHandlerNotFoundError(
                 f"Handler not found for event: {event_type.__name__}"
             )
 
-        handlers.remove(handler)
+        subscriptions.remove(matching_subscription)
 
     def publish(self, event: object) -> None:
         """Publish an event to all matching subscribers."""
         event_type = type(event)
 
-        for handler in list(self._subscribers[event_type]):
-            handler(event)
+        for subscription in list(self._subscribers[event_type]):
+            subscription.handler(event)

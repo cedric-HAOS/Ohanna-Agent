@@ -1,5 +1,10 @@
 """Shikamaru application runtime."""
 
+from core.application_events import (
+    ApplicationStarted,
+    ApplicationStopped,
+    ApplicationTicked,
+)
 from core.dispatcher import CommandDispatcher
 from core.events import EventBus
 from core.plugins import PluginManager
@@ -11,10 +16,14 @@ from scheduler import DispatcherTaskExecutor, Scheduler
 class Application:
     """Main Shikamaru application."""
 
-    def __init__(self, memory: MemoryManager | None = None) -> None:
+    def __init__(
+        self,
+        memory: MemoryManager | None = None,
+        event_bus: EventBus | None = None,
+    ) -> None:
         self.services = ServiceRegistry()
 
-        self.event_bus = EventBus()
+        self.event_bus = event_bus or EventBus()
         self.command_dispatcher = CommandDispatcher(self.event_bus)
         self.memory = memory if memory is not None else MemoryManager()
         self.scheduler = Scheduler(
@@ -36,11 +45,17 @@ class Application:
     def start(self) -> None:
         """Start application services."""
         self.scheduler.start()
+        self.event_bus.publish(ApplicationStarted())
+
 
     def stop(self) -> None:
         """Stop application services."""
         self.scheduler.stop()
+        self.event_bus.publish(ApplicationStopped())
+
 
     def tick(self) -> object:
         """Execute one application scheduler tick."""
-        return self.scheduler.tick()
+        result = self.scheduler.tick()
+        self.event_bus.publish(ApplicationTicked(result=result))
+        return result

@@ -1,244 +1,219 @@
 # Roadmap
 
-## Introduction
+## Objectif
 
-Cette feuille de route décrit l'évolution prévue d'Ohanna-Agent.
+La roadmap décrit les grandes étapes de développement de **Shikamaru**, le premier agent du projet **Ohanna-Agent**.
 
-Elle ne constitue pas un engagement de livraison.
+Chaque sprint poursuit un objectif clair et se termine par :
 
-Elle exprime la vision de l'évolution du logiciel, dans le respect des principes définis par son architecture.
-
-Chaque sprint poursuit un objectif de maturité clairement identifié.
+- une revue d'architecture ;
+- un audit logiciel ;
+- une batterie de tests automatisés ;
+- un commit Git.
 
 ---
 
-# Sprint 0 — Fondation
+# Sprint 0 — Vision & Architecture
+
+**Statut :** ✅ Terminé
 
 ## Objectif
 
-Définir l'architecture de référence du logiciel.
+Définir les fondations du projet avant le développement.
 
-## Livrables
+## Réalisations
 
-* Vision
-* Concepts
-* Philosophie
-* Capacités
-* Plugins
-* Architecture logicielle
-* États
-* Commandes
-* Message Model
-* MQTT
-* MQTT Convention
-* Configuration
-* Roadmap
+- [x] Vision
+- [x] Philosophie
+- [x] Capacités
+- [x] Architecture logicielle
+- [x] Cycle de vie
+- [x] États
+- [x] MQTT
+- [x] Message Model
+- [x] Configuration
+- [x] Documentation
+- [x] Roadmap
 
-## Résultat attendu
+## Résultat
 
-Une architecture stable, indépendante des technologies et prête à être implémentée.
+Le projet est entièrement conçu avant l'écriture du premier composant.
 
 ---
 
-# Sprint 1 — Le noyau
+# Sprint 1 — Core Framework
+
+**Statut :** 🚧 En cours
 
 ## Objectif
 
-Construire Shikamaru.
-
-## Livrables
-
-* structure du projet ;
-* moteur de décision ;
-* gestion des plugins ;
-* découverte automatique ;
-* bus d'événements interne ;
-* journalisation ;
-* configuration ;
-* premiers tests unitaires.
-
-## Résultat attendu
-
-Un moteur capable de charger des plugins, recevoir des observations et prendre des décisions.
+Construire le noyau technique de Shikamaru.
 
 ---
 
-# Sprint 2 — Les premières capacités
+## Phase 1 — Foundations
+
+**Statut :** ✅ Terminée
+
+### Architecture
+
+- [x] ADR-0001 — Lifecycle
+- [x] ADR-0002 — Application
+- [x] ADR-0003 — Composition
+- [x] ADR-0004 — State Transitions
+- [x] ADR-0005 — Configuration Model
+- [x] ADR-0006 — Logging Strategy
+
+### Développement
+
+- [x] Lifecycle
+- [x] Configuration
+- [x] ConfigurationLoader
+- [x] YAML
+- [x] Tests
+- [x] Documentation
+- [x] README
+
+### Qualité
+
+- [x] Ruff
+- [x] Pytest
+- [x] Pydantic
+- [x] Audit d'architecture
+
+---
+
+## Phase 2 — Core Services
+
+**Statut :** 🚧 À démarrer
+
+### Logging
+
+- [ ] LoggingConfigurator
+
+### Health
+
+- [ ] HealthMonitor
+
+### MQTT
+
+- [ ] MQTTClient
+
+### Plugins
+
+- [ ] PluginManager
+
+---
+
+## Phase 3 — Application
+
+**Statut :** ⏳ À venir
+
+### Application
+
+- [ ] initialize()
+- [ ] run()
+- [ ] stop()
+
+### Intégration
+
+- [ ] Tests d'intégration
+- [ ] Validation finale
+- [ ] Audit logiciel
+- [ ] Sprint Review
+
+---
+
+# Sprint 2 — Home Assistant
+
+**Statut :** ⏳ Prévu
 
 ## Objectif
 
-Garantir les capacités essentielles de l'infrastructure.
+Intégrer Shikamaru dans Home Assistant.
 
-## Capacités ciblées
+### Fonctionnalités
 
-* résolution DNS ;
-* attribution DHCP ;
-* synchronisation temporelle ;
-* connectivité réseau.
-
-## Résultat attendu
-
-Premiers plugins opérationnels.
-
-Premières capacités garanties.
+- [ ] MQTT Discovery
+- [ ] Device Information
+- [ ] Entités
+- [ ] Services
+- [ ] Diagnostics
 
 ---
 
-# Sprint 3 — Intégration domotique
+# Sprint 3 — Interface Web
+
+**Statut :** ⏳ Prévu
 
 ## Objectif
 
-Intégrer Ohanna-Agent à l'écosystème domotique.
+Créer une interface d'administration.
 
-## Livrables
+### Fonctionnalités
 
-* interface MQTT ;
-* API Home Assistant ;
-* publication des états ;
-* réception des commandes.
-
-## Résultat attendu
-
-Ohanna-Agent devient observable et pilotable depuis Home Assistant.
+- [ ] Dashboard
+- [ ] Monitoring
+- [ ] Logs
+- [ ] Plugins
+- [ ] Configuration
 
 ---
 
-# Sprint 4 — Exploitabilité
+# Sprint 4 — Auto-réparation
+
+**Statut :** ⏳ Prévu
 
 ## Objectif
 
-Améliorer l'exploitation quotidienne.
+Permettre à Shikamaru de surveiller et réparer automatiquement certains dysfonctionnements.
 
-## Livrables
+### Fonctionnalités
 
-* interface Web ;
-* tableau de bord ;
-* historique des capacités ;
-* indicateur Health ;
-* visualisation des événements.
-
-## Résultat attendu
-
-Une vision claire de l'état du système.
+- [ ] Auto-diagnostic
+- [ ] Auto-réparation
+- [ ] Watchdog
+- [ ] Recovery
+- [ ] Notifications
 
 ---
 
-# Sprint 5 — Auto-réparation
+# Vision
 
-## Objectif
+À l'issue de la roadmap, Shikamaru sera un agent capable de :
 
-Permettre au système de restaurer lui-même les capacités dégradées.
-
-## Livrables
-
-* stratégies de réparation ;
-* politiques de reprise ;
-* limitation des tentatives ;
-* validation automatique des réparations.
-
-## Résultat attendu
-
-Shikamaru devient capable de restaurer certaines capacités sans intervention humaine.
+- gérer son propre cycle de vie ;
+- charger une configuration validée ;
+- publier son état de santé ;
+- communiquer via MQTT ;
+- charger dynamiquement des plugins ;
+- s'intégrer à Home Assistant ;
+- être administré via une interface Web ;
+- détecter et corriger certaines anomalies automatiquement.
 
 ---
 
-# Sprint 6 — Déploiement distribué
+# Méthodologie
 
-## Objectif
+Chaque évolution du projet suit le cycle suivant :
 
-Étendre Ohanna-Agent à plusieurs machines.
+1. Discussion
+2. ADR
+3. Implémentation
+4. Tests
+5. Audit
+6. Commit Git
 
-## Livrables
-
-* découverte des agents ;
-* coopération entre instances ;
-* partage des observations ;
-* synchronisation des états.
-
-## Résultat attendu
-
-Plusieurs instances d'Ohanna-Agent collaborent pour garantir les capacités de l'infrastructure.
+Cette approche garantit une architecture cohérente, documentée et durable.
 
 ---
 
-# Sprint 7 — Intelligence opérationnelle
+# État du projet
 
-## Objectif
-
-Améliorer la prise de décision grâce à l'analyse de l'historique.
-
-## Livrables
-
-* corrélation d'événements ;
-* détection d'anomalies ;
-* anticipation des défaillances ;
-* recommandations d'exploitation.
-
-## Résultat attendu
-
-Shikamaru ne réagit plus uniquement aux incidents.
-
-Il commence à les anticiper.
-
----
-
-# Sprint 8 — Écosystème
-
-## Objectif
-
-Faire d'Ohanna-Agent une plateforme extensible.
-
-## Livrables
-
-* SDK de développement de plugins ;
-* documentation développeur ;
-* catalogue de plugins ;
-* outils de validation.
-
-## Résultat attendu
-
-Des plugins peuvent être développés indépendamment du noyau.
-
----
-
-# Vision à long terme
-
-À terme, Ohanna-Agent devra être capable de :
-
-* découvrir automatiquement son environnement ;
-* identifier les capacités attendues ;
-* sélectionner les fournisseurs adaptés ;
-* observer l'infrastructure ;
-* prendre des décisions ;
-* réparer les défaillances ;
-* expliquer chacune de ses décisions.
-
-L'objectif n'est pas seulement d'automatiser une infrastructure.
-
-L'objectif est de garantir durablement les capacités qu'elle doit fournir.
-
----
-
-# Principes
-
-La feuille de route respecte les principes suivants :
-
-* l'architecture précède l'implémentation ;
-* les capacités précèdent les technologies ;
-* les décisions précèdent les optimisations ;
-* la simplicité reste prioritaire ;
-* chaque sprint produit une base stable pour le suivant.
-
----
-
-# Résumé
-
-Ohanna-Agent évolue progressivement :
-
-de l'architecture,
-
-au moteur,
-
-des capacités,
-
-à l'autonomie.
+| Sprint | Statut |
+|---------|--------|
+| Sprint 0 | ✅ Terminé |
+| Sprint 1 | 🚧 En cours |
+| Sprint 2 | ⏳ Prévu |
+| Sprint 3 | ⏳ Prévu |
+| Sprint 4 | ⏳ Prévu |

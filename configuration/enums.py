@@ -24,6 +24,7 @@ class Environment(StrEnum):
     STAGING = "staging"
     PRODUCTION = "production"
 
+
 class LogLevel(StrEnum):
     """Available logging levels."""
 

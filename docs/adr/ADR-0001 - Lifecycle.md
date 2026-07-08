@@ -1,9 +1,7 @@
 # ADR-0001 — Lifecycle
 
 **Statut :** Accepté
-
 **Date :** 2026-07-07
-
 **Auteur :** Cédric Harnois, ChatGPT
 
 ---

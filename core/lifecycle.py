@@ -8,7 +8,7 @@ Description:
     Manages the application lifecycle state.
 
 Author:
-    Cédric Harnois
+    Cédric Harnois, ChatGPT
 """
 
 from __future__ import annotations

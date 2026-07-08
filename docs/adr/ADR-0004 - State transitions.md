@@ -1,11 +1,8 @@
 # ADR-0004 — State Transitions
 
 **Statut :** Accepté
-
 **Version :** 1.0
-
 **Date :** 2026-07-07
-
 **Décideurs :** Cédric Harnois, ChatGPT
 
 ---

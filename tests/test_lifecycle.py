@@ -8,7 +8,7 @@ Description:
     Tests the application lifecycle state machine.
 
 Author:
-    Cédric Harnois
+    Cédric Harnois, ChatGPT
 """
 
 from __future__ import annotations

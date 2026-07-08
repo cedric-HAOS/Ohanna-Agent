@@ -1,11 +1,8 @@
 # ADR-0002 — Application
 
 **Statut :** Accepté
-
 **Version :** 1.0
-
 **Date :** 2026-07-07
-
 **Décideurs :** Cédric Harnois, ChatGPT
 
 ---

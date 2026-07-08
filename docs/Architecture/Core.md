@@ -1,524 +1,1614 @@
-# CORE.md — Architecture du noyau Ohanna-Agent
+# CORE
 
-Version : 3
-Statut : validé
-Projet : Ohanna-Agent
-Noyau : Shikamaru
-État actuel : Phase 3 — MQTT Runtime terminée
-Validation : 156 tests automatisés
-ADR de référence : ADR-0014 validé
+> Architecture interne du noyau **Shikamaru**
+
+Version : 4.0
 
 ---
 
-## 1. Rôle du noyau
+# Objectif
 
-Le noyau d’Ohanna-Agent, nommé **Shikamaru**, constitue le cœur d’exécution de l’agent.
+Ce document décrit l'architecture interne du noyau **Shikamaru**, cœur du projet **Ohanna-Agent**.
 
-Il ne représente pas une intelligence autonome complète, mais une base logicielle fiable, testable et extensible chargée de :
+Il constitue la référence technique de l'implémentation.
 
-* représenter l’état interne de l’agent ;
-* recevoir des commandes ;
-* produire des événements ;
-* dispatcher ces événements ;
-* maintenir un cycle de vie clair ;
-* exposer une interface runtime MQTT ;
-* permettre l’ajout progressif de capacités sans casser l’architecture existante.
+Les décisions d'architecture détaillées sont documentées dans les ADR.
 
-Le noyau doit rester simple, déterministe et observable.
-
-Son objectif principal est de garantir que toute évolution future d’Ohanna-Agent repose sur une base stable.
+Le présent document décrit leur traduction dans le code.
 
 ---
 
-## 2. Principes d’architecture
+# Vision
 
-Le noyau repose sur les principes suivants :
+Shikamaru est un framework Python destiné à construire des agents autonomes capables de fournir des services d'infrastructure.
 
-1. **Séparation stricte des responsabilités**
-   Chaque composant possède un rôle clair : état, commande, événement, dispatcher, application, runtime MQTT.
+Le noyau fournit toutes les briques communes :
 
-2. **Architecture pilotée par événements**
-   Le cœur ne déclenche pas directement des actions complexes. Il émet des événements qui peuvent être observés, testés et routés.
+- cycle de vie de l'application ;
+- gestion de la configuration ;
+- bus d'événements ;
+- commandes ;
+- services partagés ;
+- runtime MQTT ;
+- supervision interne ;
+- moteur d'auto-réparation.
 
-3. **Cycle de vie explicite**
-   Les transitions de l’agent sont représentées par des états connus et contrôlés.
-
-4. **Commandes typées**
-   Les actions reçues par l’agent sont représentées par des objets de commande structurés.
-
-5. **Configuration centralisée**
-   Le comportement du noyau dépend d’une configuration explicite, validée et testée.
-
-6. **Runtime interchangeable**
-   MQTT est actuellement le runtime principal, mais il ne doit pas polluer le cœur métier.
-
-7. **Testabilité prioritaire**
-   Toute évolution significative doit être couverte par des tests automatisés.
+Les fonctionnalités métier sont développées sous forme de plugins indépendants.
 
 ---
 
-## 3. Vue d’ensemble
+# Principes d'architecture
 
-L’architecture actuelle peut être résumée ainsi :
+Le noyau repose sur plusieurs principes fondamentaux.
 
-```text
-┌──────────────────────────┐
-│        Runtime MQTT       │
-│  Connexion / messages     │
-│  Commandes entrantes      │
-│  Événements sortants      │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│       Application         │
-│  Orchestration globale    │
-│  Cycle de vie             │
-│  Commandes                │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│       Dispatcher          │
-│  Routage des événements   │
-│  Observateurs             │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│         Events            │
-│  Domain events            │
-│  System events            │
-│  MQTT events              │
-└──────────────────────────┘
-```
+## Responsabilité unique
 
-Le runtime MQTT est placé à la frontière du système.
-
-L’application reste le point d’orchestration central.
-
-Le dispatcher permet de découpler la production d’événements de leur consommation.
-
----
-
-## 4. Composants principaux
-
-### 4.1 Application
-
-L’application est le composant d’orchestration du noyau.
-
-Elle est responsable de :
-
-* l’initialisation du noyau ;
-* le démarrage de l’agent ;
-* l’arrêt propre de l’agent ;
-* la réception et le traitement des commandes ;
-* l’émission des événements associés ;
-* la gestion du cycle de vie.
-
-L’application ne doit pas contenir de logique spécifique à MQTT.
-
-Elle doit rester indépendante du transport.
-
----
-
-### 4.2 Lifecycle
-
-Le cycle de vie décrit les états fondamentaux de l’agent.
-
-Il permet d’éviter les comportements implicites ou ambigus.
-
-Les états attendus sont notamment :
-
-* initialisé ;
-* démarré ;
-* arrêté ;
-* en erreur si nécessaire.
-
-Le cycle de vie permet de garantir que certaines commandes ne sont acceptées que dans des états cohérents.
-
-Par exemple, un arrêt ne doit pas produire le même effet si l’agent n’est pas démarré.
-
----
-
-### 4.3 Command
-
-Les commandes représentent les intentions reçues par l’agent.
-
-Elles doivent être :
-
-* explicites ;
-* typées ;
-* sérialisables ;
-* testables ;
-* indépendantes du transport.
-
-Une commande peut provenir de MQTT aujourd’hui, mais demain d’une CLI, d’une API HTTP ou d’un autre runtime.
-
-Exemples de commandes :
-
-* démarrer l’agent ;
-* arrêter l’agent ;
-* demander son état ;
-* publier un signal de santé ;
-* exécuter une action future.
-
-Le noyau ne doit jamais dépendre directement du format brut d’un message MQTT.
-
-Le runtime transforme les messages externes en commandes internes.
-
----
-
-### 4.4 Events
-
-Les événements décrivent ce qui s’est produit dans le système.
-
-Ils ne sont pas des ordres, mais des faits.
+Chaque composant possède une responsabilité clairement définie.
 
 Exemples :
 
-* application démarrée ;
-* application arrêtée ;
-* commande reçue ;
-* commande rejetée ;
-* état modifié ;
-* événement MQTT publié ;
-* erreur détectée.
-
-Les événements permettent :
-
-* l’observabilité ;
-* les tests ;
-* le découplage ;
-* la journalisation ;
-* l’intégration future avec d’autres systèmes.
+- le Dispatcher distribue les événements ;
+- le Health Monitor supervise ;
+- le Recovery Engine orchestre les récupérations ;
+- les plugins implémentent les services métier.
 
 ---
 
-### 4.5 Dispatcher
+## Faible couplage
 
-Le dispatcher est responsable du routage des événements.
+Les composants communiquent via :
 
-Il reçoit les événements produits par l’application ou par d’autres composants et les transmet aux handlers enregistrés.
+- événements ;
+- interfaces ;
+- protocoles ;
+- services injectés.
 
-Il permet de découpler :
-
-* le producteur d’un événement ;
-* les consommateurs de cet événement.
-
-Le dispatcher ne doit pas connaître la logique métier des handlers.
-
-Il applique uniquement une mécanique de diffusion contrôlée.
+Les dépendances directes sont limitées au strict nécessaire.
 
 ---
 
-### 4.6 Configuration
+## Architecture événementielle
 
-La configuration définit les paramètres nécessaires à l’exécution de l’agent.
+Toutes les interactions métier transitent par le bus d'événements.
 
-Elle peut inclure :
+```text
+Plugin
 
-* l’identité de l’agent ;
-* les paramètres MQTT ;
-* les topics ;
-* les options runtime ;
-* les paramètres de logs ;
-* les options de sécurité futures.
+↓
 
-La configuration doit être validée avant utilisation.
+Dispatcher
 
-Une configuration invalide doit provoquer une erreur explicite et testable.
+↓
 
----
+Event Bus
 
-### 4.7 MQTT Runtime
+↓
 
-Le runtime MQTT est la couche d’intégration actuelle avec l’extérieur.
+Subscribers
+```
 
-Il est responsable de :
+Cette architecture facilite :
 
-* établir la connexion MQTT ;
-* s’abonner aux topics de commande ;
-* recevoir les messages entrants ;
-* convertir les messages MQTT en commandes internes ;
-* publier les événements sortants ;
-* gérer les erreurs de transport ;
-* respecter les conventions validées par ADR-0014.
-
-Le runtime MQTT ne doit pas devenir le noyau.
-
-Il reste une frontière technique.
-
-Le cœur applicatif doit pouvoir exister sans MQTT.
+- l'ajout de nouvelles fonctionnalités ;
+- les tests unitaires ;
+- l'évolution du framework.
 
 ---
 
-## 5. Architecture événementielle
+## Modularité
 
-Ohanna-Agent suit une architecture orientée événements.
+Chaque package constitue une brique indépendante.
 
-Une commande reçue produit généralement un ou plusieurs événements.
+```text
+configuration
+
+core
+
+events
+
+mqtt
+
+health
+
+recovery
+
+plugins
+
+services
+```
+
+Chaque package peut évoluer indépendamment des autres.
+
+---
+
+## Résilience
+
+Le noyau surveille en permanence son propre état.
+
+La supervision est séparée de la récupération.
+
+```text
+Observation
+
+↓
+
+Diagnostic
+
+↓
+
+Décision
+
+↓
+
+Action
+```
+
+Cette séparation est volontaire.
+
+---
+
+# Vue générale
+
+L'architecture complète est organisée selon les couches suivantes.
+
+```text
+                     Plugins
+                         │
+                         ▼
+                  Event Dispatcher
+                         │
+                         ▼
+                     Event Bus
+                         │
+                         ▼
+                    Application
+                         │
+ ┌──────────────┬──────────────┬──────────────┐
+ ▼              ▼              ▼              ▼
+Configuration Services      Scheduler      MQTT
+                                            │
+                                ┌───────────┴───────────┐
+                                ▼                       ▼
+                           Publisher              Subscriber
+
+                         ▼
+                  Health Monitor
+                         │
+             ┌───────────┴───────────┐
+             ▼                       ▼
+      Health Checks            Watchdogs
+                                      │
+                                      ▼
+                                 Heartbeats
+
+                         ▼
+                  Recovery Engine
+                         │
+                         ▼
+                  Recovery Policy
+                         │
+                         ▼
+                 Recovery Strategy
+                         │
+                         ▼
+                  Recovery Action
+```
+
+---
+
+# Organisation des packages
+
+Le dépôt est organisé de la manière suivante.
+
+```text
+ohanna-agent/
+
+application.py
+
+configuration/
+
+core/
+
+events/
+
+mqtt/
+
+health/
+
+recovery/
+
+plugins/
+
+services/
+
+tests/
+
+docs/
+
+config/
+```
+
+Chaque package possède une responsabilité clairement identifiée.
+
+---
+
+# Application
+
+Le point d'entrée du framework est l'application.
+
+Elle orchestre :
+
+- l'initialisation ;
+- le démarrage ;
+- l'arrêt ;
+- les services communs.
+
+```text
+Application
+
+↓
+
+Initialize()
+
+↓
+
+Run()
+
+↓
+
+Stop()
+```
+
+L'application ne contient aucune logique métier.
+
+Elle agit comme orchestrateur.
+
+---
+
+# Configuration
+
+Le package `configuration` centralise toute la configuration.
+
+Responsabilités :
+
+- lecture des fichiers YAML ;
+- validation ;
+- valeurs par défaut ;
+- exposition des paramètres.
+
+La validation repose sur **Pydantic**.
+
+Les principales sections sont :
+
+```text
+Agent
+
+MQTT
+
+Logging
+
+Health
+
+Plugins
+```
+
+Chaque section possède son propre modèle fortement typé.
+
+---
+
+# Cycle de vie
+
+Le cycle de vie est entièrement centralisé.
+
+États possibles :
+
+```text
+CREATED
+
+↓
+
+INITIALIZING
+
+↓
+
+READY
+
+↓
+
+RUNNING
+
+↓
+
+STOPPING
+
+↓
+
+STOPPED
+```
+
+En cas d'erreur fatale :
+
+```text
+RUNNING
+
+↓
+
+ERROR
+```
+
+Toutes les transitions sont validées par le `LifecycleManager`.
+
+Aucun composant ne modifie directement son état.
+
+---
+
+# Services
+
+Les services représentent les dépendances partagées.
+
+Exemples :
+
+- Logger
+- Dispatcher
+- MQTT Client
+- Scheduler
+- Health Monitor
+- Recovery Engine
+
+Ils sont injectés aux composants qui en ont besoin.
+
+Cette approche facilite :
+
+- les tests ;
+- le remplacement des implémentations ;
+- le découplage.
+
+---
+
+# Scheduler
+
+Le Scheduler permet d'exécuter des traitements périodiques.
+
+Exemples futurs :
+
+- Health Checks
+- Watchdogs
+- Métriques
+- Heartbeats
+- Maintenance
+
+Le Scheduler reste indépendant des traitements exécutés.
+
+Chaque tâche est enregistrée dynamiquement.
+
+---
+
+# Architecture événementielle
+
+L'architecture de Shikamaru repose entièrement sur un modèle **Event-Driven**.
+
+Les composants ne s'appellent pas directement entre eux.
+
+Ils communiquent exclusivement par des événements.
+
+```text
+            Producer
+                │
+                ▼
+          Event Dispatcher
+                │
+                ▼
+            Event Bus
+                │
+      ┌─────────┴─────────┐
+      ▼                   ▼
+ Subscriber A       Subscriber B
+```
+
+Cette architecture apporte plusieurs avantages :
+
+- faible couplage ;
+- extensibilité ;
+- testabilité ;
+- isolation des composants.
+
+---
+
+# Dispatcher
+
+Le Dispatcher constitue le centre névralgique du framework.
+
+Responsabilités :
+
+- enregistrer les abonnements ;
+- distribuer les événements ;
+- exécuter les handlers ;
+- isoler les producteurs des consommateurs.
+
+Il ne possède aucune connaissance métier.
+
+---
+
+# Événements
+
+Chaque événement est représenté par un objet métier.
+
+Principes :
+
+- immuable ;
+- typé ;
+- horodaté ;
+- sérialisable.
+
+Exemples :
+
+```text
+ApplicationStartedEvent
+
+PluginLoadedEvent
+
+PluginStoppedEvent
+
+MQTTConnectedEvent
+
+MQTTDisconnectedEvent
+
+HealthStatusChangedEvent
+
+RecoveryStartedEvent
+
+RecoveryCompletedEvent
+```
+
+Les événements constituent le langage interne de Shikamaru.
+
+---
+
+# Commandes
+
+Les commandes représentent les actions demandées au système.
+
+Contrairement aux événements, elles expriment une intention.
+
+Exemples :
+
+```text
+StartPluginCommand
+
+StopPluginCommand
+
+RestartPluginCommand
+
+ReloadConfigurationCommand
+
+RunHealthCheckCommand
+
+RecoverPluginCommand
+```
+
+Le Dispatcher distribue également les commandes.
+
+---
+
+# Messages
+
+Les messages sont utilisés principalement par le runtime MQTT.
+
+Ils encapsulent :
+
+- un sujet MQTT ;
+- une charge utile ;
+- des métadonnées.
+
+Ils permettent de conserver une séparation claire entre le domaine métier et le protocole MQTT.
+
+---
+
+# Runtime MQTT
+
+Le runtime MQTT constitue la passerelle entre Shikamaru et son environnement.
+
+Architecture :
+
+```text
+MQTT Broker
+
+↓
+
+Transport
+
+↓
+
+MQTT Client
+
+↓
+
+Subscriber
+
+↓
+
+Dispatcher
+
+↓
+
+Application
+
+↓
+
+Publisher
+
+↓
+
+MQTT Client
+
+↓
+
+Broker
+```
+
+Le reste du framework ignore complètement le protocole MQTT.
+
+---
+
+# MQTT Client
+
+Le client MQTT est responsable de :
+
+- connexion ;
+- déconnexion ;
+- reconnexion automatique ;
+- publication ;
+- souscription.
+
+Il ne contient aucune logique métier.
+
+---
+
+# Publisher
+
+Le Publisher transforme les événements internes en messages MQTT.
+
+Responsabilités :
+
+- sérialisation ;
+- publication ;
+- gestion des erreurs.
+
+Il ne décide jamais quels événements doivent être publiés.
+
+Cette décision appartient aux couches supérieures.
+
+---
+
+# Subscriber
+
+Le Subscriber reçoit les messages MQTT.
+
+Il :
+
+- désérialise les messages ;
+- valide leur contenu ;
+- crée les commandes appropriées ;
+- les transmet au Dispatcher.
+
+Le Subscriber ne modifie jamais directement l'état du système.
+
+---
+
+# Transport
+
+Le Transport encapsule la bibliothèque MQTT utilisée.
+
+Objectifs :
+
+- faciliter les tests ;
+- remplacer facilement l'implémentation ;
+- éviter toute dépendance forte.
+
+Le reste du framework dépend uniquement de son interface.
+
+---
+
+# Gestion des plugins
+
+Les plugins représentent les fonctionnalités métier.
+
+Le noyau n'a aucune connaissance de leur implémentation.
+
+```text
+Plugin
+
+↓
+
+Initialize()
+
+↓
+
+Run()
+
+↓
+
+Stop()
+```
+
+Chaque plugin est indépendant.
+
+---
+
+# Cycle de vie des plugins
+
+Chaque plugin suit le même cycle de vie que l'application.
+
+```text
+CREATED
+
+↓
+
+INITIALIZING
+
+↓
+
+READY
+
+↓
+
+RUNNING
+
+↓
+
+STOPPING
+
+↓
+
+STOPPED
+```
+
+En cas d'erreur :
+
+```text
+RUNNING
+
+↓
+
+ERROR
+```
+
+Cette homogénéité simplifie la supervision.
+
+---
+
+# Chargement dynamique
+
+Les plugins sont chargés dynamiquement.
+
+Le gestionnaire de plugins est responsable :
+
+- de leur découverte ;
+- de leur création ;
+- de leur initialisation ;
+- de leur arrêt.
+
+Le noyau ne référence jamais directement un plugin particulier.
+
+---
+
+# Communication des plugins
+
+Les plugins disposent de plusieurs moyens de communication.
+
+Ils peuvent :
+
+- publier des événements ;
+- écouter des événements ;
+- envoyer des commandes ;
+- utiliser les services injectés.
+
+Ils ne doivent jamais communiquer directement entre eux.
+
+---
+
+# Services exposés
+
+Le noyau met plusieurs services à disposition des plugins.
+
+Exemples :
+
+```text
+Logger
+
+Dispatcher
+
+MQTT Client
+
+Scheduler
+
+Health Monitor
+
+Recovery Engine
+```
+
+Les plugins restent ainsi indépendants des implémentations concrètes.
+
+---
+
+# Injection de dépendances
+
+Toutes les dépendances importantes sont injectées.
+
+Cette approche permet :
+
+- des tests simples ;
+- des mocks ;
+- le remplacement d'implémentations ;
+- un faible couplage.
+
+Exemple conceptuel :
+
+```python
+class Plugin:
+
+    def __init__(
+        self,
+        dispatcher,
+        logger,
+        mqtt,
+        scheduler,
+    ):
+        ...
+```
+
+Le plugin ne crée jamais lui-même ses dépendances.
+
+---
+
+# Principes SOLID
+
+L'architecture du noyau applique les principes SOLID.
+
+## Single Responsibility
+
+Chaque composant possède une responsabilité unique.
+
+Exemples :
+
+- Dispatcher → distribuer.
+- Publisher → publier.
+- Health Monitor → superviser.
+- Recovery Engine → orchestrer.
+
+---
+
+## Open / Closed
+
+Le framework est ouvert à l'extension.
+
+Les nouveaux plugins ne nécessitent pas de modifier le noyau.
+
+---
+
+## Liskov
+
+Toutes les implémentations respectent leurs interfaces.
+
+Les Protocols permettent de garantir cette substituabilité.
+
+---
+
+## Interface Segregation
+
+Les interfaces sont volontairement petites.
+
+Chaque composant ne dépend que des méthodes dont il a réellement besoin.
+
+---
+
+## Dependency Inversion
+
+Les dépendances concrètes sont remplacées par des Protocols ou des interfaces.
+
+Le noyau ne dépend jamais directement d'une implémentation particulière.
+
+---
+
+# Architecture de supervision
+
+Le Sprint 4 introduit une nouvelle couche d'architecture dédiée à la supervision et à la résilience.
+
+Cette couche est totalement indépendante du runtime MQTT et des plugins.
+
+Son objectif est de permettre au noyau de :
+
+- surveiller son propre fonctionnement ;
+- détecter les anomalies ;
+- tenter des récupérations automatiques ;
+- continuer à fonctionner en mode dégradé lorsque cela est possible.
+
+L'architecture est volontairement découpée en deux sous-systèmes indépendants :
+
+- **Health**
+- **Recovery**
+
+```text
+Application
+      │
+      ▼
+Health Monitor
+      │
+      ▼
+Health Result
+      │
+      ▼
+Recovery Engine
+      │
+      ▼
+Recovery Policy
+      │
+      ▼
+Recovery Strategy
+      │
+      ▼
+Recovery Action
+```
+
+Cette séparation constitue l'une des décisions majeures de l'architecture de Shikamaru.
+
+---
+
+# Package Health
+
+Le package `health` est responsable de l'observation.
+
+Il ne modifie jamais le système.
+
+Il fournit uniquement une vision de son état.
+
+Organisation :
+
+```text
+health/
+
+heartbeat.py
+
+monitor.py
+
+watchdog.py
+```
+
+---
+
+# Health Monitor
+
+Le `HealthMonitor` est le point central de la supervision.
+
+Responsabilités :
+
+- enregistrer les contrôles de santé ;
+- exécuter les contrôles ;
+- agréger les résultats ;
+- calculer l'état global ;
+- fournir les informations nécessaires au Recovery Engine.
+
+Il ne réalise aucune récupération.
+
+---
+
+## Agrégation
+
+Le Health Monitor applique les règles suivantes.
+
+```text
+Tous HEALTHY
+
+↓
+
+HEALTHY
+```
+
+```text
+Au moins un DEGRADED
+
+↓
+
+DEGRADED
+```
+
+```text
+Au moins un UNHEALTHY
+
+↓
+
+UNHEALTHY
+```
+
+```text
+Aucun contrôle
+
+↓
+
+UNKNOWN
+```
+
+Cette logique est volontairement simple.
+
+---
+
+# Health Checks
+
+Les Health Checks représentent les contrôles élémentaires.
+
+Exemples futurs :
+
+- connexion MQTT ;
+- plugin actif ;
+- mémoire disponible ;
+- CPU ;
+- disque ;
+- disponibilité d'un service.
+
+Chaque Health Check est indépendant.
+
+---
+
+# Heartbeat
+
+Un Heartbeat représente une preuve récente d'activité.
 
 Exemple :
 
 ```text
-Message MQTT entrant
-        │
-        ▼
-Parsing runtime MQTT
-        │
-        ▼
-Command interne
-        │
-        ▼
-Application
-        │
-        ▼
-Events
-        │
-        ▼
-Dispatcher
-        │
-        ▼
-Handlers / publication MQTT / logs
+plugin.dns
+
+↓
+
+Heartbeat
 ```
 
-Cette approche permet de conserver une trace claire de ce qui s’est passé.
+Le Heartbeat contient :
 
-Elle facilite aussi les tests : il est possible de vérifier qu’une commande donnée produit bien les événements attendus.
+- la source ;
+- l'instant d'émission ;
+- des métadonnées éventuelles.
 
----
-
-## 6. Frontière entre cœur et runtime
-
-La frontière entre le cœur et MQTT est essentielle.
-
-Le cœur connaît :
-
-* les commandes ;
-* les événements ;
-* l’état ;
-* le dispatcher ;
-* le cycle de vie.
-
-Le cœur ne doit pas connaître :
-
-* les détails de connexion MQTT ;
-* les topics bruts ;
-* les payloads réseau ;
-* les bibliothèques MQTT ;
-* les erreurs spécifiques au broker.
-
-Le runtime MQTT connaît :
-
-* le broker ;
-* les topics ;
-* le format réseau ;
-* les conversions vers les commandes internes ;
-* la publication des événements sortants.
-
-Cette séparation protège l’architecture contre un couplage excessif.
+Il est volontairement très léger.
 
 ---
 
-## 7. ADR-0014 — Convention MQTT Runtime
+# Watchdog
 
-ADR-0014 valide la structure actuelle du runtime MQTT.
+Le Watchdog surveille un Heartbeat.
 
-Les décisions structurantes sont :
-
-* MQTT est le runtime officiel de la Phase 3 ;
-* les commandes MQTT doivent être converties en commandes internes ;
-* les événements sortants doivent être publiés selon une convention stable ;
-* le cœur applicatif ne doit pas dépendre directement du client MQTT ;
-* les tests doivent couvrir le comportement attendu du runtime.
-
-ADR-0014 marque la fin de la Phase 3 MQTT Runtime.
-
----
-
-## 8. État actuel du projet
-
-L’état actuel d’Ohanna-Agent est le suivant :
+Principe :
 
 ```text
-Tests automatisés : 156
-Phase 3 MQTT Runtime : terminée
-ADR-0014 : validé
-Architecture événementielle : en place
-Dispatcher : opérationnel
-Commandes : opérationnelles
-Cycle de vie : opérationnel
-Configuration : opérationnelle
-Runtime MQTT : opérationnel
+Heartbeat reçu
+
+↓
+
+HEALTHY
 ```
-
-Ce niveau de validation permet de considérer le noyau comme suffisamment stable pour préparer les phases suivantes.
-
----
-
-## 9. Responsabilités interdites au noyau
-
-Le noyau ne doit pas prendre en charge directement :
-
-* la logique métier domotique ;
-* les scénarios Home Assistant ;
-* la gestion directe de périphériques physiques ;
-* les décisions IA complexes ;
-* la persistance avancée ;
-* les appels réseau non abstraits ;
-* les automatisations longues ;
-* la configuration de l’infrastructure domestique.
-
-Ces responsabilités pourront être ajoutées plus tard sous forme de capacités, plugins, adapters ou services dédiés.
-
----
-
-## 10. Extension future
-
-Le noyau doit permettre l’ajout futur de :
-
-* plugins ;
-* capacités ;
-* mémoire ;
-* scheduler ;
-* supervision ;
-* règles de décision ;
-* intégrations Home Assistant ;
-* intégrations MQTT avancées ;
-* API HTTP éventuelle ;
-* CLI ;
-* persistence store ;
-* observabilité enrichie.
-
-Ces évolutions ne doivent pas modifier les fondations existantes sans ADR.
-
-Toute évolution structurante doit passer par :
-
-1. une proposition claire ;
-2. une ADR ;
-3. une implémentation minimale ;
-4. des tests ;
-5. une mise à jour documentaire.
-
----
-
-## 11. Règles de stabilité
-
-À partir de cette version v3, les règles suivantes s’appliquent :
-
-* toute modification du cycle de vie doit être testée ;
-* toute nouvelle commande doit avoir un comportement explicite ;
-* tout nouvel événement doit être documenté ;
-* toute modification MQTT doit respecter ADR-0014 ou proposer une nouvelle ADR ;
-* le cœur ne doit pas importer directement de dépendance runtime ;
-* les tests existants doivent rester verts ;
-* la documentation doit évoluer avec le code.
-
----
-
-## 12. Contrats internes
-
-Les contrats internes du noyau sont :
-
-### Commande
-
-Une commande représente une intention.
-
-Elle doit pouvoir être créée indépendamment de MQTT.
-
-### Événement
-
-Un événement représente un fait passé.
-
-Il doit pouvoir être dispatché, observé et testé.
-
-### Dispatcher
-
-Le dispatcher transmet les événements sans connaître leur logique métier.
-
-### Application
-
-L’application orchestre le cycle de vie et les commandes.
-
-### Runtime
-
-Le runtime traduit le monde extérieur vers le cœur, puis republie les événements utiles.
-
----
-
-## 13. Stratégie de tests
-
-La stratégie actuelle repose sur 156 tests automatisés.
-
-Les tests couvrent notamment :
-
-* l’application ;
-* les commandes ;
-* la configuration ;
-* le dispatcher ;
-* les événements ;
-* le cycle de vie ;
-* le runtime MQTT ;
-* les comportements d’erreur ;
-* les transitions principales.
-
-La règle de base est simple :
-
-> Une fonctionnalité non testée n’est pas considérée comme stabilisée.
-
-Avant chaque évolution majeure, les tests doivent être exécutés avec :
-
-```bash
-ruff check .
-pytest
-```
-
-L’état attendu est :
 
 ```text
-All checks passed
-156 passed
+Heartbeat ancien
+
+↓
+
+DEGRADED
 ```
 
----
+```text
+Heartbeat expiré
 
-## 14. Positionnement de Shikamaru
+↓
 
-Shikamaru n’est pas encore l’agent complet.
+UNHEALTHY
+```
 
-Shikamaru est le noyau rationnel d’Ohanna-Agent.
-
-Son rôle est de préparer une base propre pour les futures couches :
-
-* perception ;
-* mémoire ;
-* décision ;
-* action ;
-* supervision ;
-* intégration maison ;
-* autonomie progressive.
-
-Le nom Shikamaru est cohérent avec cette philosophie :
-
-* calme ;
-* structuré ;
-* stratégique ;
-* prévisible ;
-* efficace.
+Le Watchdog ne déclenche jamais lui-même une récupération.
 
 ---
 
-## 15. Conclusion
+# Surveillance temporelle
 
-La version v3 du noyau Ohanna-Agent acte la stabilisation de l’architecture actuelle.
+Chaque Watchdog possède :
 
-Avec 156 tests automatisés, une Phase 3 MQTT Runtime terminée et ADR-0014 validé, le projet dispose désormais d’un socle solide.
+- une source ;
+- un délai de dégradation ;
+- un délai critique.
 
-Le cœur applicatif est séparé du runtime MQTT.
+Exemple :
 
-Les commandes, événements, dispatcher, configuration et cycle de vie forment une base cohérente.
+```text
+Heartbeat
 
-La suite du projet peut désormais se concentrer sur l’extension des capacités d’Ohanna-Agent sans remettre en cause le noyau.
+↓
 
-Le noyau Shikamaru est prêt pour la suite.
+10 s
+
+↓
+
+DEGRADED
+
+↓
+
+30 s
+
+↓
+
+UNHEALTHY
+```
+
+Les délais sont entièrement configurables.
+
+---
+
+# Architecture Recovery
+
+Le package `recovery` constitue le second pilier de la résilience.
+
+Organisation :
+
+```text
+recovery/
+
+action.py
+
+engine.py
+
+policy.py
+
+result.py
+
+strategy.py
+```
+
+Contrairement au package `health`, il est responsable des actions.
+
+---
+
+# Recovery Engine
+
+Le `RecoveryEngine` orchestre les opérations de récupération.
+
+Il reçoit les résultats du Health Monitor.
+
+```text
+Health Result
+
+↓
+
+Recovery Engine
+```
+
+Le moteur :
+
+- sélectionne une stratégie ;
+- empêche les récupérations concurrentes ;
+- conserve un historique ;
+- exécute les actions.
+
+Il ne contient aucune logique métier.
+
+---
+
+# Recovery Strategy
+
+Une stratégie décrit **comment récupérer une anomalie**.
+
+Exemples :
+
+```text
+DNSRecoveryStrategy
+
+DHCPRecoveryStrategy
+
+MQTTRecoveryStrategy
+
+PluginRecoveryStrategy
+```
+
+Chaque stratégie est indépendante.
+
+Elle peut être remplacée sans modifier le moteur.
+
+---
+
+# Recovery Policy
+
+La Recovery Policy décide :
+
+- quelles actions effectuer ;
+- dans quel ordre ;
+- combien de tentatives réaliser ;
+- quand abandonner.
+
+Exemple :
+
+```text
+Restart
+
+↓
+
+Reload
+
+↓
+
+Disable
+
+↓
+
+Abandon
+```
+
+Les politiques sont entièrement configurables.
+
+---
+
+# Recovery History
+
+Chaque récupération possède un historique.
+
+Il mémorise notamment :
+
+- le nombre de tentatives ;
+- la dernière action ;
+- le dernier résultat ;
+- les résultats précédents.
+
+Cette information est utilisée par les Policies.
+
+---
+
+# Recovery Action
+
+Une Action représente une opération élémentaire.
+
+Exemples :
+
+```text
+Restart Plugin
+
+Reconnect MQTT
+
+Reload Configuration
+
+Disable Plugin
+```
+
+Une Action ne prend aucune décision.
+
+Elle exécute simplement l'opération demandée.
+
+---
+
+# Recovery Result
+
+Chaque tentative retourne un objet `RecoveryResult`.
+
+Il contient :
+
+- succès ou échec ;
+- action exécutée ;
+- source concernée ;
+- message ;
+- informations complémentaires.
+
+Le moteur conserve un historique de ces résultats.
+
+---
+
+# Prévention des récupérations concurrentes
+
+Le Recovery Engine garantit qu'une seule récupération peut être exécutée simultanément pour une même source.
+
+Exemple :
+
+```text
+plugin.dns
+
+↓
+
+Recovery en cours
+
+↓
+
+Nouvelle demande
+
+↓
+
+Ignorée
+```
+
+Cette règle évite :
+
+- les redémarrages multiples ;
+- les états incohérents ;
+- les courses critiques.
+
+---
+
+# Mode dégradé
+
+Le noyau peut continuer à fonctionner malgré certaines défaillances.
+
+```text
+HEALTHY
+
+↓
+
+DEGRADED
+
+↓
+
+UNHEALTHY
+```
+
+Le mode dégradé permet :
+
+- de maintenir les services disponibles ;
+- d'isoler les composants défaillants ;
+- de poursuivre les tentatives de récupération.
+
+Le retour à l'état nominal est automatique lorsque les contrôles redeviennent positifs.
+
+---
+
+# Coopération entre Health et Recovery
+
+Les deux packages collaborent sans dépendance forte.
+
+```text
+Health Monitor
+
+↓
+
+Health Result
+
+↓
+
+Recovery Engine
+
+↓
+
+Recovery Policy
+
+↓
+
+Recovery Strategy
+
+↓
+
+Recovery Action
+```
+
+Cette architecture garantit une séparation claire entre :
+
+- **l'observation** ;
+- **la décision** ;
+- **l'exécution**.
+
+Elle constitue aujourd'hui l'un des principaux points forts du noyau Shikamaru.
+
+---
+
+# Organisation des tests
+
+La qualité du noyau repose sur une politique de tests unitaires systématiques.
+
+Chaque composant du framework possède son propre module de tests.
+
+Organisation :
+
+```text
+tests/
+
+test_action.py
+test_application.py
+test_command.py
+test_configuration.py
+test_dispatcher.py
+test_engine.py
+test_event.py
+test_events.py
+test_heartbeat.py
+test_lifecycle.py
+test_messages.py
+test_monitor.py
+test_mqtt_client.py
+test_plugins.py
+test_policy.py
+test_publisher.py
+test_reconnect.py
+test_result.py
+test_scheduler.py
+test_services.py
+test_strategy.py
+test_subscriber.py
+test_transport.py
+test_watchdog.py
+```
+
+Les tests sont organisés selon les mêmes responsabilités que les packages du framework.
+
+Cette symétrie facilite la maintenance et la compréhension du projet.
+
+---
+
+# Qualité du code
+
+Le projet applique plusieurs règles de qualité.
+
+## Typage
+
+Le typage statique est utilisé sur l'ensemble du noyau.
+
+Objectifs :
+
+- améliorer la lisibilité ;
+- détecter les erreurs précocement ;
+- faciliter le refactoring.
+
+---
+
+## Dataclasses
+
+Les objets métiers utilisent principalement les `dataclasses`.
+
+Exemples :
+
+- Event
+- Message
+- Heartbeat
+- HealthResult
+- RecoveryResult
+
+Les objets sont immuables dès que cela est possible.
+
+---
+
+## Protocols
+
+Les interfaces reposent principalement sur `typing.Protocol`.
+
+Exemples :
+
+- HealthCheck
+- RecoveryAction
+- RecoveryStrategy
+- RecoveryPolicy
+
+Cette approche évite une hiérarchie de classes trop complexe.
+
+---
+
+## Injection de dépendances
+
+Les composants ne créent jamais directement leurs dépendances.
+
+Toutes les dépendances importantes sont injectées lors de leur création.
+
+Cette règle garantit :
+
+- une excellente testabilité ;
+- un faible couplage ;
+- un remplacement facile des implémentations.
+
+---
+
+# Performances
+
+Le noyau privilégie la simplicité et la robustesse.
+
+Les optimisations ne sont réalisées que lorsqu'elles sont justifiées.
+
+À ce jour :
+
+- aucune allocation complexe inutile ;
+- structures de données simples ;
+- faible profondeur d'appel ;
+- composants faiblement couplés.
+
+Le framework est conçu pour supporter plusieurs dizaines de plugins sans modification de son architecture.
+
+---
+
+# Gestion des erreurs
+
+Les erreurs sont traitées à plusieurs niveaux.
+
+## Erreurs applicatives
+
+Les exceptions métier sont propagées jusqu'au Dispatcher ou à l'Application.
+
+Les composants évitent autant que possible de masquer les erreurs.
+
+---
+
+## Erreurs de supervision
+
+Les anomalies détectées par le Health Monitor produisent des `HealthResult`.
+
+Aucune récupération n'est réalisée à ce niveau.
+
+---
+
+## Erreurs de récupération
+
+Le Recovery Engine enregistre toutes les tentatives.
+
+Chaque récupération produit un `RecoveryResult`.
+
+Ces informations pourront être utilisées pour :
+
+- les statistiques ;
+- les métriques ;
+- l'interface Web ;
+- Home Assistant.
+
+---
+
+# Journalisation
+
+Le noyau centralise la journalisation.
+
+Objectifs :
+
+- faciliter le diagnostic ;
+- tracer les événements importants ;
+- conserver une cohérence entre les composants.
+
+Chaque composant reçoit un logger injecté.
+
+Le framework ne dépend pas d'une implémentation particulière.
+
+---
+
+# Configuration
+
+Toute la configuration est regroupée dans un seul package.
+
+```text
+configuration/
+```
+
+Le modèle repose sur des objets fortement typés.
+
+Les paramètres sont validés au démarrage.
+
+En cas d'erreur de configuration, l'application refuse de démarrer.
+
+Cette approche garantit un comportement déterministe.
+
+---
+
+# Évolutivité
+
+L'architecture actuelle permet d'ajouter facilement :
+
+- de nouveaux plugins ;
+- de nouveaux Health Checks ;
+- de nouveaux Watchdogs ;
+- de nouvelles Recovery Policies ;
+- de nouvelles Recovery Strategies ;
+- de nouvelles Recovery Actions.
+
+Ces ajouts ne nécessitent pas de modifier les composants existants.
+
+---
+
+# Architecture cible
+
+À moyen terme, le noyau conservera la même organisation générale.
+
+```text
+                  Application
+                        │
+                        ▼
+                  Event Dispatcher
+                        │
+                        ▼
+                     Event Bus
+                        │
+    ┌───────────────────┼───────────────────┐
+    ▼                   ▼                   ▼
+Configuration       MQTT Runtime        Scheduler
+                        │
+                        ▼
+                     Plugins
+                        │
+                        ▼
+                 Health Monitor
+                        │
+                        ▼
+                   Watchdogs
+                        │
+                        ▼
+                 Recovery Engine
+                        │
+                        ▼
+                 Recovery Policies
+                        │
+                        ▼
+                Recovery Strategies
+                        │
+                        ▼
+                 Recovery Actions
+```
+
+Les futures évolutions enrichiront les fonctionnalités sans remettre en cause cette architecture.
+
+---
+
+# Compatibilité
+
+Le noyau est conçu pour rester indépendant :
+
+- du système d'exploitation ;
+- du broker MQTT ;
+- des plugins ;
+- de Home Assistant.
+
+Cette indépendance facilite :
+
+- les tests ;
+- les évolutions ;
+- la portabilité.
+
+---
+
+# Dette technique
+
+À l'issue du Sprint 4, la dette technique est volontairement limitée.
+
+Quelques évolutions sont déjà identifiées :
+
+- extraire `HealthStatus`, `HealthResult` et `HealthCheck` de `monitor.py` vers des modules dédiés (`status.py`, `result.py`, `check.py`) lorsque l'API sera totalement stabilisée ;
+- introduire un `RecoveryContext` pour transmettre les dépendances aux `RecoveryAction` sans couplage supplémentaire ;
+- créer un `PolicyRegistry` afin de centraliser l'enregistrement et la sélection des politiques de récupération.
+
+Ces évolutions sont considérées comme des améliorations de conception et non comme des anomalies.
+
+---
+
+# État de l'architecture
+
+À la fin du Sprint 4 :
+
+- Architecture entièrement événementielle.
+- Runtime MQTT complet.
+- Supervision interne opérationnelle.
+- Mécanismes de résilience implémentés.
+- Packages fortement découplés.
+- Injection de dépendances généralisée.
+- Documentation synchronisée avec le code.
+- ADR alignées avec l'implémentation.
+- 204 tests unitaires validés.
+- Ruff conforme.
+
+Le noyau **Shikamaru** constitue désormais une base solide pour développer les futurs plugins d'infrastructure.
+
+---
+
+# Conclusion
+
+Le Sprint 4 marque une étape majeure dans la maturité d'Ohanna-Agent.
+
+Jusqu'au Sprint 3, Shikamaru était principalement un **framework événementiel** capable de communiquer via MQTT.
+
+Avec le Sprint 4, il devient un **framework d'agents résilients**, capable :
+
+- d'observer son propre état ;
+- de détecter les défaillances ;
+- de raisonner sur les actions à entreprendre ;
+- d'exécuter des stratégies de récupération ;
+- de continuer à fonctionner en mode dégradé lorsque cela est nécessaire.
+
+Cette évolution repose sur une séparation stricte entre :
+
+- l'observation (`health`) ;
+- la décision (`policy` / `strategy`) ;
+- l'orchestration (`engine`) ;
+- l'exécution (`action`).
+
+Cette architecture, validée par les ADR-0015 à ADR-0019, constitue désormais le socle technique sur lequel seront développés les plugins d'infrastructure des prochains Sprints.
+
+Le noyau est prêt à entrer dans une nouvelle phase du projet : **le développement des services métier**.

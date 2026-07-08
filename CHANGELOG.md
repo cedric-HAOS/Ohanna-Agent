@@ -1,461 +1,290 @@
-# Changelog
+# CHANGELOG
 
 Toutes les évolutions importantes du projet **Ohanna-Agent** sont documentées dans ce fichier.
 
-Le format suit les recommandations de **Keep a Changelog** et respecte le versioning **Semantic Versioning (SemVer)**.
+Le projet suit les principes du **Semantic Versioning**.
 
 ---
 
-# [3.0.0] - 2026-07-08
+# Version 4.0.0
 
-## 🎉 Version majeure
+**Date :** Juillet 2026
 
-Cette version marque la fin des fondations du noyau d'Ohanna-Agent.
+## Sprint 4 — Health & Recovery
 
-Le projet dispose désormais :
+Cette version introduit l'architecture complète de supervision et d'auto-réparation de **Shikamaru**.
 
-- d'une architecture hexagonale complète ;
-- d'un runtime MQTT opérationnel ;
-- d'un système d'événements robuste ;
-- d'un moteur de commandes ;
-- d'un cycle de vie complet ;
-- d'une architecture validée par ADR ;
-- d'une couverture de tests complète.
-
-Le projet est désormais prêt à accueillir les premiers plugins métiers.
+Le noyau devient capable de surveiller son propre état, de détecter des anomalies et d'orchestrer des stratégies de récupération, tout en restant totalement découplé des plugins métier.
 
 ---
 
-# ✨ Ajouts
+## Nouveautés
 
-## Architecture
+### Supervision
 
-Ajout de l'architecture hexagonale complète.
+Nouveau package :
 
-Mise en place des couches :
+```text
+health/
+```
 
-- Domain
-- Application
-- Infrastructure
-- Runtime
+Ajout de :
 
----
+* Health Monitor
+* Heartbeat
+* Watchdog
 
-## Cycle de vie
+Nouvelles fonctionnalités :
 
-Ajout du cycle de vie complet :
-
-- CREATED
-- INITIALIZING
-- STARTING
-- RUNNING
-- STOPPING
-- STOPPED
-- ERROR
+* surveillance des composants ;
+* agrégation de l'état de santé ;
+* calcul de l'état global ;
+* surveillance temporelle ;
+* gestion des heartbeats.
 
 ---
 
-## Bus d'événements
+### Auto-réparation
 
-Création du moteur d'événements.
+Nouveau package :
 
-Ajout :
+```text
+recovery/
+```
 
-- Event Dispatcher
-- Event Handler
-- Event Publisher
-- Event Subscription
-- propagation synchrone
-- propagation typée
+Ajout de :
 
----
+* Recovery Engine
+* Recovery Strategy
+* Recovery Policy
+* Recovery Action
+* Recovery Result
 
-## Commandes
+Nouvelles fonctionnalités :
 
-Ajout du système de commandes.
-
-Fonctionnalités :
-
-- Command
-- Handler
-- Validation
-- Dispatcher
-- typage
+* orchestration des récupérations ;
+* stratégies indépendantes ;
+* politiques de récupération ;
+* historique des récupérations ;
+* prévention des récupérations concurrentes.
 
 ---
 
-## Configuration
+### Résilience
 
-Ajout du système de configuration.
+Implémentation du mode dégradé.
 
-Fonctionnalités :
+Le noyau peut désormais :
 
-- chargement YAML
-- valeurs par défaut
-- validation
-- injection de configuration
-
----
-
-## Runtime MQTT
-
-Implémentation complète du runtime MQTT.
-
-Ajouts :
-
-- connexion automatique
-
-- reconnexion automatique
-
-- publication
-
-- abonnement
-
-- routage des messages
-
-- sérialisation
-
-- désérialisation
-
-- QoS configurable
-
-- gestion des erreurs réseau
-
-- découplage Infrastructure / Domaine
+* continuer à fonctionner malgré certaines défaillances ;
+* isoler un composant défectueux ;
+* préparer une récupération automatique ;
+* revenir automatiquement à un état nominal lorsque les conditions le permettent.
 
 ---
 
-## Messages
+### Architecture
 
-Ajout :
+Validation des ADR suivantes :
 
-- MessageEnvelope
+* ADR-0015 — Architecture du Health Monitor
+* ADR-0016 — Watchdog & Heartbeat
+* ADR-0017 — Recovery Engine
+* ADR-0018 — Recovery Policies
+* ADR-0019 — Mode dégradé
 
-- EventMessage
-
-- CommandMessage
-
-- MessageSerializer
-
-- MessageDeserializer
+Le code est désormais aligné avec l'ensemble de ces décisions d'architecture.
 
 ---
 
-## Application
+### Documentation
 
-Création de la façade principale :
+Mise à jour complète des documents :
 
-Application
+* README.md
+* ROADMAP.md
+* CORE.md
+* CHANGELOG.md
 
-Responsabilités :
-
-- démarrage
-
-- arrêt
-
-- initialisation
-
-- gestion des services
-
-- orchestration
+L'ensemble de la documentation reflète désormais l'état réel du projet après le Sprint 4.
 
 ---
 
-## Services
+### Tests
 
-Ajout des services principaux :
+Ajout de nouveaux modules de tests :
 
-- ConfigurationService
+```text
+test_action.py
+test_engine.py
+test_monitor.py
+test_policy.py
+test_result.py
+test_strategy.py
+test_watchdog.py
+```
 
-- EventDispatcher
+Renforcement des tests existants :
 
-- MQTT Runtime
-
-- Command Dispatcher
-
----
-
-## Documentation
-
-Création de la documentation complète :
-
-README
-
-ROADMAP
-
-CORE
-
-ADR
-
-Architecture
-
-Philosophie
-
-Plugins
-
-MQTT
-
-Message Model
-
-Configuration
-
-Capacités
-
-États
-
-Conventions MQTT
+* heartbeat ;
+* monitor ;
+* recovery.
 
 ---
 
-# 🏗 Architecture
+## Statistiques
 
-Architecture entièrement documentée.
+Fin du Sprint 4 :
 
-Validation de :
+```text
+Python 3.13
 
-- découplage métier
-- inversion des dépendances
-- ports/adapters
-- injection des dépendances
-- responsabilité unique
+204 tests
 
----
+204 réussis
 
-# 📑 ADR
+0 échec
 
-Validation des ADR :
+Ruff
 
-- ADR-0001
-- ADR-0002
-- ADR-0003
-- ADR-0004
-- ADR-0005
-- ADR-0006
-- ADR-0007
-- ADR-0008
-- ADR-0009
-- ADR-0010
-- ADR-0011
-- ADR-0012
-- ADR-0013
-- ADR-0014
+100 % conforme
+```
 
 ---
 
-# 🧪 Tests
+## Améliorations
 
-Couverture complète des composants.
+### Architecture
 
-156 tests unitaires.
-
-Tests :
-
-- Application
-
-- Dispatcher
-
-- Events
-
-- Commands
-
-- Lifecycle
-
-- MQTT
-
-- Configuration
-
-- Runtime
-
-- Serialization
-
-- Infrastructure
-
-Tous les tests sont validés.
+* séparation claire entre supervision et récupération ;
+* découplage complet entre Health et Recovery ;
+* suppression des duplications dans le Recovery Engine ;
+* extraction des stratégies dans leur propre module ;
+* préparation des futures politiques avancées.
 
 ---
 
-# 🔧 Qualité
+### Qualité
 
-Validation complète :
+Amélioration de :
 
-- Ruff
-
-- Pytest
-
-- Typage
-
-- Architecture
-
-- ADR
-
-- Documentation
+* la lisibilité ;
+* la modularité ;
+* la testabilité ;
+* l'évolutivité.
 
 ---
 
-# 🚀 Performances
+## Compatibilité
 
-Optimisations :
+Aucune rupture de compatibilité interne.
 
-- réduction des dépendances
-
-- initialisation plus rapide
-
-- réduction des allocations
-
-- simplification du dispatcher
-
-- amélioration du routage MQTT
+Les packages existants restent compatibles avec les versions précédentes du noyau.
 
 ---
 
-# 📚 Documentation
+## Dette technique
 
-Nouvelle documentation V3.
+Dette technique restante volontairement limitée :
 
-Ajout :
+* future extraction de `HealthStatus`, `HealthResult` et `HealthCheck` dans des modules dédiés ;
+* introduction d'un `RecoveryContext` ;
+* création d'un `PolicyRegistry`.
 
-README
-
-ROADMAP
-
-CORE
-
-CHANGELOG
-
-Architecture
-
-ADR
-
-Documentation développeur
-
-Conventions MQTT
-
-Guide d'extension
+Ces évolutions sont identifiées mais ne constituent pas des anomalies.
 
 ---
 
-# 🔒 Fiabilité
+# Historique
 
-Amélioration :
+## Version 3.0.0
 
-- gestion des erreurs
+### Sprint 3 — MQTT Runtime
 
-- isolation des composants
+Ajout de :
 
-- robustesse MQTT
+* client MQTT ;
+* Publisher ;
+* Subscriber ;
+* reconnexion automatique ;
+* transport MQTT ;
+* messages typés.
 
-- validation des messages
+Architecture événementielle finalisée.
 
-- arrêt propre
-
-- démarrage sécurisé
-
----
-
-# 🎯 Objectif atteint
-
-Le cœur d'Ohanna-Agent est désormais considéré comme stable.
-
-Le projet est prêt pour :
-
-- les plugins métiers
-
-- Home Assistant
-
-- ESPHome
-
-- Zigbee2MQTT
-
-- Node-RED
-
-- MQTT distribué
-
-- scénarios domotiques complexes
+**156 tests validés.**
 
 ---
 
-# [2.0.0] - 2026-07-08
+## Version 2.0.0
 
-## Ajouts
+### Sprint 2 — Core Services
 
-### Phase 2 — Core Services
+Ajout de :
 
-Création :
+* Dispatcher ;
+* Event Bus ;
+* Scheduler ;
+* Services ;
+* Messages ;
+* Plugins.
 
-- Application
-- Dispatcher
-- Services
-- Configuration
-- Tests unitaires
-
-76 tests validés.
-
----
-
-# [1.0.0] - 2026-07-07
-
-## Première version publique
-
-Création des fondations du projet.
-
-Ajouts :
-
-- architecture hexagonale
-- événements
-- commandes
-- lifecycle
-- conventions MQTT
-- philosophie
-- documentation initiale
+Architecture du noyau consolidée.
 
 ---
 
-# Versions futures
+## Version 1.0.0
 
-Les prochaines versions introduiront :
+### Sprint 1 — Foundation
 
-## Version 3.1
+Création du noyau Shikamaru.
 
-- Plugin Manager
-- découverte automatique des plugins
-- chargement dynamique
-- dépendances entre plugins
+Ajout de :
 
----
-
-## Version 3.2
-
-- Scheduler
-- tâches planifiées
-- timers
-- cron
+* Application ;
+* Lifecycle ;
+* Configuration ;
+* Logger ;
+* Services de base.
 
 ---
 
-## Version 3.3
+## Version 0.1.0
 
-- supervision
-- métriques
-- Health API
-- monitoring
+### Sprint 0 — Architecture
+
+Création du projet.
+
+Définition de :
+
+* Vision ;
+* Philosophie ;
+* Architecture ;
+* Capacités ;
+* Conventions MQTT ;
+* Documentation ;
+* ADR fondatrices.
 
 ---
 
-## Version 3.4
+# Perspectives
 
-- Web API
-- REST
-- WebSocket
+Le Sprint 5 sera consacré au développement des premiers plugins d'infrastructure :
+
+* DNS ;
+* DHCP ;
+* NTP ;
+* Supervision système ;
+* Découverte réseau.
+
+Ces plugins s'appuieront directement sur les nouvelles capacités de supervision et de résilience introduites lors du Sprint 4.
 
 ---
 
-## Version 4.0
+# Conclusion
 
-Première version LTS d'Ohanna-Agent.
+Le Sprint 4 constitue une évolution majeure d'Ohanna-Agent.
 
-Objectifs :
+Le projet passe d'un framework événementiel centré sur MQTT à un **framework d'agents autonomes**, capable de superviser son état, de détecter les anomalies et d'orchestrer des mécanismes d'auto-réparation.
 
-- stabilité long terme
-- API figée
-- compatibilité des plugins
-- documentation utilisateur
+Cette version établit les fondations techniques qui permettront de développer les futurs plugins d'infrastructure tout en conservant une architecture modulaire, testable et conforme aux ADR.

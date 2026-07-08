@@ -1,405 +1,791 @@
-# ROADMAP.md
+# ROADMAP
 
-# Roadmap d'Ohanna-Agent
-
-> **Version : 3.0**
->
-> État du projet : **Phase 3 terminée**
->
-> Architecture stabilisée – Noyau Shikamaru opérationnel
+> Feuille de route officielle du projet **Ohanna-Agent**
 
 ---
 
 # Vision
 
-Ohanna-Agent a pour objectif de devenir un agent autonome, modulaire et distribué, capable de fonctionner durablement sur des infrastructures domestiques ou professionnelles.
+Ohanna-Agent a pour objectif de devenir un framework Python modulaire permettant de développer des agents d'infrastructure autonomes.
 
-Le développement suit plusieurs principes fondamentaux :
+Ces agents doivent être capables de :
 
-* simplicité du noyau ;
-* architecture orientée événements ;
-* communication exclusivement par MQTT ;
-* extensibilité par plugins ;
-* forte testabilité ;
-* documentation pilotée par les ADR.
+- administrer des services réseau ;
+- communiquer par événements ;
+- s'intégrer nativement à MQTT ;
+- superviser leur propre état ;
+- détecter les anomalies ;
+- tenter leur auto-réparation ;
+- fonctionner en mode dégradé lorsque cela est nécessaire.
 
-Chaque phase produit un logiciel entièrement fonctionnel avant de passer à la suivante.
+Le projet privilégie :
+
+- une architecture propre ;
+- une forte testabilité ;
+- un faible couplage ;
+- une documentation exhaustive ;
+- une évolution progressive par Sprint.
+
+---
+
+# Philosophie
+
+Chaque Sprint doit respecter les principes suivants :
+
+- aucune régression ;
+- architecture validée par ADR avant implémentation ;
+- couverture systématique par des tests unitaires ;
+- documentation synchronisée avec le code ;
+- faible dette technique.
+
+Chaque Sprint se termine par :
+
+- revue de code ;
+- audit d'architecture ;
+- mise à jour de la documentation ;
+- publication Git.
 
 ---
 
 # État actuel
 
-## Architecture
+Version :
 
-Le noyau **Shikamaru** est désormais entièrement opérationnel.
+```text
+4.0
+```
 
-Les composants principaux sont implémentés :
+État :
 
-* cycle de vie de l'application ;
-* EventBus ;
-* Dispatcher ;
-* système de commandes ;
-* configuration ;
-* journalisation ;
-* Runtime MQTT ;
-* intégration complète MQTT ↔ EventBus.
+```text
+Sprint 4 terminé
+```
 
-L'architecture est maintenant suffisamment stable pour accueillir les futurs plugins.
+Tests :
 
----
+```text
+204 tests
 
-## Documentation
+204 réussis
 
-La documentation d'architecture est maintenue parallèlement au code.
+0 échec
+```
 
-Les ADR validés documentent les décisions majeures.
+Qualité :
 
-Le projet possède désormais :
+```text
+Ruff
 
-* README
-* ROADMAP
-* CORE
-* CHANGELOG
-* documentation d'architecture
-* ADR
+100 % conforme
+```
 
 ---
 
-## Qualité
+# Historique
 
-À ce jour :
+## Sprint 0
 
-* **156 tests automatisés**
-* couverture des composants critiques
-* Ruff
-* Pytest
-* architecture validée
-* documentation synchronisée
+### Objectif
 
-Le projet privilégie la qualité du code avant l'ajout de nouvelles fonctionnalités.
-
----
-
-# Historique des phases
-
-## Sprint 0 — Fondation
-
-### Objectifs
-
-Créer les fondations du projet.
+Définir les fondations du projet.
 
 ### Réalisations
 
-* philosophie
-* architecture logicielle
-* modèle événementiel
-* conventions MQTT
-* documentation
-* premières ADR
+- Vision
+- Philosophie
+- Architecture
+- Capacités
+- MQTT
+- Plugins
+- Configuration
+- Documentation
+- ADR
 
-**Statut : Terminé**
+### Résultat
+
+Architecture entièrement définie.
 
 ---
 
-## Sprint 1 — Noyau
+## Sprint 1
 
-### Objectifs
+### Objectif
 
-Créer le noyau Shikamaru.
+Construire le noyau Shikamaru.
 
 ### Réalisations
 
-* Event
-* EventBus
-* Dispatcher
-* Commands
-* Lifecycle
-* Configuration
-* Logger
+- Lifecycle
+- Application
+- Configuration
+- Services
+- Logger
+- Initialisation
+- Tests
 
-**Statut : Terminé**
+### Résultat
+
+Premier noyau fonctionnel.
 
 ---
 
-## Sprint 2 — Services Core
+## Sprint 2
 
-### Objectifs
+### Objectif
 
-Construire les services principaux.
+Mettre en place les services internes.
 
 ### Réalisations
 
-* Application
-* Bootstrap
-* Services Core
-* amélioration des tests
-* stabilisation de l'architecture
+- Dispatcher
+- Events
+- Messages
+- Scheduler
+- Services
+- Plugins
 
-**Statut : Terminé**
+### Résultat
+
+Architecture événementielle complète.
 
 ---
 
-## Sprint 3 — Runtime MQTT
+## Sprint 3
 
-### Objectifs
+### Objectif
 
-Permettre au noyau de communiquer avec le reste du système.
+Implémenter le runtime MQTT.
 
 ### Réalisations
 
-* Runtime MQTT
-* connexion Broker
-* publication
-* souscription
-* intégration EventBus
-* architecture événementielle distribuée
+- MQTT Client
+- Publisher
+- Subscriber
+- Transport
+- Reconnexion automatique
+- Messages MQTT
 
-ADR-0014 valide définitivement cette architecture.
+### Résultat
 
-**Statut : Terminé**
-
----
-
-# Prochaines phases
-
-Le noyau étant désormais stable, les développements se concentrent sur les capacités de l'agent.
+Communication MQTT native entièrement opérationnelle.
 
 ---
 
-# Sprint 4 — Système de Plugins
+## Sprint 4
+
+### Objectif
+
+Rendre Shikamaru capable de superviser son état et de préparer son auto-réparation.
+
+### ADR
+
+- ADR-0015
+- ADR-0016
+- ADR-0017
+- ADR-0018
+- ADR-0019
+
+### Réalisations
+
+Package Health :
+
+- Health Monitor
+- Heartbeat
+- Watchdog
+
+Package Recovery :
+
+- Recovery Engine
+- Recovery Strategy
+- Recovery Policy
+- Recovery Action
+- Recovery Result
+
+Fonctionnalités :
+
+- surveillance des composants ;
+- agrégation de l'état de santé ;
+- prévention des récupérations concurrentes ;
+- historique des récupérations ;
+- mode dégradé.
+
+### Résultat
+
+Le noyau possède désormais les fondations d'un véritable agent autonome.
+
+---
+
+# État de l'architecture
+
+À la fin du Sprint 4 :
+
+```text
+Application
+
+↓
+
+Configuration
+
+↓
+
+Dispatcher
+
+↓
+
+Events
+
+↓
+
+MQTT Runtime
+
+↓
+
+Plugins
+
+↓
+
+Health Monitor
+
+↓
+
+Heartbeat
+
+↓
+
+Watchdog
+
+↓
+
+Recovery Engine
+
+↓
+
+Recovery Policy
+
+↓
+
+Recovery Strategy
+
+↓
+
+Recovery Action
+```
+
+Le noyau est maintenant entièrement modulaire.
+
+Les futurs développements concerneront principalement les plugins métier.
+
+---
+
+# Sprint 5 — Plugins Infrastructure
 
 ## Objectif
 
-Permettre à Ohanna-Agent d'être extensible sans modifier le noyau.
+Le Sprint 5 marque le début du développement des premiers plugins métier.
 
-### Fonctionnalités prévues
+Jusqu'à présent, Shikamaru fournit uniquement le framework.
 
-* PluginManager
-* découverte automatique
-* chargement dynamique
-* activation
-* désactivation
-* isolation
-* dépendances
-* métadonnées des plugins
-* API publique du noyau
-
-### Livrables
-
-* premier plugin officiel
-* documentation développeur
-* nouvelles ADR
+À partir de ce Sprint, il commencera à rendre des services concrets.
 
 ---
 
-# Sprint 5 — Scheduler
+## Objectifs principaux
+
+Développer les premiers plugins :
+
+- DNS
+- DHCP
+- NTP
+- Supervision système
+- Découverte réseau
+
+Chaque plugin devra :
+
+- utiliser le Dispatcher ;
+- publier ses événements ;
+- enregistrer ses Health Checks ;
+- déclarer ses Watchdogs ;
+- fournir une Recovery Strategy.
+
+---
+
+## Livrables
+
+### Plugin DNS
+
+Fonctionnalités envisagées :
+
+- résolution DNS
+- cache
+- statistiques
+- supervision
+- récupération automatique
+
+---
+
+### Plugin DHCP
+
+Fonctionnalités envisagées :
+
+- gestion des baux
+- réservation d'adresses
+- supervision
+- événements
+- récupération automatique
+
+---
+
+### Plugin NTP
+
+Fonctionnalités envisagées :
+
+- synchronisation
+- contrôle de dérive
+- supervision
+- métriques
+
+---
+
+### Plugin Supervision
+
+Fonctionnalités :
+
+- CPU
+- mémoire
+- disque
+- température
+- charge système
+
+---
+
+### Découverte réseau
+
+Première version de :
+
+- découverte automatique
+- inventaire réseau
+- publication MQTT
+
+---
+
+# Sprint 6 — Intégration Home Assistant
 
 ## Objectif
 
-Permettre l'exécution différée de commandes.
-
-### Fonctionnalités
-
-* tâches planifiées
-* timers
-* cron
-* événements périodiques
-* reprise après redémarrage
+Faire d'Ohanna-Agent un composant natif de Home Assistant.
 
 ---
 
-# Sprint 6 — Persistence
+## Fonctionnalités
+
+- MQTT Discovery
+- Entités
+- Diagnostics
+- Services Home Assistant
+- Device Information
+- Availability
+
+---
+
+## Entités prévues
+
+- État de santé
+- Plugins
+- CPU
+- RAM
+- Uptime
+- Version
+- Recovery
+- Watchdogs
+
+---
+
+## Services
+
+- Restart Plugin
+- Reload Plugin
+- Enable Plugin
+- Disable Plugin
+- Run Health Check
+- Trigger Recovery
+
+---
+
+# Sprint 7 — Interface Web
 
 ## Objectif
 
-Ajouter une mémoire persistante.
-
-### Fonctionnalités
-
-* stockage des états
-* historique
-* snapshots
-* restauration
-* sérialisation
+Créer une interface Web légère permettant de superviser Shikamaru.
 
 ---
 
-# Sprint 7 — Observabilité
+## Tableau de bord
+
+Visualisation :
+
+- état global
+- plugins
+- MQTT
+- Health Monitor
+- Watchdogs
+- Recoveries
+
+---
+
+## Plugins
+
+Vue détaillée :
+
+- version
+- état
+- configuration
+- statistiques
+
+---
+
+## Health
+
+Affichage :
+
+- Health Checks
+- Heartbeats
+- Watchdogs
+- historique
+
+---
+
+## Recovery
+
+Visualisation :
+
+- tentatives
+- historique
+- actions
+- stratégies
+
+---
+
+# Sprint 8 — Supervision avancée
 
 ## Objectif
 
-Rendre le système observable.
-
-### Fonctionnalités
-
-* métriques
-* Health Check avancé
-* Prometheus
-* traces
-* statistiques
-* supervision
+Renforcer les capacités d'observation.
 
 ---
 
-# Sprint 8 — Sécurité
+## Fonctionnalités
+
+- métriques
+- statistiques
+- historique
+- alertes
+- journal des événements
+
+---
+
+## Métriques prévues
+
+Application :
+
+- uptime
+- mémoire
+- CPU
+- threads
+
+Plugins :
+
+- état
+- temps de réponse
+- nombre d'erreurs
+
+MQTT :
+
+- publications
+- abonnements
+- reconnexions
+
+Recovery :
+
+- nombre de recoveries
+- temps moyen
+- taux de réussite
+
+---
+
+## Alertes
+
+Détection :
+
+- watchdog expiré
+- plugin arrêté
+- erreur critique
+- mode dégradé
+- récupération impossible
+
+---
+
+# Sprint 9 — Haute disponibilité
 
 ## Objectif
 
-Renforcer la sécurité.
+Préparer Ohanna-Agent à fonctionner dans des architectures distribuées.
 
-### Fonctionnalités
-
-* authentification MQTT
-* ACL
-* signature des messages
-* validation
-* contrôle des permissions
+Le noyau devra être capable de collaborer avec d'autres instances afin d'assurer la continuité de service.
 
 ---
 
-# Sprint 9 — Plugins Officiels
+## Fonctionnalités
 
-Développement des premiers plugins :
+### Agents distribués
 
-* MQTT Discovery
-* Home Assistant
-* ESPHome
-* Shell
-* HTTP
-* Webhook
-* Scheduler
-* Notifications
+Plusieurs instances de Shikamaru pourront coopérer.
+
+Exemples :
+
+- serveur principal ;
+- serveur secondaire ;
+- Raspberry Pi ;
+- machine virtuelle.
 
 ---
 
-# Sprint 10 — Distribution
+### Synchronisation
+
+Les agents devront partager :
+
+- leur état ;
+- leurs capacités ;
+- leur santé ;
+- leurs événements.
+
+---
+
+### Réplication
+
+Les composants critiques pourront être répliqués.
+
+Exemples :
+
+- configuration ;
+- plugins ;
+- états internes.
+
+---
+
+### Tolérance aux pannes
+
+En cas d'arrêt d'un agent :
+
+- détection automatique ;
+- redistribution des services ;
+- maintien du fonctionnement global.
+
+---
+
+# Sprint 10 — Version 1.0
 
 ## Objectif
 
-Faciliter le déploiement.
+Publier la première version stable d'Ohanna-Agent.
 
-### Livrables
-
-* Docker
-* Docker Compose
-* installation Linux
-* installation Windows
-* installation Raspberry Pi
+Cette version devra être utilisable en production.
 
 ---
 
-# Sprint 11 — API
+## Critères
 
-Création d'une API officielle.
+Architecture :
 
-### Fonctionnalités
+- stable ;
+- documentée ;
+- testée.
 
-* REST
-* WebSocket
-* authentification
-* documentation OpenAPI
+Code :
 
----
+- fortement typé ;
+- conforme Ruff ;
+- documenté.
 
-# Sprint 12 — Interface Web
+Tests :
 
-Développement d'une interface d'administration.
+- couverture importante ;
+- aucune régression.
 
-### Fonctionnalités
+Documentation :
 
-* tableau de bord
-* état des plugins
-* événements
-* métriques
-* configuration
-* journaux
-
----
-
-# Sprint 13 — Intelligence
-
-Développement des premières capacités d'automatisation.
-
-### Fonctionnalités
-
-* règles
-* workflows
-* scénarios
-* conditions
-* actions
-
----
-
-# Sprint 14 — Version 1.0
-
-Objectif :
-
-publier une première version stable.
-
-Elle comprendra :
-
-* noyau stable
-* API stable
-* plugins officiels
-* documentation complète
-* installation simplifiée
-* couverture de tests élevée
-
----
-
-# Priorités
-
-Les priorités du projet sont toujours les suivantes :
-
-1. stabilité du noyau ;
-2. qualité du code ;
-3. documentation ;
-4. tests ;
-5. extensibilité ;
-6. nouvelles fonctionnalités.
-
-Une fonctionnalité n'est ajoutée que si elle respecte ces principes.
-
----
-
-# Critères de validation d'une phase
-
-Chaque sprint est considéré comme terminé lorsque :
-
-* les fonctionnalités sont implémentées ;
-* les tests sont écrits ;
-* tous les tests passent avec succès ;
-* Ruff ne détecte aucune anomalie ;
-* la documentation est mise à jour ;
-* les ADR nécessaires sont validés.
-
----
-
-# État du projet
-
-| Élément           | Statut         |
-| ----------------- | -------------- |
-| Sprint 0          | ✅ Terminé      |
-| Sprint 1          | ✅ Terminé      |
-| Sprint 2          | ✅ Terminé      |
-| Sprint 3          | ✅ Terminé      |
-| Tests automatisés | ✅ 156          |
-| Architecture      | ✅ Stabilisée   |
-| MQTT Runtime      | ✅ Opérationnel |
-| ADR-0014          | ✅ Validé       |
-| Documentation     | ✅ Synchronisée |
+- complète ;
+- synchronisée avec le code ;
+- ADR à jour.
 
 ---
 
 # Vision à long terme
 
-À terme, Ohanna-Agent doit devenir une plateforme générique d'agents autonomes capable de :
+À terme, Ohanna-Agent devra être capable de piloter un ensemble de services d'infrastructure.
 
-* communiquer via MQTT ;
-* être entièrement piloté par événements ;
-* exécuter dynamiquement des plugins ;
-* superviser des équipements ;
-* interagir avec Home Assistant, ESPHome et d'autres systèmes ;
-* rester léger, robuste et facilement déployable sur Raspberry Pi, mini-PC ou serveurs Linux.
+Exemples :
 
-Le noyau **Shikamaru** constitue désormais une base solide sur laquelle pourront être construites toutes les futures capacités du projet.
+- DNS
+- DHCP
+- NTP
+- Reverse Proxy
+- VPN
+- MQTT
+- Monitoring
+- Découverte réseau
+- Sauvegardes
+- Home Assistant
+
+Chaque service restera implémenté sous forme de plugin indépendant.
+
+---
+
+# Dette technique
+
+Le projet suit une politique stricte de maîtrise de la dette technique.
+
+## Autorisée
+
+- amélioration de l'API ;
+- simplification du code ;
+- optimisation des performances ;
+- refactoring documenté.
+
+---
+
+## Refusée
+
+- duplication de code ;
+- dépendances circulaires ;
+- contournement des ADR ;
+- fonctionnalités non testées.
+
+---
+
+# Indicateurs de qualité
+
+Chaque Sprint est évalué selon les critères suivants.
+
+## Architecture
+
+- séparation des responsabilités ;
+- faible couplage ;
+- extensibilité.
+
+---
+
+## Qualité
+
+- Ruff sans erreur ;
+- tests unitaires ;
+- documentation.
+
+---
+
+## Documentation
+
+Tous les documents doivent évoluer en même temps que le code.
+
+Documents concernés :
+
+- README.md
+- ROADMAP.md
+- CORE.md
+- CHANGELOG.md
+
+Les ADR restent la référence architecturale du projet.
+
+---
+
+# Vision Version 1.0
+
+La version 1.0 devra fournir :
+
+## Framework
+
+- architecture modulaire ;
+- système d'événements ;
+- MQTT natif ;
+- scheduler ;
+- services partagés.
+
+---
+
+## Supervision
+
+- Health Monitor ;
+- Heartbeat ;
+- Watchdog ;
+- métriques.
+
+---
+
+## Résilience
+
+- Recovery Engine ;
+- Recovery Policies ;
+- Recovery Strategies ;
+- auto-réparation ;
+- mode dégradé.
+
+---
+
+## Plugins
+
+Premiers plugins officiels :
+
+- DNS
+- DHCP
+- NTP
+- Supervision
+
+---
+
+## Home Assistant
+
+- MQTT Discovery ;
+- diagnostics ;
+- services ;
+- entités.
+
+---
+
+## Qualité
+
+Objectifs minimums :
+
+```text
+Python 3.13
+
+Architecture documentée
+
+ADR validées
+
+Documentation complète
+
+250+ tests unitaires
+
+Ruff 100 %
+
+Version stable
+
+Publication GitHub Release v1.0
+```
+
+---
+
+# Conclusion
+
+La feuille de route d'Ohanna-Agent est volontairement progressive.
+
+Chaque Sprint apporte une évolution fonctionnelle tout en préservant les principes fondamentaux du projet :
+
+- architecture claire ;
+- faible couplage ;
+- forte testabilité ;
+- documentation synchronisée ;
+- qualité du code.
+
+À l'issue du Sprint 4, Shikamaru dispose désormais des fondations d'un **framework d'agents autonomes**.
+
+Les prochains Sprints seront principalement consacrés au développement des plugins d'infrastructure et à leur intégration dans un environnement complet, jusqu'à la publication de la version **1.0**.

@@ -3,9 +3,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Any
 
+from core.capability.base import BaseCapability
+from core.capability.capability_manager import CapabilityManager
 from core.event import Event
-from core.events import EventBus
 from core.services import ServiceRegistry
 
 
@@ -105,22 +107,48 @@ class RegisteredPlugin:
 class PluginManager:
     """Manage plugin registration and lifecycle."""
 
-    def __init__(self, services: ServiceRegistry, event_bus: EventBus) -> None:
+    def __init__(
+        self,
+        services: ServiceRegistry,
+        event_bus: Any,
+        capability_manager: CapabilityManager | None = None,
+    ) -> None:
         self._services = services
         self._event_bus = event_bus
         self._plugins: dict[str, RegisteredPlugin] = {}
+        self._capability_manager = capability_manager
+
+
+    def register_plugin_capabilities(self, plugin: Any) -> list[BaseCapability]:
+        """Register capabilities exposed by a plugin."""
+        if self._capability_manager is None:
+            return []
+
+        capabilities_method = getattr(plugin, "capabilities", None)
+
+        if capabilities_method is None:
+            return []
+
+        capabilities = capabilities_method()
+
+        for capability in capabilities:
+            self._capability_manager.register(capability)
+
+        return capabilities
 
     def register(self, plugin: Plugin) -> None:
         """Register a plugin."""
         if plugin.name in self._plugins:
             raise PluginAlreadyRegisteredError(
-                f"Plugin already registered: {plugin.name}"
-            )
+            f"Plugin already registered: {plugin.name}"
+        )
 
         self._plugins[plugin.name] = RegisteredPlugin(
             plugin=plugin,
             state=PluginState.REGISTERED,
         )
+
+        self.register_plugin_capabilities(plugin)
         self._event_bus.publish(PluginLoaded(plugin_name=plugin.name))
 
     def initialize(self, name: str) -> None:

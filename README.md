@@ -1,268 +1,347 @@
 # Ohanna-Agent
 
-> **Un noyau d'agent IA modulaire, événementiel et extensible, conçu pour orchestrer des capacités, des services et des automatismes de manière fiable.**
+> Garantir les capacités d'une infrastructure, pas seulement surveiller ses composants.
 
-![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)
-![Tests](https://img.shields.io/badge/tests-453%20passed-success)
-![Ruff](https://img.shields.io/badge/lint-ruff-success)
-![Architecture](https://img.shields.io/badge/architecture-event--driven-blue)
-![Version](https://img.shields.io/badge/version-v0.9.0-orange)
+![Python](https://img.shields.io/badge/python-3.13+-blue.svg)
+![Tests](https://img.shields.io/badge/tests-502-success.svg)
+![Architecture](https://img.shields.io/badge/architecture-hexagonal-blueviolet.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ---
 
 # Vision
 
-Ohanna-Agent est un **framework de développement d'agents intelligents**.
+Une infrastructure fiable n'est pas simplement une infrastructure qui fonctionne.
 
-Son objectif est de fournir un **Kernel robuste** capable d'orchestrer :
+C'est une infrastructure capable de **garantir durablement les services qu'elle fournit**, malgré les mises à jour, les pannes matérielles ou les changements de configuration.
 
-* des capacités (Capabilities),
-* des services,
-* des commandes,
-* des workflows,
-* de la mémoire,
-* un ordonnanceur (Scheduler),
-* un bus d'événements.
+Ohanna-Agent ne surveille pas des logiciels.
 
-Le projet privilégie une architecture **simple, fortement testée et faiblement couplée**.
+Il garantit des **capacités**.
+
+Par exemple :
+
+- DNS
+- DHCP
+- MQTT
+- Home Assistant
+- Sauvegardes
+- Reverse Proxy
+- Docker
+- VPN
+- Accès Internet
+
+Chaque capacité possède son propre cycle de vie, son état, ses dépendances et sa stratégie de réparation.
+
+Le noyau d'Ohanna-Agent orchestre ces capacités sans connaître leur implémentation.
 
 ---
 
 # Philosophie
 
-Le Kernel ne contient aucune logique métier.
+Le projet repose sur cinq principes fondamentaux :
 
-Il fournit uniquement les briques nécessaires à la construction d'agents spécialisés.
+- Architecture hexagonale
+- Responsabilité unique (SRP)
+- Inversion des dépendances
+- Événements métier
+- Extensibilité par plugins
 
-Chaque composant doit être :
+Le noyau reste volontairement minimal et stable.
 
-* indépendant ;
-* testable ;
-* remplaçable ;
-* découplé des autres composants.
-
-Les interactions passent principalement par des événements afin de limiter les dépendances directes.
-
----
-
-# Fonctionnalités
-
-## Kernel
-
-* Gestion du cycle de vie de l'application
-* Dispatcher de commandes
-* Gestion des capacités
-* Gestion des services
-* Injection des dépendances
-* Architecture modulaire
-
-## Runtime
-
-* Runtime supervisé
-* Heartbeat
-* Watchdog
-* Monitoring
-* Statistiques d'exécution
-
-## Memory
-
-* Mémoire persistante
-* Mémoire de session
-* Mémoire d'exécution
-* Sérialisation
-* Statistiques
-* Scopes mémoire
-
-## Scheduler
-
-* Déclencheurs OneShot
-* Déclencheurs Interval
-* Déclencheurs Cron
-* Registre de tâches
-* Exécution de tâches
-* Statistiques
-* Runtime dédié
-* Scheduler événementiel
-
-## EventBus
-
-Le Scheduler est désormais totalement intégré au bus d'événements.
-
-Événements publiés :
-
-* SchedulerStarted
-* SchedulerStopped
-* SchedulerTicked
-* ScheduledTaskTriggered
-* ScheduledTaskExecuted
-* ScheduledTaskFailed
-
-Cette architecture permet d'observer l'activité du Scheduler sans créer de dépendance avec son implémentation.
+Toutes les fonctionnalités sont destinées à devenir des plugins.
 
 ---
 
 # Architecture
 
 ```
-                Application
-                      │
-     ┌────────────────┼────────────────┐
-     │                │                │
- Dispatcher       EventBus         Memory
-     │                ▲
-     │                │
-     └──────────── Scheduler
-                      │
-              Task Registry
-                      │
-               Task Executor
-                      │
-                 Triggers
+                    Application
+                          │
+                          ▼
+                   PluginManager
+                          │
+        ┌─────────────────┼─────────────────┐
+        │                 │                 │
+        ▼                 ▼                 ▼
+ PluginDiscovery     PluginLoader     PluginRegistry
+        │                 │                 │
+        ▼                 ▼                 ▼
+ DiscoveryProvider   PluginFactory    PluginRuntime
 ```
 
-Le Scheduler publie désormais tous ses événements via l'EventBus.
-
-Les composants consommateurs restent totalement découplés.
+Le SDK de plugins constitue désormais l'API publique officielle d'Ohanna-Agent.
 
 ---
 
-# Qualité
+# Noyau actuel
 
-Le projet est développé selon une approche **Test Driven Development (TDD)**.
+Le noyau (*Shikamaru*) fournit les services suivants :
 
-État actuel :
+- EventBus
+- Scheduler
+- Dispatcher
+- Runtime
+- Memory
+- Configuration
+- Capability Manager
+- Plugin SDK
 
-* **453 tests automatisés**
-* Ruff
-* Typage Python moderne
-* Dataclasses
-* Architecture découplée
-* Injection de dépendances
-
-Chaque Sprint est validé uniquement lorsque :
-
-* tous les tests passent ;
-* aucune régression n'est détectée ;
-* la qualité de code est conforme.
+Le noyau ne contient aucune logique métier spécifique à une capacité.
 
 ---
 
-# Arborescence
+# Plugin SDK
+
+Chaque plugin est totalement indépendant du noyau.
+
+Il implémente simplement :
+
+```python
+class MyPlugin(Plugin):
+
+    @property
+    def manifest(self):
+        ...
+
+    def register(self, context):
+        ...
+```
+
+Le plugin reçoit un `PluginContext` qui expose uniquement les services publics du noyau.
+
+Il n'a jamais accès directement à l'objet `Application`.
+
+---
+
+# Cycle de vie d'un plugin
 
 ```
-application.py
+DISCOVERED
+      │
+      ▼
+LOADED
+      │
+      ▼
+REGISTERED
+      │
+      ▼
+UNLOADED
+```
 
-core/
+L'état d'exécution est conservé dans le `PluginRuntime`.
+
+---
+
+# Découverte des plugins
+
+Le SDK sépare clairement les responsabilités.
+
+```
+Filesystem
+      │
+      ▼
+LocalDirectoryProvider
+      │
+      ▼
+PluginDiscovery
+      │
+      ▼
+PluginDescriptor
+```
+
+De nouveaux fournisseurs pourront être ajoutés sans modifier le noyau :
+
+- Git
+- ZIP
+- HTTP
+- Marketplace
+- NAS
+
+---
+
+# Chargement des plugins
+
+Le chargement est lui aussi découplé.
+
+```
+PluginDescriptor
+        │
+        ▼
+PluginLoader
+        │
+        ▼
+PluginFactory
+        │
+        ▼
+Plugin
+```
+
+Le Loader orchestre uniquement le chargement.
+
+Le Factory instancie les plugins.
+
+---
+
+# Capacités
+
+Les capacités représentent les services garantis par Ohanna-Agent.
+
+Exemples :
+
+- DNS
+- DHCP
+- MQTT
+- Home Assistant
+- Docker
+- Reverse Proxy
+- Sauvegardes
+- VPN
+- Internet
+
+Chaque capacité possède :
+
+- un état
+- des dépendances
+- des diagnostics
+- des actions correctives
+
+---
+
+# Organisation du projet
+
+```
+application/
+
+capability/
+
+configuration/
+
+dispatcher/
+
+eventbus/
+
 memory/
-monitoring/
-mqtt/
+
+plugin/
+
 scheduler/
-services/
+
+runtime/
+
 tests/
 
 docs/
 ```
 
----
+Chaque module suit les mêmes principes d'architecture :
 
-# Installation
-
-```bash
-git clone https://github.com/<utilisateur>/Ohanna-Agent.git
-
-cd Ohanna-Agent
-
-python -m venv .venv
-
-source .venv/bin/activate
-```
-
-Windows :
-
-```powershell
-.venv\Scripts\activate
-```
-
-Installation :
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# Lancer les tests
-
-```bash
-pytest
-```
-
----
-
-# Vérification qualité
-
-```bash
-ruff check .
-```
-
----
-
-# État du projet
-
-| Élément                | Statut |
-| ---------------------- | :----: |
-| Kernel                 |    ✅   |
-| Runtime                |    ✅   |
-| Memory                 |    ✅   |
-| EventBus               |    ✅   |
-| Scheduler              |    ✅   |
-| Scheduler événementiel |    ✅   |
-| MQTT Runtime           |    ✅   |
-| Monitoring             |    ✅   |
-| Tests                  |  ✅ 453 |
-
----
-
-# Roadmap
-
-Les prochaines évolutions prévues concernent notamment :
-
-* Observabilité avancée
-* Supervision Runtime
-* SDK de plugins
-* Workflows avancés
-* Capacités IA
-* Intégrations Home Assistant
-* Intégrations MQTT
-
-Voir le fichier **ROADMAP.md** pour le détail.
+- Registry
+- Runtime
+- Manager
 
 ---
 
 # Documentation
 
-La documentation du projet est disponible dans le dossier :
+Le projet est accompagné d'une documentation complète :
 
-```
-docs/
-```
-
-Elle comprend notamment :
-
-* Architecture du Kernel
-* ADR
-* Conventions
-* Roadmap
-* Changelog
+- Architecture
+- ADR
+- Roadmap
+- Changelog
+- Philosophie
+- Capacités
+- MQTT
+- Plugins
+- Configuration
 
 ---
 
-# Licence
+# Qualité
 
-Ce projet est distribué sous licence MIT.
+Le projet applique systématiquement :
+
+- Ruff
+- Pytest
+- Architecture orientée événements
+- Injection de dépendances
+- Typage Python
+- Documentation des décisions (ADR)
+
+État actuel :
+
+- **502 tests unitaires**
+- **100 % des tests validés**
+- **Aucune dette technique majeure identifiée**
 
 ---
 
-# Auteur
+# Roadmap
 
-Projet développé dans le cadre de **Ohanna**, une plateforme modulaire destinée à la création d'agents intelligents, autonomes et extensibles.
+## Phase 1
+
+✔ Noyau Shikamaru
+
+✔ EventBus
+
+✔ Scheduler
+
+✔ Dispatcher
+
+✔ Runtime
+
+✔ Memory
+
+✔ Capability Engine
+
+✔ Plugin SDK
+
+---
+
+## Phase 2
+
+Création des premiers plugins :
+
+- DNS
+- DHCP
+- MQTT
+- Docker
+- Home Assistant
+
+---
+
+## Phase 3
+
+Dashboard Web indépendant de Home Assistant.
+
+---
+
+## Phase 4
+
+Intégration native Home Assistant.
+
+---
+
+# Objectif
+
+À terme, Ohanna-Agent devra être capable de garantir automatiquement l'ensemble des capacités définies par l'architecture de référence d'Ohanna-House.
+
+Le projet doit rester :
+
+- modulaire ;
+- extensible ;
+- documenté ;
+- testé ;
+- indépendant des technologies qu'il supervise.
+
+---
+
+# État du projet
+
+**Sprint 10 terminé**
+
+- ✅ SDK public de plugins
+- ✅ Architecture entièrement découplée
+- ✅ 502 tests validés
+- ✅ Architecture prête à accueillir les premiers plugins métier

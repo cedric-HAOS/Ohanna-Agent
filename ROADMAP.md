@@ -1,301 +1,457 @@
-# ROADMAP — Ohanna-Agent
+# ROADMAP
 
-## Vision
-
-Ohanna-Agent n'est pas un superviseur d'équipements.
-
-Il est le garant des **capacités** définies par l'architecture de référence d'Ohanna-House.
-
-Les logiciels évoluent.
-
-Les matériels changent.
-
-Les services sont remplacés.
-
-Les capacités, elles, doivent rester disponibles.
-
-Ohanna-Agent observe, évalue et garantit ces capacités indépendamment des technologies qui les implémentent.
-
-> **Les logiciels changent. Les capacités demeurent.**
+> Construire une plateforme capable de garantir durablement les capacités d'une infrastructure.
 
 ---
 
-# État actuel
+# Vision
 
-Le noyau logiciel est désormais mature.
+Le développement d'Ohanna-Agent est organisé en grandes phases.
 
-Il fournit :
+Chaque phase construit un niveau d'abstraction supplémentaire.
 
-* une architecture modulaire ;
-* un Runtime supervisé ;
-* un Scheduler événementiel ;
-* un système mémoire ;
-* un Dispatcher ;
-* un EventBus ;
-* une forte couverture de tests.
+```
+Core
+    ↓
+SDK
+    ↓
+Plugins
+    ↓
+Dashboard
+    ↓
+Home Assistant
+    ↓
+Marketplace
+```
 
-Cette base constitue le socle des prochaines évolutions.
+Le noyau (*Shikamaru*) évolue lentement.
+
+Les fonctionnalités évoluent principalement sous forme de plugins.
 
 ---
 
-# Phase I — Foundation ✅
+# Phase 1 — Noyau Shikamaru
 
 ## Objectif
 
-Construire un noyau robuste, modulaire et fortement testé.
+Construire un noyau stable, découplé et entièrement testable.
 
-## Réalisations
+## État
+
+**Terminée**
+
+---
+
+### Sprint 0
+
+Architecture initiale
+
+* Philosophie
+* Architecture logicielle
+* ADR
+* Documentation
+* Premiers tests
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 1
+
+Core
 
 * Application
+* Configuration
+* Lifecycle
+* Injection de dépendances
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 2
+
+Services fondamentaux
+
+* EventBus
 * Dispatcher
 * Runtime
-* Services
-* Memory
-* Scheduler
-* EventBus
-* Monitoring
-* MQTT Runtime
-* Architecture événementielle
+* Événements
 
-**État : Terminé**
+**Statut :** ✅ Terminé
 
 ---
 
-# Phase II — Modèle de capacités
+### Sprint 3
+
+MQTT Runtime
+
+* Publication
+* Modèle de messages
+* Architecture MQTT
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 4
+
+Auto-réparation
+
+* Commandes
+* Actions
+* Moteur d'exécution
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 5
+
+Capability Engine
+
+* Capacités
+* Dépendances
+* États
+* Diagnostics
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 6
+
+Scheduler
+
+* Scheduler
+* Runtime
+* Statistiques
+* Événements
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 7
+
+Memory
+
+* MemoryManager
+* Injection de dépendances
+* Persistance
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 8
+
+Architecture événementielle
+
+* EventBus avancé
+* Nouveaux événements
+* Découplage
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 9
+
+Stabilisation du Core
+
+* Audit
+* Documentation
+* Refactorisation
+* Nettoyage
+
+**Statut :** ✅ Terminé
+
+---
+
+### Sprint 10
+
+Public Plugin SDK
+
+* Plugin SDK
+* PluginContext
+* Protocoles publics
+* PluginDiscovery
+* DiscoveryProvider
+* PluginDescriptor
+* PluginLoader
+* PluginFactory
+* PluginRegistry
+* PluginRuntime
+* PluginManager
+* ADR-0027
+
+**Statut :** ✅ Terminé
+
+---
+
+# Phase 2 — Plugins métier
 
 ## Objectif
 
-Faire évoluer Ohanna-Agent d'un ordonnanceur de tâches vers un garant de capacités.
+Développer les premières capacités réelles d'Ohanna-Agent.
 
-Une capacité représente un service attendu par l'infrastructure.
+Chaque capacité devient un plugin indépendant.
 
-Exemples :
+---
 
-* DNS
-* DHCP
-* MQTT
-* Home Assistant
+### Sprint 11
+
+Plugin DNS
+
+* Vérification DNS
+* Résolution
+* Temps de réponse
+* Diagnostics
+
+**Statut :** ⏳ Prévu
+
+---
+
+### Sprint 12
+
+Plugin DHCP
+
+* Vérification DHCP
+* Attribution d'adresses
+* Diagnostics
+
+**Statut :** ⏳ Prévu
+
+---
+
+### Sprint 13
+
+Plugin MQTT
+
+* Broker
+* Publication
+* Souscription
+* Boucle de validation
+
+**Statut :** ⏳ Prévu
+
+---
+
+### Sprint 14
+
+Plugin Docker
+
+* Conteneurs
+* Santé
+* Redémarrage
+* Diagnostics
+
+**Statut :** ⏳ Prévu
+
+---
+
+### Sprint 15
+
+Plugin Home Assistant
+
+* API
+* Santé
+* Entités
+* Services
+
+**Statut :** ⏳ Prévu
+
+---
+
+### Sprint 16
+
+Plugins réseau
+
+* Ping
+* HTTP
+* HTTPS
+* Reverse Proxy
+
+**Statut :** ⏳ Prévu
+
+---
+
+### Sprint 17
+
+Plugins système
+
 * Sauvegardes
-* Téléinformation
-* Accès distant
-* Supervision
+* Stockage
+* Disques
+* Certificats
+
+**Statut :** ⏳ Prévu
+
+---
+
+# Phase 3 — Dashboard Web
+
+## Objectif
+
+Construire une interface Web totalement indépendante de Home Assistant.
+
+Le Dashboard doit continuer à fonctionner même si Home Assistant est indisponible.
+
+---
+
+### Sprint 18
+
+Serveur Web
+
+* Backend HTTP
+* API REST
+* Authentification
+
+---
+
+### Sprint 19
+
+Interface Web
+
+* Plugins
+* Capacités
+* Diagnostics
+* Runtime
+
+---
+
+### Sprint 20
+
+Visualisation
+
+* États
+* Dépendances
+* Historique
+* Journal des événements
+
+---
+
+### Sprint 21
+
+Administration
+
+* Configuration
+* Journaux
+* Exécution d'actions
+* Diagnostics avancés
+
+---
+
+# Phase 4 — Intégration Home Assistant
+
+## Objectif
+
+Exposer les informations du noyau dans Home Assistant.
+
+Home Assistant devient un consommateur des données produites par Ohanna-Agent.
+
+---
+
+### Sprint 22
+
+Intégration officielle
+
+* Entités
+* Diagnostics
+* Services
+
+---
+
+### Sprint 23
+
+Commandes
+
+* Réparations
+* Redémarrages
+* Maintenance
+
+---
+
+### Sprint 24
+
+Automatisations
+
+* Événements
+* Déclencheurs
 * Notifications
 
-Chaque capacité possédera notamment :
-
-* un identifiant ;
-* une description ;
-* un état courant ;
-* un niveau de criticité ;
-* une fréquence de vérification ;
-* un ou plusieurs contrôles de santé.
-
-Le Scheduler exécutera des vérifications de capacités plutôt que de simples tâches techniques.
-
 ---
 
-# Phase III — Fournisseurs de capacités
+# Phase 5 — Plateforme
 
 ## Objectif
 
-Séparer les capacités de leurs implémentations techniques.
-
-Une même capacité pourra être assurée par un ou plusieurs fournisseurs.
-
-Exemple :
-
-**Capacité : DNS**
-
-Fournisseurs possibles :
-
-* AdGuard Home
-* Pi-hole
-* Unbound
-
-Le remplacement d'un logiciel ne devra jamais remettre en cause la capacité garantie.
-
-Cette abstraction permettra :
-
-* la redondance ;
-* la haute disponibilité ;
-* les migrations ;
-* les évolutions de l'infrastructure.
+Transformer Ohanna-Agent en plateforme d'extensions.
 
 ---
 
-# Phase IV — Tableau de bord Web
+### Sprint 25
 
-## Objectif
+Marketplace
 
-Créer une interface Web native permettant de superviser Ohanna-Agent sans dépendre d'un logiciel tiers.
-
-Cette interface devra rester disponible même si Home Assistant est indisponible.
-
-Le tableau de bord présentera notamment :
-
-* les capacités disponibles ;
-* leur état de santé ;
-* leur niveau de disponibilité ;
-* les fournisseurs utilisés ;
-* les événements récents ;
-* les tâches planifiées ;
-* les alertes ;
-* les statistiques d'exécution.
-
-À terme, cette interface constituera la console d'administration d'Ohanna-Agent.
+* Installation
+* Désinstallation
+* Mise à jour
 
 ---
 
-# Phase V — Intégration Home Assistant
+### Sprint 26
 
-## Objectif
+Gestion des dépendances
 
-Intégrer naturellement Ohanna-Agent dans Home Assistant.
-
-Les capacités seront publiées sous forme d'entités Home Assistant.
-
-Exemples :
-
-* capteurs d'état ;
-* disponibilités ;
-* diagnostics ;
-* alertes ;
-* statistiques ;
-* événements.
-
-Home Assistant deviendra une interface de consultation et d'automatisation supplémentaire, sans être indispensable au fonctionnement d'Ohanna-Agent.
+* Compatibilité
+* Versions
+* Contraintes
 
 ---
 
-# Phase VI — Politiques de disponibilité
+### Sprint 27
 
-## Objectif
+Plugins distants
 
-Définir ce que signifie une capacité "fonctionnelle".
-
-Chaque capacité pourra disposer de politiques telles que :
-
-* disponibilité minimale ;
-* fréquence maximale des erreurs ;
-* temps de réponse attendu ;
-* seuils d'alerte ;
-* périodes de maintenance.
-
-Les politiques permettront d'évaluer objectivement l'état des capacités.
+* Git
+* HTTP
+* ZIP
 
 ---
 
-# Phase VII — Diagnostic
+### Sprint 28
 
-## Objectif
+Sécurité
 
-Comprendre pourquoi une capacité est dégradée.
-
-Le moteur de diagnostic analysera :
-
-* les événements ;
-* l'historique ;
-* les dépendances ;
-* les fournisseurs ;
-* les symptômes observés.
-
-L'objectif est d'identifier automatiquement la cause la plus probable d'une dégradation.
+* Signatures
+* Vérification
+* Sandbox
 
 ---
 
-# Phase VIII — Remédiation
+# Améliorations transverses
 
-## Objectif
+Ces travaux pourront être réalisés entre plusieurs sprints.
 
-Proposer ou exécuter des actions correctives.
-
-Exemples :
-
-* redémarrage d'un service ;
-* bascule vers un fournisseur secondaire ;
-* relance d'une tâche ;
-* notification de l'administrateur ;
-* exécution d'un scénario de secours.
-
-Chaque remédiation sera traçable et vérifiable.
+* Optimisations des performances.
+* Renforcement des diagnostics.
+* Amélioration de la couverture de tests.
+* Refactorisations internes.
+* Documentation.
+* ADR supplémentaires.
+* Modernisation du code Python.
+* Harmonisation des patterns (Registry / Runtime / Manager / Provider).
 
 ---
 
-# Phase IX — Autonomie
+# Vision finale
 
-## Objectif
+À terme, Ohanna-Agent devra être capable de garantir automatiquement les capacités d'une infrastructure complète.
 
-Permettre à Ohanna-Agent de maintenir les capacités sans intervention humaine.
+Le noyau restera volontairement stable.
 
-Le cycle deviendra :
+Les nouvelles fonctionnalités seront principalement développées sous forme de plugins.
 
-Observation
-
-↓
-
-Diagnostic
-
-↓
-
-Décision
-
-↓
-
-Action
-
-↓
-
-Validation
-
-↓
-
-Retour à un état nominal
-
-L'objectif est d'augmenter progressivement le niveau d'autonomie tout en conservant le contrôle de l'administrateur.
-
----
-
-# Phase X — Intelligence assistée
-
-## Objectif
-
-Utiliser l'intelligence artificielle comme outil d'analyse et d'aide à la décision.
-
-L'IA pourra notamment :
-
-* expliquer les incidents ;
-* corréler plusieurs événements ;
-* détecter des tendances ;
-* anticiper des dégradations ;
-* proposer des améliorations de l'architecture ;
-* assister l'administrateur dans ses décisions.
-
-L'intelligence artificielle n'a pas vocation à remplacer le moteur de supervision.
-
-Elle vient enrichir les capacités d'analyse d'Ohanna-Agent.
-
----
-
-# Principes directeurs
-
-Toutes les évolutions futures respecteront les principes suivants :
-
-* priorité aux capacités plutôt qu'aux logiciels ;
-* architecture modulaire ;
-* faible couplage ;
-* composants testables ;
-* développement guidé par les tests (TDD) ;
-* documentation systématiquement mise à jour ;
-* compatibilité ascendante autant que possible.
-
----
-
-# Vision à long terme
-
-À terme, Ohanna-Agent devra être capable de garantir qu'une capacité définie par l'architecture de référence reste disponible, quel que soit le logiciel, le matériel ou le fournisseur utilisé pour la mettre en œuvre.
-
-Le logiciel ne sera plus au centre de la supervision.
-
-La capacité rendue à l'utilisateur deviendra l'unité fondamentale du système.
-
-**Les logiciels changent. Les capacités demeurent.**
+Cette approche permettra de faire évoluer le projet pendant de nombreuses années sans remettre en cause son architecture fondamentale.

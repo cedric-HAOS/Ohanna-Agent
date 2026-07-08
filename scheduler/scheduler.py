@@ -3,8 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Protocol
 
 from scheduler.clock import Clock, SystemClock
+from scheduler.scheduler_events import (
+    ScheduledTaskExecuted,
+    ScheduledTaskFailed,
+    ScheduledTaskTriggered,
+    SchedulerStarted,
+    SchedulerStopped,
+    SchedulerTicked,
+)
 from scheduler.scheduler_runtime import SchedulerRuntime
 from scheduler.task import Task
 from scheduler.task_executor import (
@@ -15,6 +24,12 @@ from scheduler.task_executor import (
 from scheduler.task_registry import TaskRegistry
 
 
+class SchedulerEventBus(Protocol):
+    """Minimal event bus contract required by the scheduler."""
+
+    def publish(self, event: object) -> None:
+        """Publish an event."""
+
 @dataclass
 class Scheduler:
     """Orchestrate scheduled tasks."""
@@ -23,6 +38,7 @@ class Scheduler:
     registry: TaskRegistry = field(default_factory=TaskRegistry)
     executor: TaskExecutor = field(default_factory=DryRunTaskExecutor)
     runtime: SchedulerRuntime = field(default_factory=SchedulerRuntime)
+    event_bus: SchedulerEventBus | None = None
 
     @property
     def running(self) -> bool:
@@ -34,12 +50,14 @@ class Scheduler:
         now = self.clock.now()
         self.runtime.mark_starting()
         self.runtime.mark_running(now)
+        self._publish_event(SchedulerStarted())
 
     def stop(self) -> None:
         """Stop the scheduler."""
         now = self.clock.now()
         self.runtime.mark_stopping()
         self.runtime.mark_stopped(now)
+        self._publish_event(SchedulerStopped())
 
     def add_task(self, task: Task) -> None:
         """Add a task to the scheduler."""
@@ -68,13 +86,46 @@ class Scheduler:
 
         now = self.clock.now()
         self.runtime.record_tick(now)
+        self._publish_event(SchedulerTicked())
 
-        results = [
-            self.executor.execute(task, now)
-            for task in self.registry.due_tasks(now)
-        ]
+        results: list[TaskExecutionResult] = []
 
-        for result in results:
+        for task in self.registry.due_tasks(now):
+            self._publish_event(
+                ScheduledTaskTriggered(
+                    task_name=task.name,
+                    command=task.command,
+                    arguments=task.arguments,
+                )
+            )
+
+            result = self.executor.execute(task, now)
+            results.append(result)
+
             self.runtime.statistics.record_task_result(result.success)
 
+            if result.success:
+                self._publish_event(
+                    ScheduledTaskExecuted(
+                        task_name=task.name,
+                        command=task.command,
+                        arguments=task.arguments,
+                        result=result,
+                    )
+                )
+            else:
+                self._publish_event(
+                    ScheduledTaskFailed(
+                        task_name=task.name,
+                        command=task.command,
+                        arguments=task.arguments,
+                        error=result.error or "",
+                    )
+                )
+
         return results
+
+    def _publish_event(self, event: object) -> None:
+        """Publish a scheduler event if an event bus is available."""
+        if self.event_bus is not None:
+            self.event_bus.publish(event)

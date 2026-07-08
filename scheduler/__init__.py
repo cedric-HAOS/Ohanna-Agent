@@ -1,13 +1,17 @@
-"""Scheduler primitives for Ohanna-Agent."""
+"""Scheduler package."""
 
 from scheduler.base_trigger import BaseTrigger
 from scheduler.clock import Clock, FakeClock, SystemClock
 from scheduler.cron_trigger import CronTrigger
-from scheduler.dispatcher_task_executor import DispatcherLike, DispatcherTaskExecutor
+from scheduler.dispatcher_task_executor import DispatcherTaskExecutor
 from scheduler.interval_trigger import IntervalTrigger
 from scheduler.oneshot_trigger import OneShotTrigger
 from scheduler.scheduler import Scheduler
 from scheduler.scheduler_events import (
+    ScheduledTaskExecuted,
+    ScheduledTaskFailed,
+    ScheduledTaskTriggered,
+    SchedulerEvent,
     SchedulerStarted,
     SchedulerStopped,
     SchedulerTicked,
@@ -19,35 +23,36 @@ from scheduler.task import Task, TaskState
 from scheduler.task_executor import (
     DryRunTaskExecutor,
     FailingTaskExecutor,
-    TaskExecutionResult,
     TaskExecutor,
 )
 from scheduler.task_registry import TaskRegistry
+from scheduler.trigger import Trigger
 
 __all__ = [
     "BaseTrigger",
     "Clock",
     "CronTrigger",
-    "DispatcherLike",
     "DispatcherTaskExecutor",
-    "DryRunTaskExecutor",
-    "FailingTaskExecutor",
     "FakeClock",
     "IntervalTrigger",
     "OneShotTrigger",
+    "ScheduledTaskExecuted",
+    "ScheduledTaskFailed",
+    "ScheduledTaskTriggered",
     "Scheduler",
+    "SchedulerEvent",
+    "SchedulerRuntime",
+    "SchedulerStarted",
+    "SchedulerState",
+    "SchedulerStatistics",
+    "SchedulerStopped",
+    "SchedulerTicked",
     "SystemClock",
     "Task",
-    "TaskExecutionResult",
     "TaskExecutor",
     "TaskRegistry",
     "TaskState",
-    "SchedulerState",
-    "SchedulerStatistics",
-    "SchedulerRuntime",
-    "Scheduler",
-    "SchedulerRuntime",
-    "SchedulerStarted",
-    "SchedulerStopped",
-    "SchedulerTicked",
+    "Trigger",
+    "DryRunTaskExecutor",
+    "FailingTaskExecutor",
 ]

@@ -1,166 +1,134 @@
 # Ohanna-Agent
 
-> Un framework Python moderne pour construire des agents autonomes, modulaires et événementiels.
+> **Un noyau d'agent intelligent, modulaire et événementiel, conçu pour être extensible, testable et indépendant des modèles d'IA.**
 
 ![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)
-![Tests](https://img.shields.io/badge/tests-422-success)
+![Tests](https://img.shields.io/badge/tests-438-success)
+![Ruff](https://img.shields.io/badge/lint-ruff-success)
+![Architecture](https://img.shields.io/badge/architecture-clean-success)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-v0.8.0-orange)
 
 ---
 
 # Présentation
 
-Ohanna-Agent est un framework Python permettant de développer des agents intelligents, extensibles et pilotés par événements.
+**Ohanna-Agent** est un framework Python permettant de construire des agents intelligents autonomes.
 
-Le projet privilégie :
+Le projet est conçu autour de plusieurs principes fondamentaux :
 
-- une architecture modulaire ;
-- un faible couplage entre les composants ;
-- une forte testabilité ;
-- une documentation orientée architecture (ADR) ;
-- une évolution incrémentale guidée par les tests.
+* Architecture modulaire
+* Injection de dépendances
+* Communication par événements
+* Faible couplage entre les composants
+* Forte couverture de tests
+* Documentation d'architecture complète
 
-Chaque fonctionnalité majeure est introduite par un sprint dédié et validée par une architecture documentée.
+Le noyau est totalement indépendant :
+
+* des modèles d'IA
+* des LLM
+* des transports réseau
+* des interfaces utilisateur
+
+Il peut être utilisé aussi bien pour des assistants personnels que pour des agents industriels ou des services distribués.
 
 ---
 
 # Philosophie
 
-Les principes fondateurs sont :
+Ohanna-Agent suit plusieurs principes de conception :
 
-- **Simplicité**
-- **Composition plutôt qu'héritage**
-- **Injection de dépendances**
-- **Événementiel**
-- **Typage fort**
-- **Testabilité**
-- **Architecture évolutive**
-- **Documentation avant implémentation**
+* **Composition plutôt qu'héritage**
+* **Injection de dépendances**
+* **Architecture événementielle**
+* **Faible couplage**
+* **Haute testabilité**
+* **Documentation avant implémentation**
+* **Évolution incrémentale par sprints**
 
 ---
 
 # Fonctionnalités actuelles
 
-## Cycle de vie
+## Noyau
 
-- États applicatifs
-- Gestion du lifecycle
-- États typés
-
----
-
-## Dispatcher
-
-- Routage des commandes
-- Découplage Command / Handler
-- Exécution centralisée
+* Runtime
+* Dispatcher de commandes
+* Registre de services
+* Gestionnaire de plugins
+* Gestionnaire de mémoire
+* Scheduler
+* EventBus
+* EventSubscription
 
 ---
 
-## Bus d'événements
+## Mémoire
 
-- Publication d'événements
-- Souscription
-- Diffusion interne
-
----
-
-## Services
-
-- Registre de services
-- Injection de dépendances
-- Résolution centralisée
-
----
-
-## Plugins
-
-- Gestionnaire de plugins
-- Architecture extensible
-- Chargement dynamique
+* Mémoire persistante
+* Mémoire de session
+* Mémoire runtime
+* Sérialisation
+* Statistiques
+* Scopes mémoire
 
 ---
 
 ## Scheduler
 
-- Planification de tâches
-- Exécution périodique
-- DispatcherTaskExecutor
-- Runtime Scheduler
+* Tâches planifiées
+* Déclencheurs OneShot
+* Déclencheurs Interval
+* Déclencheurs Cron
+* Priorités
+* Runtime
+* Statistiques
+* États
 
 ---
 
-## Capacités
+## Événements
 
-- Gestion des capacités
-- Activation / désactivation
-- Découverte des capacités
+Le noyau possède désormais un **EventBus** interne.
 
----
+Les composants peuvent publier ou recevoir des événements sans dépendances directes.
 
-## Mémoire (Sprint 7)
+Événements actuellement utilisés :
 
-Le framework dispose désormais d'un système mémoire complet.
+* ApplicationStarted
+* ApplicationStopped
+* ApplicationTicked
+* CommandDispatched
+* CommandSucceeded
+* CommandFailed
 
-### Runtime Memory
+Cette architecture prépare les futures intégrations :
 
-Mémoire volatile.
-
-### Session Memory
-
-Mémoire de session.
-
-### Persistent Memory
-
-Mémoire persistante.
-
-### Memory Manager
-
-Façade unique permettant de manipuler l'ensemble des mémoires.
-
-### Memory Storage
-
-Persistance JSON.
-
-### Memory Serializer
-
-Sérialisation indépendante du backend.
-
-### Memory Statistics
-
-Statistiques d'utilisation :
-
-- hits
-- misses
-- sets
-- deletes
-- saves
-- loads
+* MQTT
+* Monitoring
+* WebSocket
+* Interface graphique
+* Plugins avancés
 
 ---
 
 # Architecture
 
 ```text
-Application
-│
-├── CommandDispatcher
-├── EventBus
-├── ServiceRegistry
-├── PluginManager
-├── Scheduler
-└── MemoryManager
+                Application
+                      │
+      ┌───────────────┼────────────────┐
+      │               │                │
+      ▼               ▼                ▼
+ CommandDispatcher  Scheduler     PluginManager
       │
-      ├── RuntimeMemory
-      ├── SessionMemory
-      └── PersistentMemory
-              │
-              ▼
-        MemoryStorage
-              │
-              ▼
-      MemorySerializer
+      ▼
+   EventBus
+      │
+ ┌────┼───────────────┐
+ │    │               │
+ ▼    ▼               ▼
+Memory Plugins   Future Services
 ```
 
 ---
@@ -171,30 +139,71 @@ Application
 application.py
 
 core/
-    dispatcher/
-    events/
-    plugins/
-    services/
+    dispatcher.py
+    events.py
+    event_subscription.py
+    services.py
+    plugins.py
+    runtime.py
 
 memory/
-    memory_entry.py
-    memory_manager.py
-    memory_scope.py
-    memory_serializer.py
-    memory_statistics.py
-    memory_storage.py
-    persistent_memory.py
-    runtime_memory.py
-    session_memory.py
 
 scheduler/
+
+mqtt/
 
 tests/
 
 docs/
-    adr/
-    architecture/
 ```
+
+---
+
+# Qualité
+
+Le projet est développé avec une forte exigence de qualité.
+
+## Vérifications automatiques
+
+```bash
+ruff check .
+pytest
+```
+
+État actuel :
+
+* **438 tests**
+* **0 erreur Ruff**
+* **100 % des tests réussis**
+
+---
+
+# Documentation
+
+Le projet est accompagné d'une documentation complète.
+
+* README
+* CHANGELOG
+* ROADMAP
+* Documentation d'architecture
+* ADR (Architecture Decision Records)
+
+---
+
+# Roadmap
+
+Les prochaines évolutions prévues comprennent notamment :
+
+* Événements avancés du Scheduler
+* Monitoring
+* Auto-réparation
+* Capacités (Capabilities)
+* MQTT avancé
+* Plugins dynamiques
+* Observabilité
+* Métriques
+* API HTTP
+* Interface Web
 
 ---
 
@@ -208,98 +217,47 @@ cd Ohanna-Agent
 python -m venv .venv
 
 source .venv/bin/activate
-```
-
-Windows
-
-```powershell
+# Windows
 .venv\Scripts\activate
-```
 
-Installation :
-
-```bash
 pip install -e .
-```
 
----
-
-# Tests
-
-L'ensemble du projet est validé par une suite de tests automatisés.
-
-```bash
 pytest
 ```
 
-État actuel :
+---
 
-- **422 tests**
-- **100 % des tests validés**
+# Développement
+
+Le projet suit une évolution incrémentale.
+
+Chaque Sprint comprend :
+
+* conception
+* implémentation
+* couverture de tests
+* audit
+* documentation
+
+Cette méthode garantit une architecture stable tout au long du développement.
 
 ---
 
-# Documentation
+# État actuel
 
-La documentation est organisée autour de plusieurs documents :
+Version du noyau :
 
-- README.md
-- ROADMAP.md
-- CHANGELOG.md
-- docs/Architecture/CORE.md
-- docs/adr/
+**Sprint 8 validé**
 
-Les décisions d'architecture sont documentées sous forme d'ADR.
-
----
-
-# Roadmap
-
-Les prochaines évolutions concernent notamment :
-
-- Workflows
-- Pipelines
-- SDK Plugins
-- Moteur de raisonnement
-- Observabilité
-- Monitoring
-- IA
-
-Voir :
-
-```
-ROADMAP.md
-```
-
----
-
-# Qualité
-
-Le projet suit une démarche de développement incrémentale :
-
-- Architecture avant implémentation
-- ADR systématiques
-- Tests avant validation
-- Revue de sprint
-- Refactoring continu
-
----
-
-# Version actuelle
-
-**v0.8.0**
-
-- Sprint 0 : Architecture
-- Sprint 1 : Lifecycle
-- Sprint 2 : Core Services
-- Sprint 3 : MQTT Runtime
-- Sprint 4 : Auto-réparation
-- Sprint 5 : Capacités
-- Sprint 6 : Scheduler
-- Sprint 7 : Memory
+* Architecture événementielle en place
+* EventBus opérationnel
+* Dispatcher événementiel
+* Injection de dépendances consolidée
+* Documentation synchronisée
+* 438 tests verts
 
 ---
 
 # Licence
 
-MIT License.
+Projet distribué sous licence **MIT**.

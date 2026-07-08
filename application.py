@@ -28,9 +28,10 @@ class Application:
         self.memory = memory if memory is not None else MemoryManager()
         self.scheduler = Scheduler(
             executor=DispatcherTaskExecutor(self.command_dispatcher),
+            event_bus=self.event_bus,
         )
         self.plugin_manager = PluginManager(self.services, self.event_bus)
-
+        event_bus=self.event_bus
         self._register_core_services()
 
     def _register_core_services(self) -> None:

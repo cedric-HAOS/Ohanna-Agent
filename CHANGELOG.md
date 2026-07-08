@@ -2,172 +2,193 @@
 
 Toutes les évolutions importantes du projet **Ohanna-Agent** sont documentées dans ce fichier.
 
-Le format s'inspire de **Keep a Changelog** et respecte le **Versioning Sémantique**.
+Le projet suit les principes du **Semantic Versioning**.
 
 ---
 
-# [0.8.0] - 2026-07-08
+# [0.8.0] - Sprint 8 - Architecture événementielle
 
-## Sprint 7 — Memory
+## Ajout
 
-### Ajouté
+### EventBus
 
-#### Memory
+* Introduction d'un **EventBus** interne.
+* Publication synchrone des événements.
+* Abonnement par type d'événement.
+* Désabonnement des abonnés.
+* Architecture prête pour les futurs transports distribués.
 
-- Ajout du package `memory`
-- Introduction du `MemoryManager`
-- Ajout de `RuntimeMemory`
-- Ajout de `SessionMemory`
-- Ajout de `PersistentMemory`
-- Ajout des `MemoryScope`
-- Ajout des `MemoryEntry`
+### EventSubscription
 
-#### Persistance
+* Nouvelle classe `EventSubscription`.
+* Encapsulation des abonnements.
+* Utilisation de `dataclass(frozen=True, slots=True)`.
 
-- Ajout de `MemoryStorage`
-- Persistance JSON
-- Chargement de la mémoire persistante
-- Sauvegarde explicite
-- Injection du backend de stockage
+### Application
 
-#### Sérialisation
+* Injection du `EventBus`.
+* Enregistrement automatique du `EventBus` dans le `ServiceRegistry`.
+* Publication des événements :
 
-- Ajout de `MemorySerializer`
-- Découplage stockage / sérialisation
-- Préparation de futurs backends (SQLite, Redis…)
+  * `ApplicationStarted`
+  * `ApplicationStopped`
+  * `ApplicationTicked`
 
-#### Statistiques
+### Dispatcher
 
-- Ajout de `MemoryStatistics`
-- Comptage des :
-  - hits
-  - misses
-  - sets
-  - deletes
-  - clears
-  - saves
-  - loads
+Le `CommandDispatcher` devient totalement événementiel.
 
-#### Application
+Publication automatique des événements :
 
-- Intégration du `MemoryManager`
-- Injection de dépendances
-- Enregistrement dans le `ServiceRegistry`
+* `CommandDispatched`
+* `CommandSucceeded`
+* `CommandFailed`
 
-#### Architecture
-
-- ADR-0025 — Gestion de la mémoire
-- ADR-0026 — Politique de persistance
-
-### Refactoring
-
-- Remplacement du routage conditionnel par une table de routage (`MemoryScope` → implémentation mémoire)
-- Amélioration du découplage des composants mémoire
-- Séparation des responsabilités entre gestion, stockage et sérialisation
+Aucun changement de comportement métier.
 
 ### Tests
 
-- Plus de **420 tests automatisés**
-- Couverture des nouveaux composants mémoire
-- Validation des trois scopes mémoire
-- Validation de la persistance JSON
-- Validation de la sérialisation
-- Validation des statistiques
-- Validation de l'intégration dans `Application`
+Ajout des tests couvrant :
+
+* EventBus
+* EventSubscription
+* Injection du EventBus
+* Publication des événements Application
+* Publication des événements Dispatcher
 
 ---
 
-# [0.7.0] - 2026-07-08
-
-## Sprint 6 — Scheduler
-
-### Ajouté
-
-- Scheduler
-- DispatcherTaskExecutor
-- SchedulerState
-- SchedulerStatistics
-- Runtime Scheduler
-- Gestion des tâches planifiées
+## Amélioration
 
 ### Architecture
 
-- Découplage Scheduler / Dispatcher
-- Introduction des statistiques Scheduler
+Le projet évolue progressivement vers une architecture orientée événements.
+
+Les composants communiquent désormais via un bus d'événements plutôt que par dépendances directes.
+
+Cette évolution réduit fortement le couplage entre :
+
+* Application
+* Dispatcher
+* Plugins
+* Mémoire
+* Services
+
+### Injection de dépendances
+
+Uniformisation de l'injection :
+
+* MemoryManager
+* EventBus
+
+Préparation des prochaines injections de services.
+
+### Qualité
+
+Maintien d'une couverture de tests complète.
+
+Aucune régression fonctionnelle observée.
 
 ---
 
-# [0.6.0] - 2026-07-08
+## Documentation
 
-## Sprint 5 — Capacités
+Mise à jour de :
 
-### Ajouté
-
-- Capability
-- CapabilityManager
-- Gestion des capacités
-- Activation / désactivation
-- Découverte des capacités
+* README
+* CHANGELOG
+* ROADMAP
+* Documentation d'architecture
 
 ---
 
-# [0.5.0] - 2026-07-08
+# [0.7.0] - Sprint 7 - Mémoire
 
-## Sprint 4 — Auto-réparation
+## Ajout
 
-### Ajouté
-
-- Auto-réparation
-- Gestion des erreurs
-- Runtime Recovery
-
----
-
-# [0.4.0] - 2026-07-08
-
-## Sprint 3 — MQTT Runtime
-
-### Ajouté
-
-- Runtime MQTT
-- Gestion des événements MQTT
-- Dispatcher MQTT
+* Intégration complète du `MemoryManager`.
+* Injection dans `Application`.
+* Services mémoire.
+* Tests d'injection.
+* Documentation.
 
 ---
 
-# [0.3.0] - 2026-07-08
+# [0.6.0] - Sprint 6 - Scheduler
 
-## Sprint 2 — Core Services
+## Ajout
 
-### Ajouté
-
-- ServiceRegistry
-- EventBus
-- PluginManager
-- Dispatcher
-
----
-
-# [0.2.0] - 2026-07-07
-
-## Sprint 1 — Lifecycle
-
-### Ajouté
-
-- États applicatifs
-- Gestion du cycle de vie
-- LifecycleManager
+* Scheduler.
+* Runtime du Scheduler.
+* États.
+* Statistiques.
+* Exécuteur de tâches.
+* Déclencheurs.
+* Couverture complète de tests.
 
 ---
 
-# [0.1.0] - 2026-07-07
+# [0.5.0] - Sprint 5 - Capacités
 
-## Sprint 0 — Architecture
+## Ajout
 
-### Ajouté
+* Gestionnaire de capacités.
+* Dépendances.
+* Activation.
+* Désactivation.
+* Priorités.
+* Tests.
 
-- Architecture initiale
-- ADR fondateurs
-- Documentation
-- Structure du projet
-- Philosophie
+---
+
+# [0.4.0] - Sprint 4 - Auto-réparation
+
+## Ajout
+
+* Runtime enrichi.
+* Surveillance.
+* Heartbeat.
+* Monitoring.
+* Reconnexion.
+* Politiques.
+* Tests.
+
+---
+
+# [0.3.0] - Sprint 3 - MQTT
+
+## Ajout
+
+* Client MQTT.
+* Publisher.
+* Subscriber.
+* Messages.
+* Transport.
+* Reconnexion.
+* Tests.
+
+---
+
+# [0.2.0] - Sprint 2 - Core Services
+
+## Ajout
+
+* ServiceRegistry.
+* PluginManager.
+* Runtime.
+* Dispatcher.
+* Exécuteur.
+* Tests.
+
+---
+
+# [0.1.0] - Sprint 1 - Fondations
+
+## Ajout
+
+* Structure initiale du projet.
+* Commandes.
+* Événements.
+* Runtime minimal.
+* Documentation initiale.
+* Infrastructure de tests.

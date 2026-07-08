@@ -11,7 +11,7 @@ from core.events import EventBus
 from core.plugins import PluginManager
 from core.services import ServiceRegistry
 from memory import MemoryManager, MemoryScope
-from scheduler import DispatcherTaskExecutor, Scheduler
+from scheduler import DispatcherTaskExecutor, Scheduler, SchedulerStarted
 
 
 def test_application_creates_service_registry() -> None:
@@ -200,3 +200,19 @@ def test_application_tick_publishes_ticked_event() -> None:
 
     assert len(received) == 1
     assert received[0].result is result
+
+def test_application_injects_event_bus_into_scheduler() -> None:
+    app = Application()
+
+    assert app.scheduler.event_bus is app.event_bus
+
+def test_application_scheduler_publishes_events_on_start() -> None:
+    app = Application()
+    published_events: list[object] = []
+
+    app.event_bus.subscribe(SchedulerStarted, published_events.append)
+
+    app.scheduler.start()
+
+    assert len(published_events) == 1
+    assert isinstance(published_events[0], SchedulerStarted)

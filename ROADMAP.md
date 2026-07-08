@@ -1,343 +1,240 @@
-# Roadmap
+# ROADMAP
 
-Cette feuille de route présente les évolutions prévues d'Ohanna-Agent.
+## Vision
 
-Les fonctionnalités sont organisées par sprints afin de conserver une évolution incrémentale, fortement testée et guidée par l'architecture.
+L'objectif d'**Ohanna-Agent** est de devenir un noyau d'agent intelligent, modulaire, événementiel et extensible, capable de fonctionner de manière autonome, distribuée ou intégrée à différents écosystèmes (MQTT, HTTP, Home Assistant, LLM, etc.).
 
----
+Les développements sont réalisés par sprints successifs, chaque sprint devant respecter les principes suivants :
 
-# Vision
-
-L'objectif d'Ohanna-Agent est de devenir un framework Python moderne permettant de construire des agents autonomes, modulaires et événementiels.
-
-Le projet repose sur plusieurs principes :
-
-- Architecture modulaire
-- Faible couplage
-- Forte cohésion
-- Injection de dépendances
-- Communication par événements
-- Testabilité
-- Documentation par ADR
-- Évolution incrémentale
+* Architecture propre (Clean Architecture)
+* Faible couplage
+* Forte cohésion
+* Couverture de tests exhaustive
+* Documentation systématiquement mise à jour
+* Évolution incrémentale sans régression
 
 ---
 
 # État actuel
 
-## Sprint 0 — Architecture
+## Sprint 8 — Terminé ✅
 
-✅ Terminé
+Le noyau est désormais basé sur une **architecture événementielle**.
 
-- Architecture initiale
-- Documentation
-- ADR fondateurs
+### Réalisations
 
----
-
-## Sprint 1 — Lifecycle
-
-✅ Terminé
-
-- États applicatifs
-- Gestion du cycle de vie
+* EventBus
+* EventSubscription
+* Injection du EventBus dans l'Application
+* Dispatcher événementiel
+* Événements applicatifs
+* ServiceRegistry enrichi
+* 438 tests automatisés
+* Ruff conforme
 
 ---
 
-## Sprint 2 — Core Services
+# Sprint 9 — Scheduler événementiel
 
-✅ Terminé
+Objectif :
 
-- ServiceRegistry
-- EventBus
-- PluginManager
-- Dispatcher
-
----
-
-## Sprint 3 — MQTT Runtime
-
-✅ Terminé
-
-- Runtime MQTT
-- Dispatcher MQTT
-- Gestion des événements
-
----
-
-## Sprint 4 — Auto-réparation
-
-✅ Terminé
-
-- Runtime Recovery
-- Gestion des erreurs
-- Auto-réparation
-
----
-
-## Sprint 5 — Capacités
-
-✅ Terminé
-
-- CapabilityManager
-- Activation
-- Découverte
-- Gestion des capacités
-
----
-
-## Sprint 6 — Scheduler
-
-✅ Terminé
-
-- Scheduler
-- DispatcherTaskExecutor
-- Runtime Scheduler
-- Statistiques Scheduler
-
----
-
-## Sprint 7 — Memory
-
-✅ Terminé
-
-- RuntimeMemory
-- SessionMemory
-- PersistentMemory
-- MemoryManager
-- MemoryStorage
-- MemorySerializer
-- MemoryStatistics
-- Intégration dans Application
-
----
-
-# Sprint 8 — Workflows
-
-## Objectif
-
-Permettre l'enchaînement de plusieurs actions sous forme de workflows.
+Intégrer le Scheduler dans l'architecture événementielle existante sans modifier son fonctionnement interne.
 
 ### Prévu
 
-- Workflow
-- WorkflowStep
-- WorkflowContext
-- WorkflowRunner
-- Conditions
-- Variables
-- Branchements
-- Gestion des erreurs
-- Reprise d'exécution
+* Publication des événements Scheduler
+* Cycle de vie du Scheduler
+* Exécution des tâches
+* Événements de déclenchement
+* Événements d'erreur
+* Intégration complète avec l'EventBus
 
 ---
 
-# Sprint 9 — Plugin SDK
+# Sprint 10 — Monitoring
 
-## Objectif
+Objectif :
 
-Stabiliser le développement de plugins.
+Introduire l'observabilité du noyau.
 
 ### Prévu
 
-- Plugin SDK
-- API publique
-- Cycle de vie des plugins
-- Dépendances
-- Découverte automatique
-- Validation
-- Packaging
+* Collecte des événements système
+* Métriques runtime
+* Statistiques globales
+* Santé des composants
+* Journalisation centralisée
 
 ---
 
-# Sprint 10 — Observabilité
+# Sprint 11 — Auto-réparation avancée
 
-## Objectif
+Objectif :
 
-Fournir une vision complète de l'état interne du framework.
+Permettre au noyau de réagir automatiquement aux anomalies.
 
 ### Prévu
 
-- Health Manager
-- Diagnostics
-- Metrics
-- Monitoring
-- Logging avancé
-- Export Prometheus
-- Dashboard
+* Détection d'erreurs
+* Redémarrage automatique de composants
+* Stratégies de récupération
+* Surveillance permanente
+* Politiques de réparation
 
 ---
 
-# Sprint 11 — Raisonnement
+# Sprint 12 — Capacités avancées
 
-## Objectif
+Objectif :
 
-Ajouter un moteur de décision.
+Faire évoluer le système de capacités.
 
 ### Prévu
 
-- Context Engine
-- Rule Engine
-- Goal Manager
-- Decision Engine
-- Planification
-- Priorités
+* Chargement dynamique
+* Dépendances complexes
+* Priorités
+* Conditions d'activation
+* Désactivation automatique
 
 ---
 
-# Sprint 12 — Intelligence
+# Sprint 13 — MQTT avancé
 
-## Objectif
+Objectif :
 
-Préparer l'intégration de modèles d'IA.
+Faire du bus MQTT un véritable transport distribué.
 
 ### Prévu
 
-- LLM Provider
-- Prompt Manager
-- Conversation Context
-- Long-Term Memory
-- Tool Calling
-- Agent Reasoning
+* Synchronisation entre agents
+* Découverte automatique
+* Publication distribuée
+* Haute disponibilité
+* Résilience réseau
 
 ---
 
-# Sprint 13 — Distribution
+# Sprint 14 — Plugins dynamiques
 
-## Objectif
+Objectif :
 
-Permettre plusieurs agents coopératifs.
+Permettre le chargement et le déchargement de plugins à chaud.
 
 ### Prévu
 
-- Agent Discovery
-- Remote Commands
-- Shared Events
-- Distributed Scheduler
-- Shared Memory
-- Cluster Runtime
+* Découverte automatique
+* Cycle de vie complet
+* Isolation
+* Gestion des dépendances
+* Validation
 
 ---
 
-# Évolutions techniques
+# Sprint 15 — API
 
-## Mémoire
+Objectif :
 
-Prévu :
+Ouvrir le noyau vers l'extérieur.
 
-- TTL
-- Expiration
-- Cache
-- SQLite
-- Redis
-- Chiffrement
-- Compression
-- Transactions
+### Prévu
 
----
-
-## Scheduler
-
-Prévu :
-
-- Cron
-- Priorités
-- Réessais
-- Délais
-- Backoff exponentiel
-- Files d'attente
+* API REST
+* API WebSocket
+* Authentification
+* Documentation OpenAPI
+* Gestion des erreurs
 
 ---
 
-## Dispatcher
+# Sprint 16 — Interface Web
 
-Prévu :
+Objectif :
 
-- Middlewares
-- Pipeline
-- Validation
-- Autorisation
-- Traces
+Créer une interface d'administration.
 
----
+### Prévu
 
-## MQTT
-
-Prévu :
-
-- QoS avancé
-- Sessions persistantes
-- Découverte automatique
-- Rétention
-- Reconnexion intelligente
+* Tableau de bord
+* Monitoring
+* Gestion des plugins
+* Gestion de la mémoire
+* Visualisation des événements
 
 ---
 
-## Plugins
+# Sprint 17 — Intelligence
 
-Prévu :
+Objectif :
 
-- Marketplace
-- Signature
-- Isolation
-- Sandbox
-- Hot Reload
+Préparer l'intégration de moteurs d'IA.
 
----
+### Prévu
 
-# Documentation
-
-Chaque sprint comprend :
-
-- ADR
-- README
-- ROADMAP
-- CHANGELOG
-- CORE
-- Tests
-- Audit d'architecture
+* Gestionnaire de modèles
+* Sélection dynamique des LLM
+* Historique des conversations
+* Mémoire contextuelle
+* Routage intelligent
 
 ---
 
-# Objectif v1.0.0
+# Sprint 18 — Distribution
 
-La version 1.0.0 sera atteinte lorsque le framework proposera :
+Objectif :
 
-- Architecture stable
-- API publique stabilisée
-- SDK Plugins
-- Mémoire complète
-- Scheduler avancé
-- Observabilité
-- Workflows
-- Raisonnement
-- Documentation complète
-- Plus de 1 000 tests automatisés
+Permettre le fonctionnement d'un réseau d'agents.
+
+### Prévu
+
+* Fédération d'agents
+* Synchronisation
+* Élection
+* Répartition de charge
+* Communication sécurisée
 
 ---
 
-# État actuel
+# Objectifs transverses
 
-Version :
+Ces objectifs sont poursuivis tout au long du développement :
 
-**v0.8.0**
+## Qualité
 
-Tests :
+* Ruff sans avertissement
+* Couverture de tests en augmentation constante
+* Régression interdite
 
-**422**
+## Documentation
 
-Architecture :
+Chaque sprint met systématiquement à jour :
 
-Stable
+* README
+* CHANGELOG
+* Documentation d'architecture
+* ADR concernés
 
-Documentation :
+## Architecture
 
-À jour
+Maintenir :
 
-Sprint actuel :
+* Faible couplage
+* Injection de dépendances
+* Communication par événements
+* Composants indépendants
+* Interfaces simples
 
-✅ Sprint 7 terminé
+---
 
-Prochaine étape :
+# Vision à long terme
 
-➡️ Sprint 8 — Workflows
+À terme, Ohanna-Agent devra constituer un **noyau universel d'agents intelligents**, capable de fonctionner :
+
+* sur une machine unique ;
+* dans un réseau local ;
+* dans une architecture distribuée ;
+* avec ou sans modèle d'IA ;
+* avec différents transports de communication ;
+* tout en conservant une architecture simple, testable et maintenable.
+
+Chaque sprint devra renforcer cette vision sans compromettre la stabilité du noyau.

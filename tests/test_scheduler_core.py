@@ -216,3 +216,59 @@ def test_scheduler_tick_uses_configured_executor() -> None:
     assert results[0].success is False
     assert results[0].error == "boom"
     assert task.last_error == "boom"
+
+def test_scheduler_start_updates_runtime() -> None:
+    now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    scheduler = Scheduler(clock=FakeClock(now))
+
+    scheduler.start()
+
+    assert scheduler.running is True
+    assert scheduler.runtime.running is True
+    assert scheduler.runtime.started_at == now
+
+
+def test_scheduler_stop_updates_runtime() -> None:
+    now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    scheduler = Scheduler(clock=FakeClock(now))
+
+    scheduler.start()
+    scheduler.stop()
+
+    assert scheduler.running is False
+    assert scheduler.runtime.running is False
+    assert scheduler.runtime.stopped_at == now
+
+
+def test_scheduler_tick_records_statistics() -> None:
+    now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    scheduler = Scheduler(clock=FakeClock(now))
+
+    task = Task(command="health.check", trigger=OneShotTrigger(now))
+    scheduler.add_task(task)
+
+    scheduler.start()
+    scheduler.tick()
+
+    assert scheduler.runtime.last_tick_at == now
+    assert scheduler.runtime.statistics.tick_count == 1
+    assert scheduler.runtime.statistics.tasks_executed == 1
+    assert scheduler.runtime.statistics.tasks_failed == 0
+
+
+def test_scheduler_tick_records_failed_statistics() -> None:
+    now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    scheduler = Scheduler(
+        clock=FakeClock(now),
+        executor=FailingTaskExecutor("boom"),
+    )
+
+    task = Task(command="health.check", trigger=OneShotTrigger(now))
+    scheduler.add_task(task)
+
+    scheduler.start()
+    scheduler.tick()
+
+    assert scheduler.runtime.statistics.tick_count == 1
+    assert scheduler.runtime.statistics.tasks_executed == 0
+    assert scheduler.runtime.statistics.tasks_failed == 1

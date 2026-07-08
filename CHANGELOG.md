@@ -1,290 +1,235 @@
-# CHANGELOG
+# Changelog
 
-Toutes les évolutions importantes du projet **Ohanna-Agent** sont documentées dans ce fichier.
+Toutes les évolutions notables du projet **Ohanna-Agent** sont documentées dans ce fichier.
 
-Le projet suit les principes du **Semantic Versioning**.
-
----
-
-# Version 4.0.0
-
-**Date :** Juillet 2026
-
-## Sprint 4 — Health & Recovery
-
-Cette version introduit l'architecture complète de supervision et d'auto-réparation de **Shikamaru**.
-
-Le noyau devient capable de surveiller son propre état, de détecter des anomalies et d'orchestrer des stratégies de récupération, tout en restant totalement découplé des plugins métier.
+Le format suit les recommandations de **Keep a Changelog** et respecte autant que possible les principes du **Versioning Sémantique (SemVer)**.
 
 ---
 
-## Nouveautés
+# [0.4.0] - 2026-07-08
 
-### Supervision
+## Autonomous Core
 
-Nouveau package :
+Cette version marque une étape majeure dans l'évolution d'Ohanna-Agent.
 
-```text
-health/
-```
+Le projet passe d'un moteur orienté événements à un framework capable de planifier et d'orchestrer ses propres traitements.
+
+Le noyau introduit une architecture complète de planification reposant sur un Scheduler modulaire et un ensemble de nouvelles abstractions communes.
+
+---
+
+## Added
+
+### Scheduler
+
+* Ajout du Scheduler.
+* Gestion des tâches planifiées.
+* Gestion du cycle de vie du Scheduler.
+* Intégration du Scheduler Runtime.
+* Intégration des statistiques du Scheduler.
+
+### Triggers
+
+Ajout des déclencheurs :
+
+* BaseTrigger
+* IntervalTrigger
+* OneShotTrigger
+* CronTrigger
+
+### Task Model
 
 Ajout de :
 
-* Health Monitor
-* Heartbeat
-* Watchdog
+* Task
+* TaskState
+* Priorités
+* Observabilité
+* Statistiques d'exécution
 
-Nouvelles fonctionnalités :
+### Task Registry
 
-* surveillance des composants ;
-* agrégation de l'état de santé ;
-* calcul de l'état global ;
-* surveillance temporelle ;
-* gestion des heartbeats.
+Ajout du :
 
----
+* TaskRegistry
 
-### Auto-réparation
+Le Scheduler ne manipule plus directement les collections de tâches.
 
-Nouveau package :
-
-```text
-recovery/
-```
+### Task Executors
 
 Ajout de :
 
-* Recovery Engine
-* Recovery Strategy
-* Recovery Policy
-* Recovery Action
-* Recovery Result
+* TaskExecutor
+* DryRunTaskExecutor
+* DispatcherTaskExecutor
+* FailingTaskExecutor
 
-Nouvelles fonctionnalités :
+L'exécution des tâches est désormais complètement découplée du Scheduler.
 
-* orchestration des récupérations ;
-* stratégies indépendantes ;
-* politiques de récupération ;
-* historique des récupérations ;
-* prévention des récupérations concurrentes.
+### Runtime Model
 
----
+Ajout de :
 
-### Résilience
+* SchedulerRuntime
+* SchedulerState
+* SchedulerStatistics
 
-Implémentation du mode dégradé.
+Le Runtime devient responsable de l'état d'exécution du Scheduler.
 
-Le noyau peut désormais :
+### Core abstractions
 
-* continuer à fonctionner malgré certaines défaillances ;
-* isoler un composant défectueux ;
-* préparer une récupération automatique ;
-* revenir automatiquement à un état nominal lorsque les conditions le permettent.
+Création du package :
 
----
+```text
+core/
+```
 
-### Architecture
+Ajout des abstractions :
 
-Validation des ADR suivantes :
+* Runtime
+* Statistics
+* Registry
+* Executor
 
-* ADR-0015 — Architecture du Health Monitor
-* ADR-0016 — Watchdog & Heartbeat
-* ADR-0017 — Recovery Engine
-* ADR-0018 — Recovery Policies
-* ADR-0019 — Mode dégradé
-
-Le code est désormais aligné avec l'ensemble de ces décisions d'architecture.
-
----
-
-### Documentation
-
-Mise à jour complète des documents :
-
-* README.md
-* ROADMAP.md
-* CORE.md
-* CHANGELOG.md
-
-L'ensemble de la documentation reflète désormais l'état réel du projet après le Sprint 4.
-
----
+Ces composants constituent désormais le socle architectural du framework.
 
 ### Tests
 
-Ajout de nouveaux modules de tests :
+Ajout de nombreux tests couvrant :
 
-```text
-test_action.py
-test_engine.py
-test_monitor.py
-test_policy.py
-test_result.py
-test_strategy.py
-test_watchdog.py
-```
+* Scheduler
+* Triggers
+* Task
+* Runtime
+* Registry
+* Executor
 
-Renforcement des tests existants :
-
-* heartbeat ;
-* monitor ;
-* recovery.
+Le projet atteint désormais plus de **315 tests unitaires**.
 
 ---
 
-## Statistiques
-
-Fin du Sprint 4 :
-
-```text
-Python 3.13
-
-204 tests
-
-204 réussis
-
-0 échec
-
-Ruff
-
-100 % conforme
-```
-
----
-
-## Améliorations
+## Changed
 
 ### Architecture
 
-* séparation claire entre supervision et récupération ;
-* découplage complet entre Health et Recovery ;
-* suppression des duplications dans le Recovery Engine ;
-* extraction des stratégies dans leur propre module ;
-* préparation des futures politiques avancées.
+Refactorisation importante du noyau.
+
+Le Scheduler est désormais construit autour des composants suivants :
+
+```text
+Scheduler
+│
+├── Runtime
+├── Registry
+├── Executor
+├── Clock
+└── Task
+```
+
+### Responsabilités
+
+Séparation stricte entre :
+
+* planification ;
+* stockage ;
+* exécution ;
+* état d'exécution.
+
+### Runtime
+
+Le Runtime devient un concept commun du framework.
+
+Les nouveaux services sont encouragés à utiliser cette architecture.
+
+### Documentation
+
+Refonte complète de la documentation :
+
+* README
+* CORE
+* ROADMAP
+* ADR
 
 ---
 
-### Qualité
+## Fixed
 
-Amélioration de :
-
-* la lisibilité ;
-* la modularité ;
-* la testabilité ;
-* l'évolutivité.
-
----
-
-## Compatibilité
-
-Aucune rupture de compatibilité interne.
-
-Les packages existants restent compatibles avec les versions précédentes du noyau.
+* Diverses améliorations de cohérence interne.
+* Harmonisation des responsabilités.
+* Nettoyage de plusieurs dépendances internes.
+* Amélioration de la lisibilité du Scheduler.
+* Uniformisation des conventions d'architecture.
 
 ---
 
-## Dette technique
+## Performance
 
-Dette technique restante volontairement limitée :
-
-* future extraction de `HealthStatus`, `HealthResult` et `HealthCheck` dans des modules dédiés ;
-* introduction d'un `RecoveryContext` ;
-* création d'un `PolicyRegistry`.
-
-Ces évolutions sont identifiées mais ne constituent pas des anomalies.
+* Plus de **315 tests unitaires**.
+* Exécution complète de la suite de tests en environ **0,4 seconde**.
+* Maintien d'une architecture légère et fortement découplée.
 
 ---
 
-# Historique
+# [0.3.0] - 2026-07-08
 
-## Version 3.0.0
+## MQTT Runtime
 
-### Sprint 3 — MQTT Runtime
+### Added
 
-Ajout de :
+* Runtime MQTT complet.
+* Heartbeat.
+* Monitor.
+* Reconnexion automatique.
+* Publisher.
+* Subscriber.
+* Watchdog.
+* Auto-réparation.
 
-* client MQTT ;
-* Publisher ;
-* Subscriber ;
-* reconnexion automatique ;
-* transport MQTT ;
-* messages typés.
+### Changed
 
-Architecture événementielle finalisée.
-
-**156 tests validés.**
+* Refonte de l'architecture MQTT.
+* Stabilisation du Runtime.
 
 ---
 
-## Version 2.0.0
+# [0.2.0] - 2026-07-08
 
-### Sprint 2 — Core Services
+## Core Services
 
-Ajout de :
+### Added
 
-* Dispatcher ;
-* Event Bus ;
-* Scheduler ;
-* Services ;
-* Messages ;
+* Dispatcher.
+* Dependency Graph.
+* Configuration.
+* Services principaux.
 * Plugins.
-
-Architecture du noyau consolidée.
-
----
-
-## Version 1.0.0
-
-### Sprint 1 — Foundation
-
-Création du noyau Shikamaru.
-
-Ajout de :
-
-* Application ;
-* Lifecycle ;
-* Configuration ;
-* Logger ;
-* Services de base.
+* Gestionnaire de capacités.
 
 ---
 
-## Version 0.1.0
+# [0.1.0] - 2026-07-07
 
-### Sprint 0 — Architecture
+## Foundation
 
-Création du projet.
+### Added
 
-Définition de :
-
-* Vision ;
-* Philosophie ;
-* Architecture ;
-* Capacités ;
-* Conventions MQTT ;
-* Documentation ;
-* ADR fondatrices.
+* Initialisation du projet.
+* Architecture du Kernel.
+* Dispatcher.
+* MQTT.
+* Documentation.
+* ADR.
+* Suite de tests initiale.
 
 ---
 
-# Perspectives
+# Versions futures
 
-Le Sprint 5 sera consacré au développement des premiers plugins d'infrastructure :
-
-* DNS ;
-* DHCP ;
-* NTP ;
-* Supervision système ;
-* Découverte réseau.
-
-Ces plugins s'appuieront directement sur les nouvelles capacités de supervision et de résilience introduites lors du Sprint 4.
+Les évolutions prévues sont décrites dans le fichier **ROADMAP.md**.
 
 ---
 
-# Conclusion
+# Références
 
-Le Sprint 4 constitue une évolution majeure d'Ohanna-Agent.
-
-Le projet passe d'un framework événementiel centré sur MQTT à un **framework d'agents autonomes**, capable de superviser son état, de détecter les anomalies et d'orchestrer des mécanismes d'auto-réparation.
-
-Cette version établit les fondations techniques qui permettront de développer les futurs plugins d'infrastructure tout en conservant une architecture modulaire, testable et conforme aux ADR.
+* Semantic Versioning : https://semver.org/
+* Keep a Changelog : https://keepachangelog.com/

@@ -1,1614 +1,1242 @@
-# CORE
+# CORE.md
 
-> Architecture interne du noyau **Shikamaru**
+# Manuel d'Architecture d'Ohanna-Agent
 
-Version : 4.0
+Version : **4.0**
 
----
-
-# Objectif
-
-Ce document décrit l'architecture interne du noyau **Shikamaru**, cœur du projet **Ohanna-Agent**.
-
-Il constitue la référence technique de l'implémentation.
-
-Les décisions d'architecture détaillées sont documentées dans les ADR.
-
-Le présent document décrit leur traduction dans le code.
+Version du Framework : **v0.4.0 – Autonomous Core**
 
 ---
 
-# Vision
+# Préface
 
-Shikamaru est un framework Python destiné à construire des agents autonomes capables de fournir des services d'infrastructure.
+## Pourquoi ce document ?
 
-Le noyau fournit toutes les briques communes :
+Le présent document constitue la référence architecturale officielle d'Ohanna-Agent.
 
-- cycle de vie de l'application ;
-- gestion de la configuration ;
-- bus d'événements ;
-- commandes ;
-- services partagés ;
-- runtime MQTT ;
-- supervision interne ;
-- moteur d'auto-réparation.
+Contrairement au `README.md`, dont l'objectif est de présenter le projet et de faciliter sa découverte, le document **CORE.md** décrit en détail les principes de conception, les composants internes et les règles qui structurent le framework.
 
-Les fonctionnalités métier sont développées sous forme de plugins indépendants.
+Il s'adresse principalement :
+
+* aux développeurs souhaitant contribuer au projet ;
+* aux architectes logiciels ;
+* aux mainteneurs du framework ;
+* à toute personne désirant comprendre en profondeur le fonctionnement interne d'Ohanna-Agent.
+
+Ce document n'a pas vocation à expliquer l'utilisation quotidienne du framework. Son rôle est de décrire son architecture, les choix qui la sous-tendent et les règles qui garantissent sa cohérence au fil des évolutions.
 
 ---
 
-# Principes d'architecture
+# 1. Vision
 
-Le noyau repose sur plusieurs principes fondamentaux.
+## 1.1 Origine du projet
 
-## Responsabilité unique
+Ohanna-Agent est né d'un constat simple.
+
+La majorité des solutions d'automatisation sont construites autour d'une accumulation de fonctionnalités répondant à des besoins immédiats. Avec le temps, ces projets deviennent souvent difficiles à maintenir, fortement couplés et complexes à faire évoluer.
+
+L'objectif d'Ohanna-Agent est différent.
+
+Le framework est conçu autour d'une architecture stable, modulaire et extensible, dans laquelle chaque nouvelle fonctionnalité vient naturellement s'intégrer sans remettre en cause les fondations existantes.
+
+L'architecture précède les fonctionnalités.
+
+---
+
+## 1.2 Vision à long terme
+
+Ohanna-Agent ambitionne de devenir un framework généraliste permettant de construire des agents logiciels autonomes.
+
+Ces agents doivent être capables de :
+
+* recevoir des événements provenant de différentes sources ;
+* analyser leur contexte ;
+* planifier des traitements ;
+* orchestrer plusieurs actions ;
+* prendre des décisions selon des règles définies ;
+* communiquer via MQTT ou d'autres transports ;
+* évoluer sans modifier le noyau du framework.
+
+Le projet privilégie la robustesse de son architecture plutôt que la multiplication rapide des fonctionnalités.
+
+---
+
+## 1.3 Le rôle du Kernel
+
+Le noyau d'Ohanna-Agent constitue une plateforme d'exécution.
+
+Il ne contient volontairement aucune logique métier spécifique.
+
+Son rôle est de fournir les mécanismes communs nécessaires à tous les agents :
+
+* gestion du cycle de vie ;
+* exécution des commandes ;
+* planification des tâches ;
+* communication par événements ;
+* gestion des capacités ;
+* infrastructure MQTT ;
+* supervision de l'état d'exécution.
+
+Toutes les fonctionnalités métier doivent être construites au-dessus de ce noyau.
+
+Cette séparation garantit la pérennité de l'architecture.
+
+---
+
+## 1.4 Une architecture orientée plateforme
+
+À partir de la version **0.4.0**, Ohanna-Agent n'est plus simplement un agent logiciel.
+
+Il constitue désormais une plateforme sur laquelle peuvent être développés plusieurs moteurs spécialisés.
+
+Par exemple :
+
+* moteur de workflows ;
+* moteur de règles ;
+* moteur de pipelines ;
+* moteur d'événements complexes ;
+* capacités métier spécialisées.
+
+Tous ces composants s'appuient sur les mêmes abstractions définies par le noyau.
+
+---
+
+# 2. Philosophie
+
+## 2.1 L'architecture avant les fonctionnalités
+
+Chaque évolution commence par une réflexion architecturale.
+
+Une fonctionnalité n'est intégrée que lorsqu'elle peut trouver naturellement sa place dans le modèle existant.
+
+Lorsque ce n'est pas le cas, c'est généralement le signe que le problème n'est pas encore suffisamment compris.
+
+Cette discipline permet d'éviter la création de composants redondants ou fortement couplés.
+
+---
+
+## 2.2 Une responsabilité unique
+
+Chaque composant possède un rôle clairement identifié.
+
+Le Scheduler orchestre les tâches.
+
+Le Dispatcher exécute les commandes.
+
+Le Runtime décrit l'état d'exécution.
+
+Une Registry stocke des objets.
+
+Un Executor réalise une action.
+
+Aucun composant ne cumule plusieurs responsabilités.
+
+Cette règle constitue l'un des principes fondamentaux du framework.
+
+---
+
+## 2.3 Le découplage comme principe directeur
+
+Les différents services du noyau ne communiquent jamais directement avec leurs implémentations concrètes.
+
+Ils utilisent des contrats, des abstractions ou des protocoles.
+
+Cette approche permet notamment :
+
+* de remplacer une implémentation sans modifier les consommateurs ;
+* de faciliter les tests unitaires ;
+* d'introduire de nouvelles stratégies d'exécution ;
+* de limiter les dépendances entre modules.
+
+Le découplage est systématiquement privilégié lorsqu'il améliore la lisibilité et l'évolutivité du projet.
+
+---
+
+## 2.4 La testabilité comme exigence
+
+Chaque composant est conçu pour être testé indépendamment.
+
+Cette exigence influence directement les choix d'architecture.
+
+Ainsi :
+
+* les accès au temps utilisent une abstraction (`Clock`) ;
+* les registres sont isolés ;
+* les exécuteurs sont interchangeables ;
+* les dépendances sont injectées plutôt que créées localement.
+
+Grâce à cette approche, l'ensemble du framework peut être validé rapidement par une suite de plusieurs centaines de tests unitaires.
+
+---
+
+## 2.5 La simplicité
+
+La sophistication d'une architecture ne doit jamais provenir de la complexité de ses composants.
+
+Elle doit résulter de leur combinaison.
+
+Chaque classe doit rester suffisamment petite pour être comprise rapidement.
+
+Chaque méthode doit exprimer clairement son intention.
+
+Chaque composant doit pouvoir évoluer indépendamment.
+
+La simplicité constitue un objectif permanent.
+
+---
+
+## 2.6 La stabilité du noyau
+
+Le Kernel représente la partie la plus stable du framework.
+
+Les fonctionnalités évoluent.
+
+Les capacités évoluent.
+
+Les plugins évoluent.
+
+Le noyau, lui, doit rester aussi stable que possible.
+
+Cette stabilité est obtenue grâce à des interfaces bien définies, des responsabilités clairement séparées et une architecture pensée pour durer.
+
+---
+
+## 2.7 L'amélioration continue
+
+L'architecture d'Ohanna-Agent n'est pas figée.
+
+Elle évolue progressivement au rythme des retours d'expérience, des audits d'architecture et des nouveaux besoins.
+
+Toute évolution importante suit le même processus :
+
+1. analyse du besoin ;
+2. conception de l'architecture ;
+3. implémentation ;
+4. tests unitaires ;
+5. revue d'architecture ;
+6. documentation ;
+7. publication.
+
+Ce cycle garantit une évolution maîtrisée du framework.
+
+---
+
+## Conclusion
+
+La philosophie d'Ohanna-Agent repose sur une idée simple :
+
+**Construire un framework dont l'architecture reste plus stable que les fonctionnalités qu'il héberge.**
+
+Cette approche demande davantage de rigueur au début du projet, mais elle offre en retour une excellente évolutivité, une forte testabilité et une maintenance simplifiée.
+
+Les chapitres suivants décrivent les principes d'architecture qui permettent d'atteindre cet objectif.
+
+---
+
+# 3. Principes d'architecture
+
+Les principes décrits dans ce chapitre constituent les règles fondamentales de conception d'Ohanna-Agent.
+
+Ils s'appliquent à l'ensemble du noyau, aux services, aux plugins et aux futures extensions.
+
+Toute évolution du framework doit respecter ces principes afin de préserver la cohérence globale de l'architecture.
+
+---
+
+## 3.1 Responsabilité unique
 
 Chaque composant possède une responsabilité clairement définie.
 
-Exemples :
+Le Scheduler planifie.
 
-- le Dispatcher distribue les événements ;
-- le Health Monitor supervise ;
-- le Recovery Engine orchestre les récupérations ;
-- les plugins implémentent les services métier.
+Le Dispatcher exécute.
 
----
+Le Runtime décrit l'état d'exécution.
 
-## Faible couplage
+Une Registry stocke des objets.
 
-Les composants communiquent via :
+Un Executor réalise une exécution.
 
-- événements ;
-- interfaces ;
-- protocoles ;
-- services injectés.
+Cette séparation volontaire limite le couplage entre les différentes parties du framework.
 
-Les dépendances directes sont limitées au strict nécessaire.
+Une classe qui commence à remplir plusieurs rôles doit être refactorisée.
 
 ---
 
-## Architecture événementielle
+## 3.2 Découplage
 
-Toutes les interactions métier transitent par le bus d'événements.
+Le découplage constitue le principe directeur de l'ensemble du projet.
+
+Les services ne doivent jamais connaître les détails d'implémentation des autres services.
+
+Par exemple :
 
 ```text
-Plugin
+Scheduler
+      │
+      ▼
+TaskExecutor
+```
 
-↓
+et non :
 
+```text
+Scheduler
+      │
+      ▼
 Dispatcher
-
-↓
-
-Event Bus
-
-↓
-
-Subscribers
 ```
 
-Cette architecture facilite :
+Le Scheduler ignore complètement la manière dont une tâche est exécutée.
 
-- l'ajout de nouvelles fonctionnalités ;
-- les tests unitaires ;
-- l'évolution du framework.
+Il délègue cette responsabilité à un `TaskExecutor`.
+
+Cette approche permet de remplacer une implémentation sans modifier le Scheduler.
 
 ---
 
-## Modularité
+## 3.3 Composition
 
-Chaque package constitue une brique indépendante.
+Ohanna-Agent privilégie systématiquement la composition.
+
+Les composants collaborent.
+
+Ils ne s'héritent pas.
+
+Par exemple :
 
 ```text
-configuration
-
-core
-
-events
-
-mqtt
-
-health
-
-recovery
-
-plugins
-
-services
+Scheduler
+│
+├── TaskRegistry
+├── TaskExecutor
+├── SchedulerRuntime
+└── Clock
 ```
 
-Chaque package peut évoluer indépendamment des autres.
+Le Scheduler ne dérive d'aucune de ces classes.
+
+Il les utilise.
+
+Cette approche réduit les dépendances et facilite les évolutions.
 
 ---
 
-## Résilience
+## 3.4 Injection des dépendances
 
-Le noyau surveille en permanence son propre état.
+Les dépendances sont injectées lors de la construction des composants.
 
-La supervision est séparée de la récupération.
+Exemple :
+
+```python
+scheduler = Scheduler(
+    executor=DispatcherTaskExecutor(dispatcher),
+    clock=FakeClock(),
+)
+```
+
+Le Scheduler ne crée jamais lui-même son exécuteur ou son horloge.
+
+Cette règle améliore considérablement la testabilité du framework.
+
+---
+
+## 3.5 Contrats avant implémentations
+
+Les composants communiquent au travers de contrats clairement définis.
+
+Par exemple :
+
+* `TaskExecutor`
+* `Registry`
+* `Executor`
+
+Les implémentations concrètes restent interchangeables.
+
+Cette séparation permet notamment :
+
+* l'utilisation de doubles de test ;
+* l'évolution indépendante des implémentations ;
+* l'introduction de nouvelles stratégies sans casser l'API.
+
+---
+
+## 3.6 Runtime séparé
+
+Chaque service possède un objet Runtime.
+
+Le Runtime contient exclusivement les informations liées à l'exécution :
+
+* état courant ;
+* dates de démarrage ;
+* dates d'arrêt ;
+* statistiques ;
+* informations temporaires.
+
+Il ne contient jamais de logique métier.
+
+Cette séparation permet de distinguer clairement :
+
+* la logique du service ;
+* son état d'exécution.
+
+---
+
+## 3.7 Objets spécialisés
+
+Chaque concept important du framework possède son propre type.
+
+Par exemple :
+
+* Runtime
+* Registry
+* Statistics
+* State
+* Executor
+
+Cette approche augmente la lisibilité du code et facilite les évolutions futures.
+
+---
+
+## 3.8 Interfaces stables
+
+Les API publiques doivent rester stables.
+
+Les changements d'implémentation ne doivent pas modifier le contrat visible par les autres composants.
+
+Cette stabilité constitue une condition essentielle pour permettre l'évolution indépendante des modules.
+
+---
+
+# 4. Architecture globale
+
+L'architecture d'Ohanna-Agent est organisée autour d'un noyau modulaire.
+
+Chaque service possède une responsabilité unique et communique avec les autres services au travers de contrats bien définis.
+
+Le schéma suivant représente l'organisation générale du framework.
 
 ```text
-Observation
+                        Application
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
 
-↓
+  Configuration          Dispatcher          Scheduler
+        │                     │                     │
+        │                     ▼                     ▼
+        │                 Command             TaskRegistry
+        │                     │                     │
+        │                     ▼                     ▼
+        │                  Action                 Task
+        │                                           │
+        │                                           ▼
+        │                                      BaseTrigger
+        │
+        ├───────────────────────────────────────────────┐
+        ▼                                               ▼
 
-Diagnostic
+ Capability Manager                              MQTT Runtime
+        │                                               │
+        ▼                                               ▼
 
-↓
+   Capabilities                                 Publisher
+                                                 Subscriber
+```
 
-Décision
+---
 
-↓
+## 4.1 Le rôle de l'Application
 
+L'Application constitue le point d'entrée du framework.
+
+Elle est responsable de :
+
+* l'initialisation des services ;
+* leur cycle de vie ;
+* leur orchestration générale.
+
+Elle ne contient aucune logique métier.
+
+Son rôle est uniquement de composer les différents composants du noyau.
+
+---
+
+## 4.2 Les services du Kernel
+
+Le noyau est composé de plusieurs services indépendants.
+
+Chaque service est spécialisé.
+
+### Configuration
+
+Gestion de la configuration.
+
+### Dispatcher
+
+Exécution des commandes.
+
+### Scheduler
+
+Planification des traitements.
+
+### MQTT Runtime
+
+Communication avec le broker MQTT.
+
+### Capability Manager
+
+Gestion des capacités disponibles.
+
+### Event Bus
+
+Diffusion des événements internes.
+
+---
+
+## 4.3 Les dépendances
+
+Les dépendances suivent une seule direction.
+
+```text
+Application
+      │
+      ▼
+Scheduler
+      │
+      ▼
+TaskExecutor
+      │
+      ▼
+Dispatcher
+      │
+      ▼
+Command
+      │
+      ▼
 Action
 ```
 
-Cette séparation est volontaire.
+Aucune couche ne dépend d'une couche supérieure.
+
+Cette règle est impérative.
 
 ---
 
-# Vue générale
+## 4.4 Les composants spécialisés
 
-L'architecture complète est organisée selon les couches suivantes.
+Chaque grand service est lui-même composé de plusieurs sous-composants.
+
+Par exemple :
 
 ```text
-                     Plugins
-                         │
-                         ▼
-                  Event Dispatcher
-                         │
-                         ▼
-                     Event Bus
-                         │
-                         ▼
-                    Application
-                         │
- ┌──────────────┬──────────────┬──────────────┐
- ▼              ▼              ▼              ▼
-Configuration Services      Scheduler      MQTT
-                                            │
-                                ┌───────────┴───────────┐
-                                ▼                       ▼
-                           Publisher              Subscriber
-
-                         ▼
-                  Health Monitor
-                         │
-             ┌───────────┴───────────┐
-             ▼                       ▼
-      Health Checks            Watchdogs
-                                      │
-                                      ▼
-                                 Heartbeats
-
-                         ▼
-                  Recovery Engine
-                         │
-                         ▼
-                  Recovery Policy
-                         │
-                         ▼
-                 Recovery Strategy
-                         │
-                         ▼
-                  Recovery Action
-```
-
----
-
-# Organisation des packages
-
-Le dépôt est organisé de la manière suivante.
-
-```text
-ohanna-agent/
-
-application.py
-
-configuration/
-
-core/
-
-events/
-
-mqtt/
-
-health/
-
-recovery/
-
-plugins/
-
-services/
-
-tests/
-
-docs/
-
-config/
-```
-
-Chaque package possède une responsabilité clairement identifiée.
-
----
-
-# Application
-
-Le point d'entrée du framework est l'application.
-
-Elle orchestre :
-
-- l'initialisation ;
-- le démarrage ;
-- l'arrêt ;
-- les services communs.
-
-```text
-Application
-
-↓
-
-Initialize()
-
-↓
-
-Run()
-
-↓
-
-Stop()
-```
-
-L'application ne contient aucune logique métier.
-
-Elle agit comme orchestrateur.
-
----
-
-# Configuration
-
-Le package `configuration` centralise toute la configuration.
-
-Responsabilités :
-
-- lecture des fichiers YAML ;
-- validation ;
-- valeurs par défaut ;
-- exposition des paramètres.
-
-La validation repose sur **Pydantic**.
-
-Les principales sections sont :
-
-```text
-Agent
-
-MQTT
-
-Logging
-
-Health
-
-Plugins
-```
-
-Chaque section possède son propre modèle fortement typé.
-
----
-
-# Cycle de vie
-
-Le cycle de vie est entièrement centralisé.
-
-États possibles :
-
-```text
-CREATED
-
-↓
-
-INITIALIZING
-
-↓
-
-READY
-
-↓
-
-RUNNING
-
-↓
-
-STOPPING
-
-↓
-
-STOPPED
-```
-
-En cas d'erreur fatale :
-
-```text
-RUNNING
-
-↓
-
-ERROR
-```
-
-Toutes les transitions sont validées par le `LifecycleManager`.
-
-Aucun composant ne modifie directement son état.
-
----
-
-# Services
-
-Les services représentent les dépendances partagées.
-
-Exemples :
-
-- Logger
-- Dispatcher
-- MQTT Client
-- Scheduler
-- Health Monitor
-- Recovery Engine
-
-Ils sont injectés aux composants qui en ont besoin.
-
-Cette approche facilite :
-
-- les tests ;
-- le remplacement des implémentations ;
-- le découplage.
-
----
-
-# Scheduler
-
-Le Scheduler permet d'exécuter des traitements périodiques.
-
-Exemples futurs :
-
-- Health Checks
-- Watchdogs
-- Métriques
-- Heartbeats
-- Maintenance
-
-Le Scheduler reste indépendant des traitements exécutés.
-
-Chaque tâche est enregistrée dynamiquement.
-
----
-
-# Architecture événementielle
-
-L'architecture de Shikamaru repose entièrement sur un modèle **Event-Driven**.
-
-Les composants ne s'appellent pas directement entre eux.
-
-Ils communiquent exclusivement par des événements.
-
-```text
-            Producer
-                │
-                ▼
-          Event Dispatcher
-                │
-                ▼
-            Event Bus
-                │
-      ┌─────────┴─────────┐
-      ▼                   ▼
- Subscriber A       Subscriber B
-```
-
-Cette architecture apporte plusieurs avantages :
-
-- faible couplage ;
-- extensibilité ;
-- testabilité ;
-- isolation des composants.
-
----
-
-# Dispatcher
-
-Le Dispatcher constitue le centre névralgique du framework.
-
-Responsabilités :
-
-- enregistrer les abonnements ;
-- distribuer les événements ;
-- exécuter les handlers ;
-- isoler les producteurs des consommateurs.
-
-Il ne possède aucune connaissance métier.
-
----
-
-# Événements
-
-Chaque événement est représenté par un objet métier.
-
-Principes :
-
-- immuable ;
-- typé ;
-- horodaté ;
-- sérialisable.
-
-Exemples :
-
-```text
-ApplicationStartedEvent
-
-PluginLoadedEvent
-
-PluginStoppedEvent
-
-MQTTConnectedEvent
-
-MQTTDisconnectedEvent
-
-HealthStatusChangedEvent
-
-RecoveryStartedEvent
-
-RecoveryCompletedEvent
-```
-
-Les événements constituent le langage interne de Shikamaru.
-
----
-
-# Commandes
-
-Les commandes représentent les actions demandées au système.
-
-Contrairement aux événements, elles expriment une intention.
-
-Exemples :
-
-```text
-StartPluginCommand
-
-StopPluginCommand
-
-RestartPluginCommand
-
-ReloadConfigurationCommand
-
-RunHealthCheckCommand
-
-RecoverPluginCommand
-```
-
-Le Dispatcher distribue également les commandes.
-
----
-
-# Messages
-
-Les messages sont utilisés principalement par le runtime MQTT.
-
-Ils encapsulent :
-
-- un sujet MQTT ;
-- une charge utile ;
-- des métadonnées.
-
-Ils permettent de conserver une séparation claire entre le domaine métier et le protocole MQTT.
-
----
-
-# Runtime MQTT
-
-Le runtime MQTT constitue la passerelle entre Shikamaru et son environnement.
-
-Architecture :
-
-```text
-MQTT Broker
-
-↓
-
-Transport
-
-↓
-
-MQTT Client
-
-↓
-
-Subscriber
-
-↓
-
-Dispatcher
-
-↓
-
-Application
-
-↓
-
-Publisher
-
-↓
-
-MQTT Client
-
-↓
-
-Broker
-```
-
-Le reste du framework ignore complètement le protocole MQTT.
-
----
-
-# MQTT Client
-
-Le client MQTT est responsable de :
-
-- connexion ;
-- déconnexion ;
-- reconnexion automatique ;
-- publication ;
-- souscription.
-
-Il ne contient aucune logique métier.
-
----
-
-# Publisher
-
-Le Publisher transforme les événements internes en messages MQTT.
-
-Responsabilités :
-
-- sérialisation ;
-- publication ;
-- gestion des erreurs.
-
-Il ne décide jamais quels événements doivent être publiés.
-
-Cette décision appartient aux couches supérieures.
-
----
-
-# Subscriber
-
-Le Subscriber reçoit les messages MQTT.
-
-Il :
-
-- désérialise les messages ;
-- valide leur contenu ;
-- crée les commandes appropriées ;
-- les transmet au Dispatcher.
-
-Le Subscriber ne modifie jamais directement l'état du système.
-
----
-
-# Transport
-
-Le Transport encapsule la bibliothèque MQTT utilisée.
-
-Objectifs :
-
-- faciliter les tests ;
-- remplacer facilement l'implémentation ;
-- éviter toute dépendance forte.
-
-Le reste du framework dépend uniquement de son interface.
-
----
-
-# Gestion des plugins
-
-Les plugins représentent les fonctionnalités métier.
-
-Le noyau n'a aucune connaissance de leur implémentation.
-
-```text
-Plugin
-
-↓
-
-Initialize()
-
-↓
-
-Run()
-
-↓
-
-Stop()
-```
-
-Chaque plugin est indépendant.
-
----
-
-# Cycle de vie des plugins
-
-Chaque plugin suit le même cycle de vie que l'application.
-
-```text
-CREATED
-
-↓
-
-INITIALIZING
-
-↓
-
-READY
-
-↓
-
-RUNNING
-
-↓
-
-STOPPING
-
-↓
-
-STOPPED
-```
-
-En cas d'erreur :
-
-```text
-RUNNING
-
-↓
-
-ERROR
-```
-
-Cette homogénéité simplifie la supervision.
-
----
-
-# Chargement dynamique
-
-Les plugins sont chargés dynamiquement.
-
-Le gestionnaire de plugins est responsable :
-
-- de leur découverte ;
-- de leur création ;
-- de leur initialisation ;
-- de leur arrêt.
-
-Le noyau ne référence jamais directement un plugin particulier.
-
----
-
-# Communication des plugins
-
-Les plugins disposent de plusieurs moyens de communication.
-
-Ils peuvent :
-
-- publier des événements ;
-- écouter des événements ;
-- envoyer des commandes ;
-- utiliser les services injectés.
-
-Ils ne doivent jamais communiquer directement entre eux.
-
----
-
-# Services exposés
-
-Le noyau met plusieurs services à disposition des plugins.
-
-Exemples :
-
-```text
-Logger
-
-Dispatcher
-
-MQTT Client
-
 Scheduler
 
-Health Monitor
+Runtime
 
-Recovery Engine
+Registry
+
+Executor
+
+Task
+
+Trigger
+
+Clock
 ```
 
-Les plugins restent ainsi indépendants des implémentations concrètes.
+Cette organisation facilite les tests et limite la taille de chaque classe.
 
 ---
 
-# Injection de dépendances
+## 4.5 Une architecture orientée plateforme
 
-Toutes les dépendances importantes sont injectées.
+Le noyau ne contient volontairement aucune logique métier.
 
-Cette approche permet :
+Il fournit uniquement les mécanismes communs nécessaires aux futurs moteurs :
 
-- des tests simples ;
-- des mocks ;
-- le remplacement d'implémentations ;
-- un faible couplage.
+* Workflow Engine
+* Rule Engine
+* Pipeline Engine
+* Event Engine
 
-Exemple conceptuel :
+Ces moteurs viendront s'appuyer sur le Kernel sans modifier son architecture.
 
-```python
-class Plugin:
-
-    def __init__(
-        self,
-        dispatcher,
-        logger,
-        mqtt,
-        scheduler,
-    ):
-        ...
-```
-
-Le plugin ne crée jamais lui-même ses dépendances.
+Cette séparation garantit la stabilité du framework sur le long terme.
 
 ---
 
-# Principes SOLID
+# 5. Le Kernel
 
-L'architecture du noyau applique les principes SOLID.
+## 5.1 Présentation
 
-## Single Responsibility
+Le **Kernel** constitue le cœur d'Ohanna-Agent.
 
-Chaque composant possède une responsabilité unique.
+Il fournit l'ensemble des services fondamentaux nécessaires au fonctionnement du framework.
+
+Contrairement aux capacités, aux plugins ou aux futurs moteurs (Workflow, Rule Engine, Pipeline), le Kernel ne contient aucune logique métier.
+
+Son rôle est exclusivement de fournir une infrastructure stable, modulaire et extensible.
+
+L'ensemble des composants du framework repose sur ce noyau.
+
+---
+
+## 5.2 Responsabilités du Kernel
+
+Le Kernel est responsable de :
+
+* l'initialisation du framework ;
+* la gestion du cycle de vie des services ;
+* la réception et l'exécution des commandes ;
+* la planification des traitements ;
+* la diffusion des événements internes ;
+* la gestion des capacités ;
+* l'infrastructure de communication MQTT ;
+* les abstractions communes utilisées par les différents services.
+
+Toutes les fonctionnalités métier sont volontairement construites au-dessus de cette couche.
+
+---
+
+## 5.3 Vue d'ensemble
+
+Le Kernel est composé de plusieurs services spécialisés.
+
+```text
+                             Application
+                                   │
+     ┌───────────────┬─────────────┼─────────────┬───────────────┐
+     ▼               ▼             ▼             ▼               ▼
+
+Configuration   Dispatcher    Scheduler   Capability Manager   MQTT Runtime
+                                      │
+                                      ▼
+                                 Event Bus
+```
+
+Chaque service possède une responsabilité unique.
+
+Aucun service ne cumule plusieurs rôles.
+
+---
+
+# 5.4 L'Application
+
+L'Application constitue le point d'entrée du framework.
+
+Elle assemble les différents services du noyau.
+
+Son rôle est volontairement limité.
+
+L'Application :
+
+* construit les composants ;
+* injecte leurs dépendances ;
+* initialise le Kernel ;
+* démarre les services ;
+* orchestre leur arrêt.
+
+Elle ne contient aucune logique métier.
+
+Elle ne traite aucun message MQTT.
+
+Elle ne prend aucune décision.
+
+Elle agit uniquement comme orchestrateur.
+
+---
+
+## Cycle de vie
+
+Le cycle de vie d'une Application suit la séquence suivante.
+
+```text
+CREATED
+    │
+    ▼
+INITIALIZING
+    │
+    ▼
+RUNNING
+    │
+    ▼
+STOPPING
+    │
+    ▼
+STOPPED
+```
+
+Chaque transition est explicite.
+
+---
+
+# 5.5 Le Dispatcher
+
+Le Dispatcher constitue le centre d'exécution du framework.
+
+Tous les traitements passent obligatoirement par lui.
+
+Sa responsabilité est simple :
+
+> Recevoir une commande et déclencher l'action correspondante.
+
+Le Dispatcher ignore totalement l'origine de cette commande.
+
+Elle peut provenir :
+
+* du Scheduler ;
+* du Runtime MQTT ;
+* d'un Plugin ;
+* d'une Capability ;
+* d'un futur Workflow Engine.
+
+Toutes ces sources sont traitées de manière identique.
+
+---
+
+## Architecture
+
+```text
+Dispatcher
+      │
+      ▼
+Command
+      │
+      ▼
+Action
+```
+
+Le Dispatcher ne connaît jamais les implémentations concrètes des Actions.
+
+---
+
+# 5.6 Le Scheduler
+
+Le Scheduler introduit dans la version **0.4.0** constitue le premier composant permettant à Ohanna-Agent de devenir autonome.
+
+Contrairement au Dispatcher, qui réagit aux événements, le Scheduler est capable d'initier des traitements.
+
+Il ne prend toutefois aucune décision métier.
+
+Sa responsabilité consiste uniquement à déterminer quelles tâches doivent être exécutées.
+
+---
+
+## Architecture
+
+```text
+Scheduler
+     │
+     ├── Runtime
+     ├── Registry
+     ├── Executor
+     ├── Clock
+     └── Tasks
+```
+
+Chaque sous-composant possède une responsabilité clairement identifiée.
+
+---
+
+## Principe d'exécution
+
+```text
+Clock
+   │
+   ▼
+Trigger
+   │
+   ▼
+Task
+   │
+   ▼
+TaskRegistry
+   │
+   ▼
+Scheduler
+   │
+   ▼
+TaskExecutor
+   │
+   ▼
+Dispatcher
+```
+
+Le Scheduler ignore complètement la manière dont une tâche est réellement exécutée.
+
+Il délègue cette responsabilité au `TaskExecutor`.
+
+Cette séparation garantit un découplage fort entre la planification et l'exécution.
+
+---
+
+# 5.7 Le Capability Manager
+
+Le Capability Manager gère l'ensemble des capacités installées dans le framework.
+
+Une capacité représente une fonctionnalité autonome pouvant être activée ou désactivée indépendamment.
 
 Exemples :
 
-- Dispatcher → distribuer.
-- Publisher → publier.
-- Health Monitor → superviser.
-- Recovery Engine → orchestrer.
+* Health
+* Monitor
+* Watchdog
+* Heartbeat
+* Auto-Recovery
+
+Chaque capacité possède son propre cycle de vie.
+
+Le Capability Manager ne connaît pas leur logique interne.
 
 ---
 
-## Open / Closed
+# 5.8 Le Runtime MQTT
 
-Le framework est ouvert à l'extension.
+Le Runtime MQTT assure la communication avec le broker.
 
-Les nouveaux plugins ne nécessitent pas de modifier le noyau.
+Ses responsabilités sont volontairement limitées :
 
----
+* établir la connexion ;
+* publier les messages ;
+* recevoir les abonnements ;
+* gérer les reconnexions ;
+* notifier le Dispatcher.
 
-## Liskov
-
-Toutes les implémentations respectent leurs interfaces.
-
-Les Protocols permettent de garantir cette substituabilité.
-
----
-
-## Interface Segregation
-
-Les interfaces sont volontairement petites.
-
-Chaque composant ne dépend que des méthodes dont il a réellement besoin.
+Le Runtime MQTT ne contient aucune logique métier.
 
 ---
 
-## Dependency Inversion
-
-Les dépendances concrètes sont remplacées par des Protocols ou des interfaces.
-
-Le noyau ne dépend jamais directement d'une implémentation particulière.
-
----
-
-# Architecture de supervision
-
-Le Sprint 4 introduit une nouvelle couche d'architecture dédiée à la supervision et à la résilience.
-
-Cette couche est totalement indépendante du runtime MQTT et des plugins.
-
-Son objectif est de permettre au noyau de :
-
-- surveiller son propre fonctionnement ;
-- détecter les anomalies ;
-- tenter des récupérations automatiques ;
-- continuer à fonctionner en mode dégradé lorsque cela est possible.
-
-L'architecture est volontairement découpée en deux sous-systèmes indépendants :
-
-- **Health**
-- **Recovery**
+## Architecture
 
 ```text
-Application
+MQTT Runtime
       │
-      ▼
-Health Monitor
-      │
-      ▼
-Health Result
-      │
-      ▼
-Recovery Engine
-      │
-      ▼
-Recovery Policy
-      │
-      ▼
-Recovery Strategy
-      │
-      ▼
-Recovery Action
+      ├── Publisher
+      ├── Subscriber
+      ├── Monitor
+      ├── Reconnect
+      └── Transport
 ```
 
-Cette séparation constitue l'une des décisions majeures de l'architecture de Shikamaru.
+Chaque sous-composant reste indépendant.
 
 ---
 
-# Package Health
+# 5.9 L'Event Bus
 
-Le package `health` est responsable de l'observation.
+L'Event Bus constitue le mécanisme de communication interne du Kernel.
 
-Il ne modifie jamais le système.
+Il permet aux différents services de publier des événements sans connaître leurs consommateurs.
 
-Il fournit uniquement une vision de son état.
+Cette approche réduit fortement les dépendances entre modules.
 
-Organisation :
+Le Scheduler pourra, par exemple, publier :
 
 ```text
-health/
+task.started
 
-heartbeat.py
+task.finished
 
-monitor.py
-
-watchdog.py
+task.failed
 ```
 
----
-
-# Health Monitor
-
-Le `HealthMonitor` est le point central de la supervision.
-
-Responsabilités :
-
-- enregistrer les contrôles de santé ;
-- exécuter les contrôles ;
-- agréger les résultats ;
-- calculer l'état global ;
-- fournir les informations nécessaires au Recovery Engine.
-
-Il ne réalise aucune récupération.
+sans connaître les composants qui les traiteront.
 
 ---
 
-## Agrégation
+# 5.10 Les abstractions communes
 
-Le Health Monitor applique les règles suivantes.
+L'ensemble des services du Kernel repose sur plusieurs abstractions partagées.
 
 ```text
-Tous HEALTHY
+core/
 
-↓
+Runtime
 
-HEALTHY
+Statistics
+
+Registry
+
+Executor
 ```
 
-```text
-Au moins un DEGRADED
+Ces abstractions constituent le langage commun du framework.
 
-↓
-
-DEGRADED
-```
-
-```text
-Au moins un UNHEALTHY
-
-↓
-
-UNHEALTHY
-```
-
-```text
-Aucun contrôle
-
-↓
-
-UNKNOWN
-```
-
-Cette logique est volontairement simple.
-
----
-
-# Health Checks
-
-Les Health Checks représentent les contrôles élémentaires.
-
-Exemples futurs :
-
-- connexion MQTT ;
-- plugin actif ;
-- mémoire disponible ;
-- CPU ;
-- disque ;
-- disponibilité d'un service.
-
-Chaque Health Check est indépendant.
-
----
-
-# Heartbeat
-
-Un Heartbeat représente une preuve récente d'activité.
-
-Exemple :
-
-```text
-plugin.dns
-
-↓
-
-Heartbeat
-```
-
-Le Heartbeat contient :
-
-- la source ;
-- l'instant d'émission ;
-- des métadonnées éventuelles.
-
-Il est volontairement très léger.
-
----
-
-# Watchdog
-
-Le Watchdog surveille un Heartbeat.
-
-Principe :
-
-```text
-Heartbeat reçu
-
-↓
-
-HEALTHY
-```
-
-```text
-Heartbeat ancien
-
-↓
-
-DEGRADED
-```
-
-```text
-Heartbeat expiré
-
-↓
-
-UNHEALTHY
-```
-
-Le Watchdog ne déclenche jamais lui-même une récupération.
-
----
-
-# Surveillance temporelle
-
-Chaque Watchdog possède :
-
-- une source ;
-- un délai de dégradation ;
-- un délai critique.
-
-Exemple :
-
-```text
-Heartbeat
-
-↓
-
-10 s
-
-↓
-
-DEGRADED
-
-↓
-
-30 s
-
-↓
-
-UNHEALTHY
-```
-
-Les délais sont entièrement configurables.
-
----
-
-# Architecture Recovery
-
-Le package `recovery` constitue le second pilier de la résilience.
-
-Organisation :
-
-```text
-recovery/
-
-action.py
-
-engine.py
-
-policy.py
-
-result.py
-
-strategy.py
-```
-
-Contrairement au package `health`, il est responsable des actions.
-
----
-
-# Recovery Engine
-
-Le `RecoveryEngine` orchestre les opérations de récupération.
-
-Il reçoit les résultats du Health Monitor.
-
-```text
-Health Result
-
-↓
-
-Recovery Engine
-```
-
-Le moteur :
-
-- sélectionne une stratégie ;
-- empêche les récupérations concurrentes ;
-- conserve un historique ;
-- exécute les actions.
-
-Il ne contient aucune logique métier.
-
----
-
-# Recovery Strategy
-
-Une stratégie décrit **comment récupérer une anomalie**.
-
-Exemples :
-
-```text
-DNSRecoveryStrategy
-
-DHCPRecoveryStrategy
-
-MQTTRecoveryStrategy
-
-PluginRecoveryStrategy
-```
-
-Chaque stratégie est indépendante.
-
-Elle peut être remplacée sans modifier le moteur.
-
----
-
-# Recovery Policy
-
-La Recovery Policy décide :
-
-- quelles actions effectuer ;
-- dans quel ordre ;
-- combien de tentatives réaliser ;
-- quand abandonner.
-
-Exemple :
-
-```text
-Restart
-
-↓
-
-Reload
-
-↓
-
-Disable
-
-↓
-
-Abandon
-```
-
-Les politiques sont entièrement configurables.
-
----
-
-# Recovery History
-
-Chaque récupération possède un historique.
-
-Il mémorise notamment :
-
-- le nombre de tentatives ;
-- la dernière action ;
-- le dernier résultat ;
-- les résultats précédents.
-
-Cette information est utilisée par les Policies.
-
----
-
-# Recovery Action
-
-Une Action représente une opération élémentaire.
-
-Exemples :
-
-```text
-Restart Plugin
-
-Reconnect MQTT
-
-Reload Configuration
-
-Disable Plugin
-```
-
-Une Action ne prend aucune décision.
-
-Elle exécute simplement l'opération demandée.
-
----
-
-# Recovery Result
-
-Chaque tentative retourne un objet `RecoveryResult`.
-
-Il contient :
-
-- succès ou échec ;
-- action exécutée ;
-- source concernée ;
-- message ;
-- informations complémentaires.
-
-Le moteur conserve un historique de ces résultats.
-
----
-
-# Prévention des récupérations concurrentes
-
-Le Recovery Engine garantit qu'une seule récupération peut être exécutée simultanément pour une même source.
-
-Exemple :
-
-```text
-plugin.dns
-
-↓
-
-Recovery en cours
-
-↓
-
-Nouvelle demande
-
-↓
-
-Ignorée
-```
-
-Cette règle évite :
-
-- les redémarrages multiples ;
-- les états incohérents ;
-- les courses critiques.
-
----
-
-# Mode dégradé
-
-Le noyau peut continuer à fonctionner malgré certaines défaillances.
-
-```text
-HEALTHY
-
-↓
-
-DEGRADED
-
-↓
-
-UNHEALTHY
-```
-
-Le mode dégradé permet :
-
-- de maintenir les services disponibles ;
-- d'isoler les composants défaillants ;
-- de poursuivre les tentatives de récupération.
-
-Le retour à l'état nominal est automatique lorsque les contrôles redeviennent positifs.
-
----
-
-# Coopération entre Health et Recovery
-
-Les deux packages collaborent sans dépendance forte.
-
-```text
-Health Monitor
-
-↓
-
-Health Result
-
-↓
-
-Recovery Engine
-
-↓
-
-Recovery Policy
-
-↓
-
-Recovery Strategy
-
-↓
-
-Recovery Action
-```
-
-Cette architecture garantit une séparation claire entre :
-
-- **l'observation** ;
-- **la décision** ;
-- **l'exécution**.
-
-Elle constitue aujourd'hui l'un des principaux points forts du noyau Shikamaru.
-
----
-
-# Organisation des tests
-
-La qualité du noyau repose sur une politique de tests unitaires systématiques.
-
-Chaque composant du framework possède son propre module de tests.
-
-Organisation :
-
-```text
-tests/
-
-test_action.py
-test_application.py
-test_command.py
-test_configuration.py
-test_dispatcher.py
-test_engine.py
-test_event.py
-test_events.py
-test_heartbeat.py
-test_lifecycle.py
-test_messages.py
-test_monitor.py
-test_mqtt_client.py
-test_plugins.py
-test_policy.py
-test_publisher.py
-test_reconnect.py
-test_result.py
-test_scheduler.py
-test_services.py
-test_strategy.py
-test_subscriber.py
-test_transport.py
-test_watchdog.py
-```
-
-Les tests sont organisés selon les mêmes responsabilités que les packages du framework.
-
-Cette symétrie facilite la maintenance et la compréhension du projet.
-
----
-
-# Qualité du code
-
-Le projet applique plusieurs règles de qualité.
-
-## Typage
-
-Le typage statique est utilisé sur l'ensemble du noyau.
-
-Objectifs :
-
-- améliorer la lisibilité ;
-- détecter les erreurs précocement ;
-- faciliter le refactoring.
-
----
-
-## Dataclasses
-
-Les objets métiers utilisent principalement les `dataclasses`.
-
-Exemples :
-
-- Event
-- Message
-- Heartbeat
-- HealthResult
-- RecoveryResult
-
-Les objets sont immuables dès que cela est possible.
-
----
-
-## Protocols
-
-Les interfaces reposent principalement sur `typing.Protocol`.
-
-Exemples :
-
-- HealthCheck
-- RecoveryAction
-- RecoveryStrategy
-- RecoveryPolicy
-
-Cette approche évite une hiérarchie de classes trop complexe.
-
----
-
-## Injection de dépendances
-
-Les composants ne créent jamais directement leurs dépendances.
-
-Toutes les dépendances importantes sont injectées lors de leur création.
-
-Cette règle garantit :
-
-- une excellente testabilité ;
-- un faible couplage ;
-- un remplacement facile des implémentations.
-
----
-
-# Performances
-
-Le noyau privilégie la simplicité et la robustesse.
-
-Les optimisations ne sont réalisées que lorsqu'elles sont justifiées.
-
-À ce jour :
-
-- aucune allocation complexe inutile ;
-- structures de données simples ;
-- faible profondeur d'appel ;
-- composants faiblement couplés.
-
-Le framework est conçu pour supporter plusieurs dizaines de plugins sans modification de son architecture.
-
----
-
-# Gestion des erreurs
-
-Les erreurs sont traitées à plusieurs niveaux.
-
-## Erreurs applicatives
-
-Les exceptions métier sont propagées jusqu'au Dispatcher ou à l'Application.
-
-Les composants évitent autant que possible de masquer les erreurs.
-
----
-
-## Erreurs de supervision
-
-Les anomalies détectées par le Health Monitor produisent des `HealthResult`.
-
-Aucune récupération n'est réalisée à ce niveau.
-
----
-
-## Erreurs de récupération
-
-Le Recovery Engine enregistre toutes les tentatives.
-
-Chaque récupération produit un `RecoveryResult`.
-
-Ces informations pourront être utilisées pour :
-
-- les statistiques ;
-- les métriques ;
-- l'interface Web ;
-- Home Assistant.
-
----
-
-# Journalisation
-
-Le noyau centralise la journalisation.
-
-Objectifs :
-
-- faciliter le diagnostic ;
-- tracer les événements importants ;
-- conserver une cohérence entre les composants.
-
-Chaque composant reçoit un logger injecté.
-
-Le framework ne dépend pas d'une implémentation particulière.
-
----
-
-# Configuration
-
-Toute la configuration est regroupée dans un seul package.
-
-```text
-configuration/
-```
-
-Le modèle repose sur des objets fortement typés.
-
-Les paramètres sont validés au démarrage.
-
-En cas d'erreur de configuration, l'application refuse de démarrer.
-
-Cette approche garantit un comportement déterministe.
-
----
-
-# Évolutivité
-
-L'architecture actuelle permet d'ajouter facilement :
-
-- de nouveaux plugins ;
-- de nouveaux Health Checks ;
-- de nouveaux Watchdogs ;
-- de nouvelles Recovery Policies ;
-- de nouvelles Recovery Strategies ;
-- de nouvelles Recovery Actions.
-
-Ces ajouts ne nécessitent pas de modifier les composants existants.
-
----
-
-# Architecture cible
-
-À moyen terme, le noyau conservera la même organisation générale.
-
-```text
-                  Application
-                        │
-                        ▼
-                  Event Dispatcher
-                        │
-                        ▼
-                     Event Bus
-                        │
-    ┌───────────────────┼───────────────────┐
-    ▼                   ▼                   ▼
-Configuration       MQTT Runtime        Scheduler
-                        │
-                        ▼
-                     Plugins
-                        │
-                        ▼
-                 Health Monitor
-                        │
-                        ▼
-                   Watchdogs
-                        │
-                        ▼
-                 Recovery Engine
-                        │
-                        ▼
-                 Recovery Policies
-                        │
-                        ▼
-                Recovery Strategies
-                        │
-                        ▼
-                 Recovery Actions
-```
-
-Les futures évolutions enrichiront les fonctionnalités sans remettre en cause cette architecture.
-
----
-
-# Compatibilité
-
-Le noyau est conçu pour rester indépendant :
-
-- du système d'exploitation ;
-- du broker MQTT ;
-- des plugins ;
-- de Home Assistant.
-
-Cette indépendance facilite :
-
-- les tests ;
-- les évolutions ;
-- la portabilité.
-
----
-
-# Dette technique
-
-À l'issue du Sprint 4, la dette technique est volontairement limitée.
-
-Quelques évolutions sont déjà identifiées :
-
-- extraire `HealthStatus`, `HealthResult` et `HealthCheck` de `monitor.py` vers des modules dédiés (`status.py`, `result.py`, `check.py`) lorsque l'API sera totalement stabilisée ;
-- introduire un `RecoveryContext` pour transmettre les dépendances aux `RecoveryAction` sans couplage supplémentaire ;
-- créer un `PolicyRegistry` afin de centraliser l'enregistrement et la sélection des politiques de récupération.
-
-Ces évolutions sont considérées comme des améliorations de conception et non comme des anomalies.
-
----
-
-# État de l'architecture
-
-À la fin du Sprint 4 :
-
-- Architecture entièrement événementielle.
-- Runtime MQTT complet.
-- Supervision interne opérationnelle.
-- Mécanismes de résilience implémentés.
-- Packages fortement découplés.
-- Injection de dépendances généralisée.
-- Documentation synchronisée avec le code.
-- ADR alignées avec l'implémentation.
-- 204 tests unitaires validés.
-- Ruff conforme.
-
-Le noyau **Shikamaru** constitue désormais une base solide pour développer les futurs plugins d'infrastructure.
+Tous les nouveaux services sont encouragés à les utiliser lorsqu'elles répondent à leur besoin.
 
 ---
 
 # Conclusion
 
-Le Sprint 4 marque une étape majeure dans la maturité d'Ohanna-Agent.
+Le Kernel représente la partie la plus stable d'Ohanna-Agent.
 
-Jusqu'au Sprint 3, Shikamaru était principalement un **framework événementiel** capable de communiquer via MQTT.
+Son objectif n'est pas de fournir des fonctionnalités métier, mais une infrastructure fiable, cohérente et extensible sur laquelle pourront être construits les moteurs intelligents des prochaines versions.
 
-Avec le Sprint 4, il devient un **framework d'agents résilients**, capable :
+Les chapitres suivants détaillent les abstractions communes (`Runtime`, `Registry`, `Executor`, `State`, `Statistics`) qui permettent à l'ensemble des services du Kernel de partager un modèle architectural homogène.
 
-- d'observer son propre état ;
-- de détecter les défaillances ;
-- de raisonner sur les actions à entreprendre ;
-- d'exécuter des stratégies de récupération ;
-- de continuer à fonctionner en mode dégradé lorsque cela est nécessaire.
+---
 
-Cette évolution repose sur une séparation stricte entre :
+# 6. Les Contrats du Kernel (`core`)
 
-- l'observation (`health`) ;
-- la décision (`policy` / `strategy`) ;
-- l'orchestration (`engine`) ;
-- l'exécution (`action`).
+## 6.1 Introduction
 
-Cette architecture, validée par les ADR-0015 à ADR-0019, constitue désormais le socle technique sur lequel seront développés les plugins d'infrastructure des prochains Sprints.
+L'une des évolutions majeures introduites avec la version **0.4.0** est l'apparition d'un ensemble d'abstractions communes regroupées dans le package `core`.
 
-Le noyau est prêt à entrer dans une nouvelle phase du projet : **le développement des services métier**.
+Ces abstractions ne représentent pas des fonctionnalités.
+
+Elles définissent un **langage architectural** partagé par l'ensemble du framework.
+
+Chaque nouveau service peut s'appuyer sur ces contrats afin de respecter les mêmes principes de conception.
+
+Cette approche favorise :
+
+* la cohérence du code ;
+* le découplage entre les composants ;
+* la réutilisation des concepts ;
+* la simplicité de maintenance ;
+* l'évolutivité du framework.
+
+---
+
+# 6.2 Les abstractions communes
+
+Le package `core` regroupe les contrats fondamentaux suivants.
+
+```text
+core/
+
+Runtime
+
+Statistics
+
+Registry
+
+Executor
+```
+
+Ces quatre concepts constituent la base de l'ensemble des services du Kernel.
+
+---
+
+# 6.3 Runtime
+
+## Objectif
+
+Un **Runtime** représente exclusivement l'état d'exécution d'un service.
+
+Il ne contient jamais de logique métier.
+
+Le Runtime est un objet d'observation.
+
+Il décrit le fonctionnement courant d'un composant sans participer à son comportement.
+
+---
+
+## Responsabilités
+
+Un Runtime peut notamment contenir :
+
+* état courant ;
+* date de démarrage ;
+* date d'arrêt ;
+* dernier événement ;
+* informations temporaires ;
+* statistiques d'exécution.
+
+Il ne réalise jamais de traitement.
+
+---
+
+## Exemple
+
+```text
+Scheduler
+      │
+      ▼
+SchedulerRuntime
+```
+
+Le Scheduler reste responsable de l'orchestration.
+
+Le Runtime décrit uniquement son état.
+
+---
+
+## Règles
+
+Un Runtime :
+
+* ne contient aucune logique métier ;
+* ne décide jamais ;
+* n'appelle aucun autre service ;
+* peut être observé à tout moment ;
+* est sérialisable si nécessaire.
+
+---
+
+# 6.4 Statistics
+
+## Objectif
+
+Les statistiques représentent des mesures cumulées produites par un service.
+
+Elles sont volontairement séparées du Runtime afin de distinguer :
+
+* l'état courant ;
+* les indicateurs historiques.
+
+---
+
+## Exemples
+
+```text
+SchedulerStatistics
+
+tasks_executed
+
+tasks_failed
+
+tick_count
+```
+
+---
+
+D'autres services pourront disposer de leurs propres statistiques :
+
+```text
+HeartbeatStatistics
+
+ReconnectStatistics
+
+MonitorStatistics
+```
+
+Chaque service reste libre de définir les métriques qui lui sont pertinentes.
+
+---
+
+## Règles
+
+Une classe Statistics :
+
+* contient uniquement des compteurs ;
+* ne possède aucune logique métier complexe ;
+* ne déclenche jamais d'action ;
+* peut être remise à zéro.
+
+---
+
+# 6.5 Registry
+
+## Objectif
+
+Une Registry est responsable du stockage et de la recherche d'objets.
+
+Elle constitue l'unique point d'accès à une collection.
+
+Elle remplace l'utilisation directe des structures de données internes.
+
+---
+
+## Exemple
+
+```text
+TaskRegistry
+
+Task
+
+Task
+
+Task
+```
+
+Le Scheduler ne manipule jamais directement une collection de tâches.
+
+Toute interaction passe par le TaskRegistry.
+
+---
+
+## Avantages
+
+Cette approche facilite :
+
+* le remplacement du stockage ;
+* l'ajout de persistance ;
+* les recherches avancées ;
+* la validation des accès ;
+* la journalisation.
+
+---
+
+## Futures implémentations
+
+À terme, une Registry pourra s'appuyer sur :
+
+* un dictionnaire mémoire ;
+* SQLite ;
+* PostgreSQL ;
+* Redis ;
+* un stockage distribué.
+
+Le reste du framework restera inchangé.
+
+---
+
+## Règles
+
+Une Registry :
+
+* ne contient aucune logique métier ;
+* ne prend aucune décision ;
+* ne déclenche aucune exécution ;
+* gère uniquement une collection.
+
+---
+
+# 6.6 Executor
+
+## Objectif
+
+Un Executor représente le composant responsable d'une exécution.
+
+Il ne décide jamais quoi exécuter.
+
+Il exécute ce qui lui est demandé.
+
+---
+
+## Exemple
+
+```text
+Scheduler
+      │
+      ▼
+TaskExecutor
+      │
+      ▼
+DispatcherTaskExecutor
+```
+
+Le Scheduler décide qu'une tâche doit être exécutée.
+
+Le TaskExecutor réalise effectivement cette exécution.
+
+---
+
+## Pourquoi cette séparation ?
+
+Cette architecture permet de remplacer facilement l'implémentation.
+
+Par exemple :
+
+```text
+TaskExecutor
+      │
+      ├── DispatcherTaskExecutor
+      ├── DryRunTaskExecutor
+      ├── AsyncTaskExecutor
+      ├── RemoteTaskExecutor
+      └── WorkflowTaskExecutor
+```
+
+Le Scheduler reste strictement identique.
+
+---
+
+## Règles
+
+Un Executor :
+
+* exécute ;
+* ne planifie jamais ;
+* ne stocke jamais ;
+* ne décide jamais.
+
+---
+
+# 6.7 Les contrats comme langage commun
+
+L'ensemble du Kernel repose désormais sur quatre concepts simples.
+
+```text
+Service
+      │
+      ├── Runtime
+      ├── Statistics
+      ├── Registry
+      └── Executor
+```
+
+Chaque nouveau service est invité à réutiliser ces abstractions lorsque cela est pertinent.
+
+Cette homogénéité facilite la compréhension du framework.
+
+---
+
+# 6.8 Évolution des services
+
+Le modèle suivant est désormais recommandé.
+
+```text
+Service
+│
+├── Runtime
+├── Statistics
+├── State
+├── Registry
+├── Executor
+└── Models
+```
+
+Tous les services n'utiliseront pas nécessairement chacun de ces composants.
+
+Ils constituent cependant une boîte à outils commune permettant de construire une architecture cohérente.
+
+---
+
+# 6.9 Les bénéfices
+
+L'introduction des contrats `core` apporte plusieurs avantages majeurs.
+
+## Cohérence
+
+Tous les services partagent désormais le même vocabulaire architectural.
+
+---
+
+## Testabilité
+
+Les composants peuvent être testés indépendamment grâce à des contrats clairement définis.
+
+---
+
+## Évolutivité
+
+Les implémentations peuvent évoluer sans modifier les consommateurs.
+
+---
+
+## Lisibilité
+
+Les responsabilités sont immédiatement identifiables.
+
+Le nom d'une classe indique clairement son rôle.
+
+---
+
+## Maintenabilité
+
+Les évolutions futures peuvent s'appuyer sur des concepts déjà présents dans le framework plutôt que d'introduire de nouveaux modèles.
+
+---
+
+# Conclusion
+
+Les abstractions du package `core` constituent désormais le socle architectural d'Ohanna-Agent.
+
+Elles ne représentent pas des fonctionnalités du framework.
+
+Elles définissent sa manière de construire des composants.
+
+Grâce à ces contrats, les futurs services (Workflow Engine, Rule Engine, Pipeline Engine, moteurs d'événements ou nouvelles capacités) pourront être développés selon les mêmes principes de conception, garantissant ainsi la cohérence et la pérennité de l'architecture.

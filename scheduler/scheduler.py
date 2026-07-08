@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from scheduler.clock import Clock, SystemClock
+from scheduler.scheduler_runtime import SchedulerRuntime
 from scheduler.task import Task
 from scheduler.task_executor import (
     DryRunTaskExecutor,
@@ -21,15 +22,24 @@ class Scheduler:
     clock: Clock = field(default_factory=SystemClock)
     registry: TaskRegistry = field(default_factory=TaskRegistry)
     executor: TaskExecutor = field(default_factory=DryRunTaskExecutor)
-    running: bool = field(default=False, init=False)
+    runtime: SchedulerRuntime = field(default_factory=SchedulerRuntime)
+
+    @property
+    def running(self) -> bool:
+        """Return True when the scheduler is running."""
+        return self.runtime.running
 
     def start(self) -> None:
         """Start the scheduler."""
-        self.running = True
+        now = self.clock.now()
+        self.runtime.mark_starting()
+        self.runtime.mark_running(now)
 
     def stop(self) -> None:
         """Stop the scheduler."""
-        self.running = False
+        now = self.clock.now()
+        self.runtime.mark_stopping()
+        self.runtime.mark_stopped(now)
 
     def add_task(self, task: Task) -> None:
         """Add a task to the scheduler."""
@@ -57,7 +67,14 @@ class Scheduler:
             return []
 
         now = self.clock.now()
-        return [
-           self.executor.execute(task, now)
+        self.runtime.record_tick(now)
+
+        results = [
+            self.executor.execute(task, now)
             for task in self.registry.due_tasks(now)
         ]
+
+        for result in results:
+            self.runtime.statistics.record_task_result(result.success)
+
+        return results

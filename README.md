@@ -1,621 +1,165 @@
 # Ohanna-Agent
 
-> **Shikamaru** — Un framework Python modulaire, événementiel et résilient pour les services d'infrastructure.
+> **Modular • Autonomous • Event-Driven • MQTT Native**
 
-![Python](https://img.shields.io/badge/python-3.13+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Tests](https://img.shields.io/badge/tests-204%20passed-success.svg)
-![Ruff](https://img.shields.io/badge/ruff-clean-success.svg)
-![Architecture](https://img.shields.io/badge/architecture-event--driven-blue.svg)
-![MQTT](https://img.shields.io/badge/MQTT-native-orange.svg)
-![Health](https://img.shields.io/badge/Health-Self--Healing-success.svg)
+Ohanna-Agent est un framework Python open source destiné à la création d'agents autonomes, modulaires et pilotés par événements.
 
----
+Conçu autour d'une architecture fortement découplée, il permet de construire des applications capables de recevoir, planifier, orchestrer et exécuter des actions tout en restant simples à tester, à maintenir et à faire évoluer.
 
-# Présentation
-
-Ohanna-Agent est un framework Python permettant de développer des agents autonomes destinés à administrer des services d'infrastructure.
-
-L'objectif du projet est de proposer un noyau logiciel robuste, modulaire et entièrement piloté par les événements.
-
-Le noyau, baptisé **Shikamaru**, fournit toutes les briques communes :
-
-- cycle de vie de l'application ;
-- bus d'événements ;
-- système de commandes ;
-- client MQTT ;
-- gestion des plugins ;
-- supervision interne ;
-- surveillance de santé ;
-- moteur de récupération automatique.
-
-Les services métier (DNS, DHCP, NTP, supervision, Home Assistant, etc.) sont développés sous forme de plugins indépendants.
+Contrairement à un simple moteur MQTT ou à un système d'automatisation classique, Ohanna-Agent fournit un véritable noyau applicatif extensible, reposant sur des composants indépendants et des abstractions communes.
 
 ---
 
 # Philosophie
 
-Ohanna-Agent repose sur plusieurs principes fondamentaux.
-
-## Simplicité
-
-Chaque composant possède une responsabilité unique.
-
-Le code doit rester lisible, testable et facilement maintenable.
-
----
-
-## Architecture événementielle
-
-Les composants communiquent exclusivement au travers d'événements.
-
-Aucun composant ne dépend directement d'un autre lorsqu'un échange peut être réalisé via le bus d'événements.
-
----
+Ohanna-Agent repose sur quelques principes fondamentaux qui guident l'ensemble de son architecture.
 
 ## Modularité
 
-Toutes les fonctionnalités métier sont implémentées sous forme de plugins.
+Chaque composant possède une responsabilité unique.
 
-Le noyau reste indépendant des services exécutés.
+Les services du noyau peuvent évoluer indépendamment sans impacter les autres composants.
 
----
+## Découplage
 
-## Résilience
+Les communications entre les différentes couches utilisent exclusivement des contrats clairement définis.
 
-L'agent surveille son propre état de santé.
-
-En cas de problème, il tente automatiquement de récupérer le composant défaillant avant de passer en mode dégradé.
-
----
+Aucun composant métier ne dépend directement d'une implémentation particulière.
 
 ## Testabilité
 
-Chaque composant doit être facilement testable.
+L'ensemble du framework est conçu pour être facilement testable.
 
-Les dépendances sont injectées.
+Les abstractions (`Clock`, `Executor`, `Registry`, `Runtime`, etc.) permettent de produire des tests unitaires rapides, déterministes et indépendants du système d'exploitation.
 
-Le code métier reste indépendant des couches techniques.
+## Évolutivité
+
+Chaque nouveau service peut s'appuyer sur les abstractions du noyau sans modifier les composants existants.
+
+Cette approche facilite l'ajout de nouvelles fonctionnalités tout en préservant la stabilité de l'architecture.
 
 ---
 
 # Fonctionnalités
 
-## Noyau
+À la version **0.4.0**, Ohanna-Agent fournit notamment :
 
-- Cycle de vie complet de l'application
-- Gestion centralisée de la configuration
+- Architecture orientée événements
+- Dispatcher de commandes
+- Gestionnaire de capacités (Capabilities)
+- Runtime MQTT natif
 - Bus d'événements
-- Commandes internes
-- Gestionnaire de plugins
-- Services partagés
-- Journalisation
-- Ordonnanceur interne
-
----
-
-## MQTT
-
-- Client MQTT natif
-- Publication d'événements
-- Souscription aux commandes
-- Reconnexion automatique
-- Transport indépendant
-- Messages typés
-
----
-
-## Supervision
-
-- Health Monitor
-- Heartbeat
-- Watchdog
-- Agrégation de l'état de santé
-- Détection des anomalies
-
----
-
-## Auto-réparation
-
-- Recovery Engine
-- Recovery Strategy
-- Recovery Policy
-- Historique des récupérations
-- Prévention des récupérations concurrentes
-- Mode dégradé
+- Surveillance et auto-réparation
+- Scheduler intégré
+- Déclencheurs (Triggers)
+- Planification de tâches
+- Exécuteurs de tâches
+- Runtime et statistiques des services
+- Architecture orientée SOLID
+- Plus de **315 tests unitaires**
 
 ---
 
 # Architecture générale
 
-```text
-                    Plugins
-                        │
-                        ▼
-                 Event Dispatcher
-                        │
-                        ▼
-                  Event Bus
-                        │
-                        ▼
-                  Application
-                        │
-      ┌─────────────────┼─────────────────┐
-      ▼                 ▼                 ▼
- Configuration       Scheduler        MQTT Client
-      │                                   │
-      ▼                                   ▼
- Services                        Publisher / Subscriber
-
-                        ▼
-                 Health Monitor
-                        │
-                Heartbeat / Watchdog
-                        │
-                        ▼
-                Recovery Engine
-                        │
-                        ▼
-                Recovery Policy
-                        │
-                        ▼
-               Recovery Strategy
-                        │
-                        ▼
-                Recovery Action
-```
-
----
-
-# Structure du projet
+Le noyau du framework est organisé autour de plusieurs services indépendants.
 
 ```text
-ohanna-agent/
-
-├── configuration/
-├── core/
-├── events/
-├── health/
-├── mqtt/
-├── plugins/
-├── recovery/
-├── services/
-├── tests/
-├── docs/
-├── config/
-└── application.py
+Application
+│
+├── Configuration
+├── Dispatcher
+├── Scheduler
+├── Capability Manager
+├── MQTT Runtime
+└── Event Bus
 ```
+
+Chaque service possède sa propre responsabilité et communique avec les autres uniquement via des interfaces clairement définies.
+
+Cette organisation permet d'ajouter de nouvelles fonctionnalités sans modifier les composants existants.
 
 ---
 
-# Package Health
+# Le Scheduler (v0.4.0)
 
-Le package **health** est chargé de la supervision interne.
+La version **0.4.0** introduit le Scheduler, première brique permettant à Ohanna-Agent d'exécuter des actions de manière autonome.
+
+Son architecture est volontairement découplée.
 
 ```text
-health/
-
-heartbeat.py
-monitor.py
-watchdog.py
+                 Clock
+                   │
+                   ▼
+             BaseTrigger
+          ┌────────┼─────────┐
+          ▼        ▼         ▼
+     Interval   Cron    OneShot
+          │
+          ▼
+        Task
+          │
+          ▼
+    TaskRegistry
+          │
+          ▼
+      Scheduler
+          │
+          ▼
+     TaskExecutor
+          │
+          ▼
+DispatcherTaskExecutor
+          │
+          ▼
+      Dispatcher
+          │
+          ▼
+        Command
+          │
+          ▼
+         Action
 ```
 
-Responsabilités :
+Chaque composant possède une responsabilité unique.
 
-- surveiller les composants ;
-- agréger leur état ;
-- détecter les anomalies ;
-- publier les informations de santé.
+Le Scheduler ne connaît jamais directement les Actions ou les Capacités.
 
-Le Health Monitor ne réalise aucune récupération.
+Il orchestre simplement l'exécution de tâches planifiées.
 
 ---
 
-# Package Recovery
+# Le noyau
 
-Le package **recovery** implémente le moteur d'auto-réparation.
+Le cœur d'Ohanna-Agent est construit autour d'abstractions communes.
 
 ```text
-recovery/
-
-action.py
-engine.py
-policy.py
-result.py
-strategy.py
+core/
+│
+├── Runtime
+├── Statistics
+├── Registry
+└── Executor
 ```
 
-Chaque composant possède une responsabilité clairement définie.
+Ces abstractions sont réutilisées par les différents services du framework afin d'assurer une architecture homogène et facilement extensible.
 
 ---
 
-# Architecture logicielle
+# Pourquoi Ohanna-Agent ?
 
-L'architecture d'Ohanna-Agent est organisée en couches indépendantes.
+Le projet poursuit plusieurs objectifs :
 
-```text
-                    Plugins
-                        │
-                        ▼
-                 Event Dispatcher
-                        │
-                        ▼
-                   Event Bus
-                        │
-                        ▼
-                  Application
-                        │
-    ┌───────────────┬───────────────┬───────────────┐
-    ▼               ▼               ▼               ▼
-Configuration     Services      MQTT Runtime     Scheduler
-                                        │
-                           ┌────────────┴────────────┐
-                           ▼                         ▼
-                     Publisher                Subscriber
+- fournir un noyau léger et modulaire ;
+- favoriser le découplage entre les composants ;
+- simplifier les tests unitaires ;
+- permettre la planification de traitements autonomes ;
+- faciliter le développement de nouveaux services ;
+- proposer une architecture durable et maintenable.
 
-                        ▼
-                 Health Monitor
-                        │
-            ┌───────────┴───────────┐
-            ▼                       ▼
-      Health Checks           Watchdogs
-                                      │
-                                      ▼
-                                 Heartbeats
+Ohanna-Agent n'est pas uniquement un moteur MQTT.
 
-                        ▼
-                 Recovery Engine
-                        │
-                        ▼
-                 Recovery Policy
-                        │
-                        ▼
-                Recovery Strategy
-                        │
-                        ▼
-                 Recovery Action
-```
-
-L'ensemble du framework repose sur un faible couplage entre les composants.
-
----
-
-# Cycle de vie de l'application
-
-L'application suit un cycle de vie strict.
-
-```text
-CREATED
-    │
-    ▼
-INITIALIZING
-    │
-    ▼
-READY
-    │
-    ▼
-RUNNING
-    │
-    ▼
-STOPPING
-    │
-    ▼
-STOPPED
-```
-
-En cas d'erreur irrécupérable :
-
-```text
-RUNNING
-    │
-    ▼
-ERROR
-```
-
-Toutes les transitions sont centralisées dans le `LifecycleManager`.
-
----
-
-# Architecture événementielle
-
-Les composants communiquent uniquement via des événements.
-
-```text
-Plugin
-
-↓
-
-Dispatcher
-
-↓
-
-Event Bus
-
-↓
-
-Subscribers
-```
-
-Cette approche permet :
-
-- un faible couplage ;
-- une excellente testabilité ;
-- l'ajout de nouveaux plugins sans modifier le noyau.
-
----
-
-# Runtime MQTT
-
-Le runtime MQTT constitue l'interface principale entre Shikamaru et le reste du système.
-
-```text
-Commande MQTT
-
-↓
-
-Subscriber
-
-↓
-
-Dispatcher
-
-↓
-
-Command
-
-↓
-
-Services
-
-↓
-
-Event
-
-↓
-
-Publisher
-
-↓
-
-MQTT
-```
-
-Les échanges sont entièrement typés.
-
-Le noyau reste indépendant de l'implémentation du broker MQTT.
-
----
-
-# Gestion des plugins
-
-Les plugins sont chargés dynamiquement.
-
-Chaque plugin possède son propre cycle de vie.
-
-```text
-Plugin
-
-↓
-
-Initialize()
-
-↓
-
-Run()
-
-↓
-
-Stop()
-```
-
-Les plugins n'ont pas connaissance des autres plugins.
-
-Ils communiquent uniquement via :
-
-- le Dispatcher ;
-- les événements ;
-- les services exposés par l'application.
-
----
-
-# Supervision
-
-La supervision est assurée par le package `health`.
-
-## Health Monitor
-
-Le Health Monitor centralise tous les contrôles de santé.
-
-```text
-Health Check
-
-↓
-
-Health Monitor
-
-↓
-
-Health Result
-
-↓
-
-Health Status
-```
-
-Il calcule un état global :
-
-- HEALTHY
-- DEGRADED
-- UNHEALTHY
-- UNKNOWN
-
----
-
-## Heartbeat
-
-Un Heartbeat indique qu'un composant est toujours actif.
-
-Exemples :
-
-```text
-application.main_loop
-
-plugin.dns
-
-plugin.dhcp
-
-mqtt.runtime
-```
-
-Chaque heartbeat est horodaté.
-
----
-
-## Watchdog
-
-Chaque Watchdog surveille une source.
-
-```text
-Heartbeat
-
-↓
-
-Watchdog
-
-↓
-
-HealthResult
-```
-
-En cas d'absence de heartbeat :
-
-```text
-UNKNOWN
-
-↓
-
-DEGRADED
-
-↓
-
-UNHEALTHY
-```
-
-Le Watchdog ne redémarre jamais un composant.
-
-Il ne fait que signaler son état.
-
----
-
-# Auto-réparation
-
-Le package `recovery` implémente le moteur d'auto-réparation.
-
-Son architecture suit les ADR-0017 à ADR-0019.
-
-```text
-HealthResult
-
-↓
-
-Recovery Engine
-
-↓
-
-Recovery Policy
-
-↓
-
-Recovery Strategy
-
-↓
-
-Recovery Action
-
-↓
-
-Recovery Result
-```
-
----
-
-## Recovery Engine
-
-Le Recovery Engine orchestre les opérations de récupération.
-
-Il est responsable de :
-
-- sélectionner une stratégie ;
-- empêcher les récupérations concurrentes ;
-- conserver l'historique ;
-- exécuter les actions.
-
-Il ne contient aucune logique métier.
-
----
-
-## Recovery Policy
-
-Une Policy décide :
-
-- quelles actions exécuter ;
-- dans quel ordre ;
-- combien de tentatives effectuer ;
-- quand abandonner.
-
-Elle ne réalise aucune action.
-
----
-
-## Recovery Strategy
-
-Une Strategy associe une anomalie à une action concrète.
-
-Exemples futurs :
-
-- DNSRecoveryStrategy
-- DHCPRecoveryStrategy
-- MQTTRecoveryStrategy
-- HomeAssistantRecoveryStrategy
-
-Chaque stratégie est indépendante.
-
----
-
-## Recovery Action
-
-Une Action représente une opération élémentaire.
-
-Exemples :
-
-- restart
-- reconnect
-- reload
-- disable
-
-Les actions pourront être enrichies dans les prochains sprints.
-
----
-
-# Mode dégradé
-
-Lorsque toutes les tentatives de récupération échouent, Shikamaru peut continuer à fonctionner en mode dégradé.
-
-```text
-HEALTHY
-
-↓
-
-DEGRADED
-
-↓
-
-UNHEALTHY
-```
-
-L'objectif est de conserver le maximum de fonctionnalités disponibles.
-
-Le retour à un état normal est automatique dès que les contrôles de santé redeviennent positifs.
+C'est un framework destiné à construire des agents autonomes capables de recevoir des événements, de planifier leurs propres actions et d'orchestrer des traitements complexes tout en conservant une architecture claire et évolutive.
 
 ---
 
@@ -623,11 +167,11 @@ Le retour à un état normal est automatique dès que les contrôles de santé r
 
 ## Prérequis
 
-- Python 3.13 ou supérieur
+- Python **3.13** ou supérieur
 - Git
-- MQTT Broker (Mosquitto recommandé)
-- Ruff
-- Pytest
+- pip
+
+Le projet est développé et testé principalement sous Python **3.13**, mais reste compatible avec les futures versions supportées.
 
 ---
 
@@ -635,93 +179,30 @@ Le retour à un état normal est automatique dès que les contrôles de santé r
 
 ```bash
 git clone https://github.com/<utilisateur>/Ohanna-Agent.git
-
 cd Ohanna-Agent
 ```
 
 ---
 
-## Créer un environnement virtuel
+## Installation
 
-### Windows
-
-```bash
-python -m venv .venv
-
-.venv\Scripts\activate
-```
-
-### Linux
-
-```bash
-python3 -m venv .venv
-
-source .venv/bin/activate
-```
-
----
-
-## Installer les dépendances
-
-```bash
-pip install -r requirements.txt
-```
-
-ou
+Installation en mode développement :
 
 ```bash
 pip install -e .
 ```
 
----
-
-# Lancement
+Installation des dépendances de développement :
 
 ```bash
-python application.py
+pip install -r requirements-dev.txt
 ```
 
-Le fichier de configuration est chargé automatiquement.
-
 ---
 
-# Configuration
+## Vérification du code
 
-Les paramètres de l'application sont regroupés dans le package :
-
-```text
-configuration/
-```
-
-Ils couvrent notamment :
-
-- Agent
-- MQTT
-- Logging
-- Health
-- Plugins
-
-Le chargement repose sur Pydantic afin de garantir une validation forte de la configuration.
-
----
-
-# Développement
-
-Le projet suit les recommandations modernes de Python.
-
-## Style
-
-- Python 3.13
-- Type Hints
-- Dataclasses
-- Protocols
-- Enum
-- Ruff
-- Pytest
-
----
-
-## Vérification du style
+Le projet utilise **Ruff** pour l'analyse statique.
 
 ```bash
 ruff check .
@@ -729,418 +210,327 @@ ruff check .
 
 ---
 
-## Lancement des tests
+## Exécution des tests
+
+L'ensemble de la suite de tests peut être lancé avec :
 
 ```bash
 pytest
 ```
 
+État actuel :
+
+- ✅ Plus de **315 tests unitaires**
+- ✅ Exécution en moins d'une seconde
+- ✅ Architecture entièrement testée
+
 ---
 
-## Résultat actuel
+# Structure du projet
+
+Le dépôt est organisé en plusieurs modules indépendants.
 
 ```text
-204 tests
-204 réussis
-0 échec
+Ohanna-Agent/
+
+├── application.py
+├── configuration.py
+├── dispatcher.py
+├── engine.py
+│
+├── core/
+│
+├── scheduler/
+│
+├── mqtt/
+│
+├── capabilities/
+│
+├── plugins/
+│
+├── docs/
+│
+├── tests/
+│
+└── pyproject.toml
 ```
 
 ---
 
-# Architecture des packages
+## Le package Core
 
-```text
-configuration/
-```
-
-Gestion de toute la configuration.
-
----
+Le package **core** contient les abstractions communes utilisées par l'ensemble du framework.
 
 ```text
 core/
+
+Runtime
+
+Statistics
+
+Registry
+
+Executor
 ```
 
-Noyau de Shikamaru.
-
-Gestion du cycle de vie.
+Ces composants servent de fondation à tous les services du noyau.
 
 ---
 
+## Le package Scheduler
+
+Introduit avec la version **0.4.0**, le Scheduler permet à Ohanna-Agent d'exécuter automatiquement des traitements planifiés.
+
 ```text
-events/
+scheduler/
+
+Clock
+
+Triggers
+
+Task
+
+TaskRegistry
+
+TaskExecutor
+
+DispatcherTaskExecutor
+
+SchedulerRuntime
+
+SchedulerStatistics
+
+SchedulerState
+
+Scheduler
 ```
 
-Bus d'événements.
-
-Dispatcher.
-
-Messages.
-
-Commandes.
+L'ensemble est entièrement découplé du Dispatcher et facilement testable.
 
 ---
 
-```text
-mqtt/
-```
+## Le Dispatcher
 
-Runtime MQTT.
+Le Dispatcher constitue le point central d'exécution des commandes.
 
-Publisher.
+Il reçoit les commandes provenant :
 
-Subscriber.
+- du Runtime MQTT ;
+- du Scheduler ;
+- des Capacités ;
+- des Plugins ;
+- des futurs Workflows.
 
-Reconnect.
-
-Transport.
-
----
-
-```text
-health/
-```
-
-Supervision.
-
-Heartbeat.
-
-Watchdog.
-
-Health Monitor.
+Toutes les commandes transitent par le Dispatcher avant d'être exécutées.
 
 ---
 
-```text
-recovery/
-```
+## Les Capacités
 
-Auto-réparation.
+Les Capacités représentent les fonctionnalités métier du framework.
 
-Recovery Engine.
+Chaque capacité est totalement indépendante des autres.
 
-Strategies.
+Exemples :
 
-Policies.
+- Health
+- Monitor
+- Heartbeat
+- Auto-Recovery
+- Watchdog
 
-Actions.
-
----
-
-```text
-plugins/
-```
-
-Chargement dynamique des plugins.
+De nouvelles capacités peuvent être ajoutées sans modifier le noyau.
 
 ---
 
-```text
-services/
-```
+## Les Plugins
 
-Services internes exposés aux plugins.
+Le système de plugins permet d'étendre Ohanna-Agent sans modifier le code principal.
 
----
-
-# Tests
-
-L'ensemble du framework est couvert par des tests unitaires.
-
-```text
-tests/
-
-application
-
-configuration
-
-dispatcher
-
-events
-
-mqtt
-
-plugins
-
-health
-
-recovery
-
-scheduler
-
-services
-
-transport
-```
-
-Chaque nouvelle fonctionnalité doit être accompagnée de ses tests.
-
-Le projet applique une politique stricte :
-
-> Aucune nouvelle fonctionnalité sans tests.
+Chaque plugin est chargé dynamiquement et respecte les contrats définis par le noyau.
 
 ---
 
-# Décisions d'architecture
+# Qualité logicielle
 
-Toutes les décisions importantes sont documentées dans les ADR.
+La qualité du code constitue l'un des objectifs principaux du projet.
 
-À ce jour :
+Le développement suit plusieurs principes :
 
-```text
-ADR-0001
-Lifecycle
+- Architecture SOLID
+- Séparation stricte des responsabilités
+- Inversion des dépendances
+- Composition plutôt qu'héritage
+- Couplage faible
+- Forte couverture de tests
+- Documentation systématique
 
-ADR-0002
-Application
+Chaque nouveau composant est accompagné de tests unitaires avant son intégration.
 
-ADR-0003
-Dispatcher
+---
 
-ADR-0004
-Transitions
+# Performances
 
-ADR-0005
-Configuration
+L'ensemble du framework est conçu pour rester léger.
 
-ADR-0006
-Architecture Core
+Au moment de la version **0.4.0** :
 
-ADR-0007
-...
+- plus de **315 tests**
+- exécution complète en environ **0,4 seconde**
+- aucune dépendance lourde
+- architecture orientée composants
 
-ADR-0014
-MQTT Runtime
+Ces performances permettent un développement rapide et un retour immédiat lors des phases de test.
 
-ADR-0015
-Health Monitor
+---
 
-ADR-0016
-Heartbeat & Watchdog
+# Exemple d'utilisation
 
-ADR-0017
-Recovery Engine
+Le Scheduler peut être utilisé pour planifier une tâche périodique.
 
-ADR-0018
-Recovery Policies
+```python
+from datetime import timedelta
 
-ADR-0019
-Mode dégradé
+from scheduler import (
+    IntervalTrigger,
+    Scheduler,
+    Task,
+)
+
+scheduler = Scheduler()
+
+scheduler.add_task(
+    Task(
+        command="health.check",
+        trigger=IntervalTrigger(timedelta(minutes=5)),
+    )
+)
+
+scheduler.start()
+scheduler.tick()
 ```
 
-Chaque ADR est considérée comme contractuelle.
+Le Scheduler détermine automatiquement les tâches arrivées à échéance puis les transmet au Dispatcher via un `TaskExecutor`.
 
-Le code doit rester conforme aux décisions qui y sont décrites.
+---
+
+# Compatibilité
+
+Le projet est actuellement développé avec :
+
+- Python 3.13
+- Pytest
+- Ruff
+
+Le framework est conçu pour rester compatible avec les prochaines versions stables de Python.
+
+---
+
+# Objectifs de qualité
+
+Chaque Sprint respecte plusieurs exigences :
+
+- aucune régression
+- tous les tests passent
+- Ruff sans erreur
+- architecture revue
+- documentation mise à jour
+- audit avant chaque release
+
+Cette discipline permet de conserver une base de code stable tout au long du développement.
 
 ---
 
 # Documentation
 
-Le dépôt contient une documentation complète :
+La documentation est organisée selon plusieurs niveaux afin de faciliter la découverte et la compréhension du framework.
 
-```text
-docs/
+| Document | Description |
+|-----------|-------------|
+| **README.md** | Présentation générale du projet |
+| **docs/Architecture/CORE.md** | Architecture complète du noyau |
+| **ROADMAP.md** | Vision du projet et évolutions prévues |
+| **CHANGELOG.md** | Historique des versions |
+| **docs/Architecture/ADR/** | Décisions d'architecture (Architecture Decision Records) |
 
-Architecture
+Le README présente le projet.
 
-ADR
+Le document **CORE.md** constitue la référence technique principale.
 
-Roadmap
-
-Philosophie
-
-Capacités
-
-Conventions MQTT
-
-Message Model
-
-Configuration
-
-Plugins
-```
-
-Chaque Sprint met à jour :
-
-- README.md
-- ROADMAP.md
-- CHANGELOG.md
-- CORE.md
-
-afin que la documentation reflète toujours fidèlement l'état réel du projet.
+Les ADR expliquent les choix architecturaux réalisés au cours du développement.
 
 ---
 
-# Objectifs
+# Feuille de route
 
-Les objectifs à long terme d'Ohanna-Agent sont :
-
-- fournir un framework générique pour les services d'infrastructure ;
-- garantir un fonctionnement autonome et résilient ;
-- simplifier le développement de nouveaux plugins ;
-- proposer une architecture moderne, testable et évolutive.
-
-Le projet privilégie la robustesse et la maintenabilité plutôt que l'ajout rapide de fonctionnalités.
-
----
-
-# État du projet
+Les six premiers sprints ont permis de construire le noyau du framework.
 
 ## Version actuelle
 
-**Version : 4.0**
+✔ Architecture modulaire
 
-Statut :
+✔ Dispatcher
 
-> Sprint 4 terminé
+✔ Runtime MQTT
 
-Le noyau Shikamaru dispose désormais :
+✔ Event Bus
 
-- d'un runtime MQTT complet ;
-- d'un système de supervision interne ;
-- d'un moteur d'auto-réparation ;
-- d'une architecture modulaire ;
-- d'une base de tests robuste.
+✔ Gestionnaire de Capacités
 
-Le projet est prêt à accueillir les premiers plugins d'infrastructure.
+✔ Auto-réparation
 
----
+✔ Scheduler
 
-# Avancement
+✔ Runtime unifié
 
-| Sprint | Description | État |
-|----------|-------------|------|
-| Sprint 0 | Architecture & Documentation | ✅ Terminé |
-| Sprint 1 | Foundation | ✅ Terminé |
-| Sprint 2 | Core Services | ✅ Terminé |
-| Sprint 3 | Runtime MQTT | ✅ Terminé |
-| Sprint 4 | Health & Recovery | ✅ Terminé |
-| Sprint 5 | Plugins Infrastructure | 🚧 À venir |
+✔ Registry
+
+✔ Executor
+
+✔ Plus de **315 tests unitaires**
 
 ---
 
-# Roadmap
+## Prochaines versions
 
-## Sprint 5
+### v0.5
 
-Développement des premiers plugins :
+- Workflow Engine
+- Dépendances entre tâches
+- Conditions d'exécution
+- Gestion des délais (Timeout)
 
-- DNS
-- DHCP
-- NTP
-- Supervision
-- Découverte réseau
+### v0.6
 
----
+- Rule Engine
+- Moteur de décisions
+- Conditions avancées
+- Expressions
 
-## Sprint 6
+### v0.7
 
-Intégration Home Assistant
+- Pipeline Engine
+- Traitements séquentiels
+- Traitements parallèles
+- Reprise automatique
 
-- Auto Discovery MQTT
-- Entités
-- Services
-- Diagnostics
+### v0.8
 
----
+- Persistance
+- Sauvegarde des tâches
+- Historique
+- Stockage SQLite
 
-## Sprint 7
+### v0.9
 
-Interface Web
+- API REST
+- Supervision distante
+- Administration
+- Interface Web
 
-Objectifs :
+### v1.0
 
-- tableau de bord
-- état des plugins
-- santé du système
-- historique des événements
-- récupération manuelle
-- visualisation des métriques
-
----
-
-## Sprint 8
-
-Supervision avancée
-
-- métriques
-- statistiques
-- monitoring
-- alertes
-- historique
-- tableaux de bord
-
----
-
-## Sprint 9
-
-Haute disponibilité
-
-Objectifs :
-
-- réplication
-- clustering
-- agents distribués
-- tolérance aux pannes
-- synchronisation
-
----
-
-# Statistiques
-
-À la fin du Sprint 4 :
-
-```text
-Python 3.13
-
-204 tests unitaires
-
-0 test en échec
-
-Ruff
-100 % conforme
-
-Architecture
-100 % événementielle
-
-MQTT
-Natif
-
-Health Monitor
-Implémenté
-
-Heartbeat
-Implémenté
-
-Watchdog
-Implémenté
-
-Recovery Engine
-Implémenté
-
-Recovery Strategy
-Implémentée
-
-Recovery Policy
-Implémentée
-
-Mode dégradé
-Implémenté
-```
-
----
-
-# Principes de qualité
-
-Chaque évolution du projet respecte les règles suivantes :
-
-- architecture guidée par les ADR ;
-- couverture systématique par des tests unitaires ;
-- faible couplage entre les composants ;
-- séparation stricte des responsabilités ;
-- injection des dépendances ;
-- API stables ;
-- documentation synchronisée avec le code.
+Première version stable.
 
 ---
 
@@ -1150,82 +540,92 @@ Les contributions sont les bienvenues.
 
 Avant toute Pull Request :
 
-1. vérifier le style :
-
-```bash
-ruff check .
-```
-
-2. lancer les tests :
+1. Vérifier que tous les tests passent.
 
 ```bash
 pytest
 ```
 
-Aucune Pull Request ne doit introduire de régression.
+2. Vérifier la qualité du code.
 
-Les nouvelles fonctionnalités doivent être :
+```bash
+ruff check .
+```
 
-- documentées ;
-- testées ;
-- conformes aux ADR existantes.
+3. Respecter les conventions de codage du projet.
+
+4. Ajouter les tests associés à toute nouvelle fonctionnalité.
+
+5. Mettre à jour la documentation si nécessaire.
+
+Chaque évolution importante fait également l'objet d'un ADR afin de conserver l'historique des décisions d'architecture.
+
+---
+
+# Philosophie du projet
+
+Ohanna-Agent poursuit un objectif simple :
+
+Construire un framework d'agents autonomes, modulaire, fortement découplé et simple à faire évoluer.
+
+Le projet privilégie :
+
+- la simplicité ;
+- la lisibilité ;
+- la testabilité ;
+- la stabilité ;
+- la maintenabilité.
+
+Chaque nouveau composant est conçu pour remplir une responsabilité unique et s'intégrer naturellement dans l'architecture existante.
+
+Cette philosophie guide l'ensemble des choix techniques du projet.
+
+---
+
+# État du projet
+
+Version actuelle :
+
+**v0.4.0 – Autonomous Core**
+
+Le noyau est désormais considéré comme stable.
+
+Les principaux services du framework sont en place :
+
+- Dispatcher
+- Scheduler
+- MQTT Runtime
+- Capability Manager
+- Event Bus
+
+Les prochains développements porteront principalement sur les moteurs intelligents construits au-dessus du noyau.
 
 ---
 
 # Licence
 
-Ce projet est distribué sous licence **MIT**.
+Ce projet est distribué sous licence MIT.
 
-Voir le fichier `LICENSE`.
+Voir le fichier `LICENSE` pour plus d'informations.
 
 ---
 
 # Remerciements
 
-Merci à tous ceux qui participent au développement d'Ohanna-Agent.
+Ohanna-Agent est développé avec une attention particulière portée à l'architecture logicielle, à la qualité du code et à la maintenabilité.
 
-Le projet est construit progressivement, Sprint après Sprint, avec une attention particulière portée à :
-
-- la qualité du code ;
-- la stabilité ;
-- la testabilité ;
-- la documentation ;
-- l'évolutivité.
+Le projet s'inspire des meilleures pratiques de l'écosystème Python, de l'architecture orientée événements et des principes SOLID afin de proposer un framework moderne, robuste et durable.
 
 ---
 
-# Pourquoi "Shikamaru" ?
+# Conclusion
 
-Le noyau d'Ohanna-Agent porte le nom **Shikamaru** en référence au personnage du manga *Naruto*.
+La version **0.4.0 – Autonomous Core** marque une étape importante dans l'évolution d'Ohanna-Agent.
 
-Shikamaru est reconnu pour :
+Après six sprints de développement, le projet dispose désormais d'un noyau modulaire composé d'un Dispatcher, d'un Scheduler, d'un Runtime MQTT, d'un gestionnaire de capacités et d'un ensemble d'abstractions communes (`Runtime`, `Registry`, `Executor`, `Statistics`).
 
-- sa capacité d'analyse ;
-- son sens de l'anticipation ;
-- sa stratégie ;
-- son calme face aux problèmes ;
-- sa capacité à trouver la meilleure solution avec un minimum d'actions.
+Cette architecture constitue une base solide pour les prochaines évolutions du framework, notamment les moteurs de workflows, de règles et de pipelines.
 
-Ces qualités représentent parfaitement la philosophie du projet :
+L'objectif reste inchangé :
 
-> **Observer. Comprendre. Décider. Agir.**
-
----
-
-# Vision
-
-À terme, Ohanna-Agent ambitionne de devenir un framework générique permettant de développer des agents d'infrastructure autonomes, capables de :
-
-- superviser leur environnement ;
-- détecter les anomalies ;
-- s'auto-réparer ;
-- communiquer par événements ;
-- s'intégrer naturellement dans un écosystème Home Assistant ou MQTT.
-
-Le projet privilégie une architecture durable, modulaire et maintenable plutôt qu'une accumulation rapide de fonctionnalités.
-
----
-
-**Ohanna-Agent** est un projet conçu avec une conviction simple :
-
-> *Un bon agent n'est pas seulement capable d'exécuter des tâches. Il doit aussi être capable de comprendre son état, de s'adapter aux incidents et de continuer à rendre le meilleur service possible.*
+> Construire un framework d'agents autonomes, modulaire, testable et durable.

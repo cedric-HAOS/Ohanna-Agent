@@ -1,270 +1,240 @@
 # Changelog
 
-Toutes les évolutions importantes du projet **Ohanna-Agent** sont documentées dans ce fichier.
+Toutes les évolutions importantes d'Ohanna-Agent sont documentées dans ce fichier.
 
-Le projet suit les principes de **Keep a Changelog** et du **Semantic Versioning**.
+Le projet suit les principes du **Semantic Versioning** tant que cela reste compatible avec son stade de développement.
 
 ---
 
-# [v0.9.0] - 2026-07-08
+# v0.10.0 — Sprint 13 : Infrastructure Runtime
 
-## Sprint 10 — Public Plugin SDK
+*Date : Juillet 2026*
 
-Cette version marque une évolution majeure de l'architecture d'Ohanna-Agent.
+Cette version marque une évolution majeure de l'architecture.
 
-Le noyau (*Shikamaru*) devient une véritable plateforme extensible grâce à l'introduction d'un SDK public de plugins entièrement découplé du Core.
+Ohanna-Agent ne se contente plus d'exécuter des plugins et de planifier des tâches : il dispose désormais d'un véritable modèle d'infrastructure, d'un état d'exécution (Runtime), d'un moteur d'observations et des premières capacités calculées.
 
 ---
 
 ## Ajouté
 
-### SDK public de plugins
+### Modèle d'infrastructure
 
-Création du contrat de base des plugins :
+Introduction du modèle métier décrivant l'infrastructure supervisée.
 
-* `Plugin`
-* `PluginManifest`
-* `PluginContext`
+Nouveaux objets :
 
-Les plugins ne dépendent plus directement de l'objet `Application`.
+* Infrastructure
+* Node
+* Service
+* Endpoint
 
-Ils utilisent désormais exclusivement le `PluginContext`, qui expose uniquement les services publics du noyau.
+Fonctionnalités :
 
----
-
-### Protocoles publics
-
-Introduction des protocoles publics du SDK afin de découpler complètement les plugins des implémentations internes.
-
-Les plugins compilent désormais contre des interfaces stables.
-
----
-
-### Gestion des plugins
-
-Création des nouveaux composants :
-
-* `PluginRegistry`
-* `PluginRuntime`
-* `PluginDescriptor`
-* `PluginDiscovery`
-* `PluginLoader`
-* `PluginFactory`
-
-Chaque composant possède une responsabilité unique conformément aux principes SOLID.
+* navigation dans l'infrastructure ;
+* recherche de services ;
+* recherche de nœuds ;
+* recherche d'endpoints ;
+* API métier simplifiée.
 
 ---
 
-### Découverte des plugins
+### Runtime Infrastructure
 
-Introduction d'une architecture extensible de découverte :
+Création d'un Runtime entièrement séparé du modèle métier.
 
-* `DiscoveryProvider`
-* `LocalDirectoryProvider`
+Nouveaux composants :
 
-Cette architecture prépare l'ajout futur de nouvelles sources de plugins :
+* InfrastructureRuntime
+* NodeRuntime
+* ServiceRuntime
+* EndpointRuntime
 
-* Git
-* ZIP
-* HTTP
-* Marketplace
-* NAS
+Le Runtime représente désormais l'état vivant de l'infrastructure sans modifier les objets métier.
 
 ---
 
-### Chargement des plugins
+### Moteur d'observations
 
-Le chargement des plugins est désormais entièrement découplé de leur découverte.
+Introduction d'un système d'observations indépendant.
 
-Le `PluginLoader` délègue l'instanciation à un `PluginFactory`, préparant ainsi l'arrivée de nouveaux mécanismes de chargement.
+Nouveaux composants :
 
----
+* Observation
+* ObservationManager
 
-### Cycle de vie des plugins
-
-Ajout du cycle de vie officiel :
-
-* `DISCOVERED`
-* `LOADED`
-* `REGISTERED`
-* `FAILED`
-* `UNLOADED`
-
-Le `PluginRuntime` devient la source de vérité concernant l'état d'exécution des plugins.
+Les observations sont maintenant centralisées avant d'être appliquées au Runtime.
 
 ---
 
-### Nouveau PluginManager
+### Intégration Scheduler
 
-Refonte complète du `PluginManager`.
+Ajout du composant :
 
-Il devient un orchestrateur chargé de coordonner :
+* SchedulerObservationHandler
 
-* la découverte ;
-* le chargement ;
-* l'enregistrement ;
-* le Runtime ;
-* la publication des événements.
+Le Scheduler peut désormais convertir le résultat d'une vérification en observation standardisée.
 
-Toute logique de stockage est désormais externalisée.
+Cette couche prépare l'intégration complète des plugins de supervision.
 
 ---
 
-### Tests
+### Capacités calculées
 
-Ajout d'une couverture complète du SDK :
+Ajout des premières capacités calculées à partir du Runtime.
 
-* Plugin
-* PluginContext
-* PluginManifest
-* PluginDescriptor
-* PluginRegistry
-* PluginRuntime
-* PluginDiscovery
-* DiscoveryProvider
-* LocalDirectoryProvider
-* PluginLoader
-* PluginFactory
-* PluginManager
+Nouveaux composants :
 
-Ajout d'un test d'intégration validant la chaîne complète :
+* InfrastructureCapability
+* InfrastructureCapabilityCalculator
 
-Filesystem → Discovery → Loader → Factory → Plugin → Registry → Runtime → Manager.
+Premières capacités disponibles :
 
-Le projet atteint désormais **502 tests unitaires**, tous validés.
+* dns_available
+* mqtt_available
+
+Les capacités sont désormais dérivées de l'état réel de l'infrastructure plutôt que directement des résultats des plugins.
 
 ---
 
-### Documentation
+### Démonstration
 
-Nouvelle ADR :
+Ajout du script :
 
-* ADR-0027 — Architecture du Plugin SDK
+```
+scripts/show_infrastructure_status.py
+```
 
-Mise à jour de :
+Ce script permet de visualiser :
 
-* README
-* Architecture du Core
-* Roadmap
-
----
-
-## Modifié
-
-Refactorisation complète de l'architecture du système de plugins.
-
-Les responsabilités sont désormais clairement séparées entre :
-
-* découverte ;
-* chargement ;
-* stockage ;
-* état d'exécution ;
-* orchestration.
-
-Le SDK constitue désormais l'API publique officielle d'Ohanna-Agent.
+* l'état des nœuds ;
+* l'état des services ;
+* les observations enregistrées ;
+* les capacités calculées.
 
 ---
 
-## Qualité
+## Amélioré
 
-* Architecture entièrement découplée.
-* Respect des principes SOLID.
-* Injection de dépendances généralisée.
-* API publique stable.
-* Aucune dette technique majeure identifiée lors de l'audit du Sprint 10.
-
----
-
-# [v0.8.0] - 2026-07-08
-
-## Sprint 9 — EventBus & Architecture
-
-* Finalisation de l'EventBus.
-* Refonte des événements du Scheduler.
-* Introduction des événements de mémoire.
-* Amélioration de l'injection de dépendances.
-* Renforcement de l'architecture hexagonale.
-* Audit complet de l'architecture.
-* Documentation mise à jour.
+* meilleure séparation entre modèle métier et état d'exécution ;
+* architecture plus modulaire ;
+* API de navigation enrichie ;
+* meilleure extensibilité pour les futurs calculateurs de capacités ;
+* préparation de l'infrastructure déclarative.
 
 ---
 
-# [v0.7.0] - 2026-07-08
+## Tests
 
-## Sprint 8 — Scheduler
+Nouveaux tests couvrant :
 
-* Finalisation du Scheduler.
-* Introduction du `SchedulerRuntime`.
-* Introduction du `SchedulerStatistics`.
-* Nouveaux événements du Scheduler.
-* Refactorisation du moteur d'exécution.
+* modèle Infrastructure ;
+* Runtime ;
+* Observation ;
+* ObservationManager ;
+* SchedulerObservationHandler ;
+* InfrastructureCapabilityCalculator.
 
----
+Résultat :
 
-# [v0.6.0] - 2026-07-08
+```
+706 tests unitaires validés
+```
 
-## Sprint 7 — Memory
-
-* Introduction du `MemoryManager`.
-* Ajout du stockage mémoire.
-* Injection de dépendances complète.
-* Nouveaux tests.
+Aucune régression détectée.
 
 ---
 
-# [v0.5.0] - 2026-07-08
+# v0.9.0
 
-## Sprint 6 — Capability Engine
+## Ajouté
 
-* Finalisation du moteur de capacités.
-* Gestion des dépendances.
-* États des capacités.
-* Diagnostics.
-
----
-
-# [v0.4.0] - 2026-07-08
-
-## Sprint 5 — Auto-réparation
-
-* Mise en place du moteur d'actions.
-* Introduction des commandes.
-* Stratégies de réparation.
+* Architecture de plugins
+* Capability Engine
+* Runtime des plugins
+* DNS Observer
+* EventBus
+* Scheduler
+* Memory Manager
 
 ---
 
-# [v0.3.0] - 2026-07-08
+# v0.8.0
 
-## Sprint 4 — Runtime
+## Ajouté
 
-* Création du Runtime.
-* Introduction du Dispatcher.
-* Refonte du cycle de vie.
-
----
-
-# [v0.2.0] - 2026-07-07
-
-## Sprint 2 & 3
-
-* MQTT Runtime.
-* Configuration.
-* EventBus initial.
-* Architecture documentaire.
-* ADR.
+* Plugin SDK
+* Runtime des plugins
+* États des plugins
 
 ---
 
-# [v0.1.0] - 2026-07-07
+# v0.7.0
 
-## Sprint 0 & 1
+## Ajouté
 
-Première version publique du projet.
+* Context & Memory
+* Gestionnaire mémoire
+* Injection des dépendances
 
-Création du noyau Shikamaru.
+---
 
-Architecture logicielle.
+# v0.6.0
 
-Documentation initiale.
+## Ajouté
 
-Premiers tests unitaires.
+* Scheduler
+* Runtime Scheduler
+* Statistiques
+* États du Scheduler
+
+---
+
+# v0.5.0
+
+## Ajouté
+
+* Capability Engine
+* Gestion des capacités
+
+---
+
+# v0.4.0
+
+## Ajouté
+
+* Auto-réparation
+* Health Runtime
+
+---
+
+# v0.3.0
+
+## Ajouté
+
+* Dispatcher
+* Commandes
+* Exécution des actions
+
+---
+
+# v0.2.0
+
+## Ajouté
+
+* Services principaux
+* Configuration
+* Journalisation
+
+---
+
+# v0.1.0
+
+Première fondation du projet.
+
+## Ajouté
+
+* Cycle de vie de l'application
+* Architecture du noyau
+* Configuration initiale
+* Premiers tests unitaires

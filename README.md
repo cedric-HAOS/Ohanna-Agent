@@ -1,279 +1,243 @@
 # Ohanna-Agent
 
-> Garantir les capacités d'une infrastructure, pas seulement surveiller ses composants.
+> Garantir les capacités d'une infrastructure, plutôt que simplement surveiller ses équipements.
 
-![Python](https://img.shields.io/badge/python-3.13+-blue.svg)
-![Tests](https://img.shields.io/badge/tests-502-success.svg)
-![Architecture](https://img.shields.io/badge/architecture-hexagonal-blueviolet.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Python](https://img.shields.io/badge/Python-3.13-blue.svg)
+![Tests](https://img.shields.io/badge/tests-706-success)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
 # Vision
 
-Une infrastructure fiable n'est pas simplement une infrastructure qui fonctionne.
+Une infrastructure fiable n'est pas uniquement une infrastructure qui fonctionne.
 
-C'est une infrastructure capable de **garantir durablement les services qu'elle fournit**, malgré les mises à jour, les pannes matérielles ou les changements de configuration.
+C'est une infrastructure dont les capacités sont garanties dans le temps.
 
-Ohanna-Agent ne surveille pas des logiciels.
+Les machines tombent en panne.
 
-Il garantit des **capacités**.
+Les logiciels évoluent.
 
-Par exemple :
+Les configurations dérivent.
 
-- DNS
-- DHCP
-- MQTT
-- Home Assistant
-- Sauvegardes
-- Reverse Proxy
-- Docker
-- VPN
-- Accès Internet
+Les dépendances changent.
 
-Chaque capacité possède son propre cycle de vie, son état, ses dépendances et sa stratégie de réparation.
+Pourtant, les services attendus doivent continuer à fonctionner.
 
-Le noyau d'Ohanna-Agent orchestre ces capacités sans connaître leur implémentation.
+Ohanna-Agent est né de cette idée.
+
+Sa mission n'est pas de superviser des serveurs.
+
+Sa mission est de garantir les capacités décrites par l'architecture de référence d'Ohanna-House.
 
 ---
 
 # Philosophie
 
-Le projet repose sur cinq principes fondamentaux :
+Ohanna-Agent ne surveille pas des machines.
 
-- Architecture hexagonale
-- Responsabilité unique (SRP)
-- Inversion des dépendances
-- Événements métier
-- Extensibilité par plugins
+Il surveille des **capacités**.
 
-Le noyau reste volontairement minimal et stable.
+Par exemple :
 
-Toutes les fonctionnalités sont destinées à devenir des plugins.
+- Résolution DNS
+- Distribution DHCP
+- Broker MQTT
+- Home Assistant
+- Sauvegardes
+- Synchronisation NTP
+- Accès Internet
+- API REST
+- Stockage
+
+Chaque capacité est calculée à partir d'observations réalisées par des plugins indépendants.
 
 ---
 
 # Architecture
 
+Aujourd'hui, Ohanna-Agent est organisé autour de plusieurs sous-systèmes indépendants.
+
 ```
-                    Application
-                          │
-                          ▼
-                   PluginManager
-                          │
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-        ▼                 ▼                 ▼
- PluginDiscovery     PluginLoader     PluginRegistry
-        │                 │                 │
-        ▼                 ▼                 ▼
- DiscoveryProvider   PluginFactory    PluginRuntime
+                 Scheduler
+                      │
+                      ▼
+       SchedulerObservationHandler
+                      │
+                      ▼
+           ObservationManager
+                      │
+                      ▼
+         InfrastructureRuntime
+                      │
+       ┌──────────────┴──────────────┐
+       ▼                             ▼
+ NodeRuntime                 ServiceRuntime
+       │                             │
+       └──────────────┬──────────────┘
+                      ▼
+ InfrastructureCapabilityCalculator
+                      │
+                      ▼
+          InfrastructureCapability
 ```
 
-Le SDK de plugins constitue désormais l'API publique officielle d'Ohanna-Agent.
+Cette architecture sépare clairement :
+
+- la description de l'infrastructure ;
+- son état courant ;
+- les observations ;
+- les capacités calculées.
 
 ---
 
-# Noyau actuel
+# Fonctionnalités
 
-Le noyau (*Shikamaru*) fournit les services suivants :
+## Core
 
+- Cycle de vie de l'application
+- Gestion de configuration
+- Journalisation
+- Dispatcher de commandes
 - EventBus
 - Scheduler
-- Dispatcher
-- Runtime
-- Memory
-- Configuration
-- Capability Manager
-- Plugin SDK
+- Gestion mémoire
 
-Le noyau ne contient aucune logique métier spécifique à une capacité.
+## Plugins
 
----
+- Architecture extensible
+- Découverte automatique
+- Runtime indépendant
+- États des plugins
+- Cycle de vie
 
-# Plugin SDK
+## Infrastructure
 
-Chaque plugin est totalement indépendant du noyau.
+- Modèle Infrastructure
+- Node
+- Service
+- Endpoint
+- Runtime Infrastructure
+- Observations
+- Capacités calculées
 
-Il implémente simplement :
+## Qualité
 
-```python
-class MyPlugin(Plugin):
-
-    @property
-    def manifest(self):
-        ...
-
-    def register(self, context):
-        ...
-```
-
-Le plugin reçoit un `PluginContext` qui expose uniquement les services publics du noyau.
-
-Il n'a jamais accès directement à l'objet `Application`.
+- Typage complet
+- Ruff
+- Pytest
+- Architecture modulaire
+- Forte couverture de tests
 
 ---
 
-# Cycle de vie d'un plugin
-
-```
-DISCOVERED
-      │
-      ▼
-LOADED
-      │
-      ▼
-REGISTERED
-      │
-      ▼
-UNLOADED
-```
-
-L'état d'exécution est conservé dans le `PluginRuntime`.
-
----
-
-# Découverte des plugins
-
-Le SDK sépare clairement les responsabilités.
-
-```
-Filesystem
-      │
-      ▼
-LocalDirectoryProvider
-      │
-      ▼
-PluginDiscovery
-      │
-      ▼
-PluginDescriptor
-```
-
-De nouveaux fournisseurs pourront être ajoutés sans modifier le noyau :
-
-- Git
-- ZIP
-- HTTP
-- Marketplace
-- NAS
-
----
-
-# Chargement des plugins
-
-Le chargement est lui aussi découplé.
-
-```
-PluginDescriptor
-        │
-        ▼
-PluginLoader
-        │
-        ▼
-PluginFactory
-        │
-        ▼
-Plugin
-```
-
-Le Loader orchestre uniquement le chargement.
-
-Le Factory instancie les plugins.
-
----
-
-# Capacités
-
-Les capacités représentent les services garantis par Ohanna-Agent.
-
-Exemples :
-
-- DNS
-- DHCP
-- MQTT
-- Home Assistant
-- Docker
-- Reverse Proxy
-- Sauvegardes
-- VPN
-- Internet
-
-Chaque capacité possède :
-
-- un état
-- des dépendances
-- des diagnostics
-- des actions correctives
-
----
-
-# Organisation du projet
+# Structure du projet
 
 ```
 application/
-
-capability/
-
+capabilities/
 configuration/
-
+core/
 dispatcher/
-
-eventbus/
-
+events/
+health/
+infrastructure/
 memory/
-
-plugin/
-
+mqtt/
+plugins/
 scheduler/
-
-runtime/
-
+scripts/
 tests/
-
-docs/
 ```
 
-Chaque module suit les mêmes principes d'architecture :
+---
 
-- Registry
-- Runtime
-- Manager
+# Exemple
+
+Création d'une infrastructure :
+
+```python
+from infrastructure import (
+    Infrastructure,
+    Node,
+    Service,
+    ServiceType,
+)
+
+infra = Infrastructure(name="Ohanna")
+
+node = Node(name="INFRA-01")
+
+node.add_service(
+    Service(
+        name="DNS",
+        type=ServiceType.DNS,
+    )
+)
+
+infra.add_node(node)
+```
+
+Création du Runtime :
+
+```python
+runtime = InfrastructureRuntime.from_infrastructure(infra)
+```
+
+Calcul d'une capacité :
+
+```python
+calculator = InfrastructureCapabilityCalculator(runtime)
+
+dns = calculator.calculate_dns_available()
+
+print(dns.available)
+```
 
 ---
 
-# Documentation
+# Démonstration
 
-Le projet est accompagné d'une documentation complète :
+Une démonstration est disponible :
 
-- Architecture
-- ADR
-- Roadmap
-- Changelog
-- Philosophie
-- Capacités
-- MQTT
-- Plugins
-- Configuration
+```
+python -m scripts.show_infrastructure_status
+```
+
+Exemple :
+
+```
+OHANNA INFRASTRUCTURE STATUS
+
+❔ INFRA-01
+
+   ✅ DNS
+   ❌ MQTT
+
+⚠️ HA-01
+
+   ❔ Home Assistant
+
+CALCULATED CAPABILITIES
+
+✅ dns_available
+❌ mqtt_available
+```
 
 ---
 
-# Qualité
+# Tests
 
-Le projet applique systématiquement :
+```
+ruff check .
+pytest
+```
 
-- Ruff
-- Pytest
-- Architecture orientée événements
-- Injection de dépendances
-- Typage Python
-- Documentation des décisions (ADR)
+Version actuelle :
 
-État actuel :
-
-- **502 tests unitaires**
-- **100 % des tests validés**
-- **Aucune dette technique majeure identifiée**
+```
+706 tests
+```
 
 ---
 
@@ -281,67 +245,70 @@ Le projet applique systématiquement :
 
 ## Phase 1
 
-✔ Noyau Shikamaru
-
-✔ EventBus
-
-✔ Scheduler
-
-✔ Dispatcher
-
-✔ Runtime
-
-✔ Memory
-
-✔ Capability Engine
-
-✔ Plugin SDK
-
----
+- ✅ Core
+- ✅ Scheduler
+- ✅ EventBus
+- ✅ Plugins
+- ✅ Runtime
+- ✅ Memory
 
 ## Phase 2
 
-Création des premiers plugins :
-
-- DNS
-- DHCP
-- MQTT
-- Docker
-- Home Assistant
-
----
+- ✅ Infrastructure
+- ✅ Runtime Infrastructure
+- ✅ Observation Engine
+- ✅ Capacités calculées
 
 ## Phase 3
 
-Dashboard Web indépendant de Home Assistant.
-
----
+- Infrastructure déclarative
+- Loader YAML
+- Dépendances entre services
+- Calculs avancés des capacités
 
 ## Phase 4
 
-Intégration native Home Assistant.
+- Tableau de bord Web
+
+## Phase 5
+
+- Intégration Home Assistant
 
 ---
 
-# Objectif
+# Documentation
 
-À terme, Ohanna-Agent devra être capable de garantir automatiquement l'ensemble des capacités définies par l'architecture de référence d'Ohanna-House.
+La documentation complète est disponible dans :
 
-Le projet doit rester :
+```
+docs/
+```
 
-- modulaire ;
-- extensible ;
-- documenté ;
-- testé ;
-- indépendant des technologies qu'il supervise.
+Elle comprend notamment :
+
+- Architecture
+- ADR
+- Roadmap
+- Philosophie
+- Capacités
+- Plugins
+- MQTT
+- Configuration
 
 ---
 
 # État du projet
 
-**Sprint 10 terminé**
+Version actuelle :
 
-- ✅ SDK public de plugins
-- ✅ Architecture entièrement découplée
-- ✅ 502 tests validés
-- ✅ Architecture prête à accueillir les premiers plugins métier
+**v0.10.0**
+
+Sprint terminé :
+
+**Sprint 13 — Infrastructure Runtime**
+
+706 tests unitaires.
+
+Architecture stable.
+
+Prêt pour le Sprint 14.

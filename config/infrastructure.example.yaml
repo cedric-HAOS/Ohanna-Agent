@@ -1,0 +1,38 @@
+infrastructure:
+  id: ohanna-house
+  name: Ohanna House
+  environment: production
+
+metadata:
+  version: "1.0"
+  tags:
+    - production
+    - home
+
+nodes:
+  - id: infra-01
+    name: INFRA-01
+    description: Serveur infrastructure principal
+    endpoint:
+      type: ip
+      address: 192.168.1.54
+
+  - id: ha-01
+    name: HA-01
+    description: Instance Home Assistant principale
+    endpoint:
+      type: ip
+      address: 192.168.1.20
+
+services:
+  - id: dns-primary
+    name: DNS principal
+    type: dns
+    node: infra-01
+    port: 53
+
+  - id: mqtt-primary
+    name: MQTT principal
+    type: mqtt
+    node: ha-01
+    port: 1883

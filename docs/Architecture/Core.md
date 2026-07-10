@@ -1,328 +1,328 @@
-# Architecture du noyau (CORE)
+# CORE — Architecture d'Ohanna-Agent
 
-## Version
+## Vision
 
-**v0.10.0**
+Ohanna-Agent est le moteur d'observation de l'écosystème Ohanna.
 
----
+Sa mission n'est pas de superviser des équipements.
 
-# Objectif
+Sa mission est de garantir que les **capacités** définies par l'architecture de référence restent disponibles dans le temps.
 
-Le noyau d'Ohanna-Agent fournit les fondations nécessaires à la supervision d'une infrastructure.
+Une capacité représente un service rendu par l'infrastructure :
 
-Il ne supervise pas directement des équipements.
+* DNS
+* DHCP
+* MQTT
+* NTP
+* Internet
+* WireGuard
+* Home Assistant
+* Sauvegardes
+* etc.
 
-Il orchestre des composants spécialisés qui observent l'infrastructure, calculent son état et garantissent les capacités attendues.
+Chaque capacité est observée de manière indépendante, puis transformée en une observation normalisée.
 
-Le noyau est conçu pour être :
-
-* modulaire ;
-* découplé ;
-* testable ;
-* extensible.
-
----
-
-# Vision
-
-L'infrastructure est décrite par les services qu'elle rend.
-
-Les plugins réalisent des observations.
-
-Le Runtime représente l'état courant.
-
-Les capacités sont calculées à partir de cet état.
-
-Le noyau coordonne l'ensemble.
+Ces observations constituent le langage commun entre **Ohanna-Agent** et **Ohanna-Vision**.
 
 ---
 
-# Architecture générale
+# Les quatre couches de l'architecture
 
-```text
-                          Application
-                               │
-                               ▼
-                        Lifecycle Manager
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        ▼                      ▼                      ▼
- Configuration            EventBus              Dispatcher
-        │                      │                      │
-        └──────────────┬───────┴──────────────┬───────┘
-                       ▼                      ▼
-                  Scheduler             Plugin Runtime
-                       │                      │
-                       └──────────────┬───────┘
-                                      ▼
-                       SchedulerObservationHandler
-                                      │
-                                      ▼
-                             ObservationManager
-                                      │
-                                      ▼
-                          InfrastructureRuntime
-                                      │
-             ┌────────────────────────┴────────────────────────┐
-             ▼                                                 ▼
-        NodeRuntime                                     ServiceRuntime
-             │                                                 │
-             └────────────────────────┬────────────────────────┘
-                                      ▼
-                  InfrastructureCapabilityCalculator
-                                      │
-                                      ▼
-                        InfrastructureCapability
+L'architecture est volontairement découpée en quatre niveaux.
+
+```text id="4ngwud"
+Infrastructure
+        │
+        ▼
+Plugins
+        │
+        ▼
+Observation Engine
+        │
+        ▼
+Exporteurs
 ```
 
----
-
-# Les couches
-
-## 1. Application
-
-Point d'entrée du système.
-
-Responsabilités :
-
-* initialisation ;
-* chargement de la configuration ;
-* création des composants ;
-* démarrage ;
-* arrêt.
+Chaque couche possède une responsabilité unique.
 
 ---
 
-## 2. Configuration
+# 1. Infrastructure
 
-Décrit le fonctionnement de l'agent.
+L'infrastructure constitue la source de vérité.
 
-Contient notamment :
+Elle est décrite de manière déclarative dans :
 
-* paramètres généraux ;
-* MQTT ;
-* plugins ;
-* journalisation ;
-* santé ;
-* infrastructure (future évolution).
+```text id="3j53g8"
+config/infrastructure.yaml
+```
 
----
+Elle décrit :
 
-## 3. EventBus
+* les nœuds ;
+* les services ;
+* les endpoints ;
+* les ports ;
+* les relations entre les composants.
 
-Assure la communication entre composants.
+Exemple :
 
-Les composants ne se connaissent pas directement.
+```yaml id="5c0ubg"
+services:
+  - id: dns-primary
+    type: dns
+    node: zwave-01
+```
 
-Ils échangent des événements.
+Une seule description existe.
 
----
-
-## 4. Dispatcher
-
-Exécute les commandes.
-
-Il constitue le point central d'exécution des actions internes.
-
----
-
-## 5. Scheduler
-
-Planifie les vérifications.
-
-Il décide uniquement :
-
-* quand exécuter ;
-* quelle vérification lancer.
-
-Il ne stocke aucun état métier.
+Aucun plugin ne possède sa propre copie des informations d'infrastructure.
 
 ---
 
-## 6. Plugins
+# 2. Plugins
 
-Les plugins réalisent les observations.
+Chaque capacité est implémentée par un plugin indépendant.
 
-Chaque plugin est autonome.
+Exemple :
 
-Exemples :
+```text id="9d6q2z"
+plugins/
+    dns/
+    mqtt/
+    dhcp/
+    ntp/
+```
 
-* DNS ;
-* MQTT ;
-* HTTP ;
-* Home Assistant ;
-* sauvegardes.
+Chaque plugin possède :
 
-Le Runtime des plugins est indépendant du Runtime de l'infrastructure.
+* une configuration déclarative ;
+* un runtime ;
+* des statistiques ;
+* une logique métier ;
+* une méthode `execute()` commune.
+
+Tous les plugins implémentent le même contrat.
+
+Ils produisent tous un `ObserverResult`.
+
+Ils ne connaissent ni Ohanna-Vision, ni l'interface Web, ni Home Assistant.
 
 ---
 
-# Infrastructure
+# Configuration déclarative des plugins
 
-Le modèle Infrastructure décrit la maison telle qu'elle devrait être.
+Chaque plugin possède son propre fichier YAML.
 
-Il est statique.
+Exemple :
 
-Il ne contient aucun état d'exécution.
+```text id="9c0xq7"
+config/plugins/dns.yaml
+```
 
-Les objets principaux sont :
+Le plugin ne référence jamais une adresse IP.
 
-* Infrastructure
-* Node
-* Service
-* Endpoint
+Il référence uniquement des services déclarés dans l'infrastructure.
 
-Ils peuvent être construits en mémoire ou, à terme, chargés depuis une description déclarative.
+Exemple :
+
+```yaml id="dgw7ae"
+services:
+  - dns-primary
+
+queries:
+  - example.com
+  - openai.com
+```
+
+Le composant `DNSConfigurationBuilder` transforme ensuite cette configuration déclarative en configuration d'exécution.
+
+---
+
+# 3. Observation Engine
+
+Le cœur du système est l'Observation Engine.
+
+Tous les plugins convergent vers lui.
+
+Le pipeline est entièrement standardisé.
+
+```text id="wjlm4u"
+Plugin.execute()
+        │
+        ▼
+ObserverResult
+        │
+        ▼
+ObserverResultMapper
+        │
+        ▼
+InfrastructureObservationMapper
+        │
+        ▼
+ObservationEngine
+        │
+        ▼
+ObservationPublished
+```
+
+Le moteur :
+
+* met à jour le runtime ;
+* normalise les observations ;
+* publie un événement ;
+* déclenche les exporteurs.
+
+Les plugins n'ont aucune connaissance de cette mécanique.
+
+---
+
+# 4. Exporteurs
+
+Une observation peut être exportée vers plusieurs destinations.
+
+Aujourd'hui :
+
+```text id="vb1prk"
+VisionObservationExporter
+```
+
+Demain :
+
+```text id="r2ry5w"
+VisionObservationExporter
+MQTTObservationExporter
+HomeAssistantExporter
+FileExporter
+DatabaseExporter
+WebhookExporter
+```
+
+Tous utilisent le même modèle d'observation.
+
+---
+
+# Pipeline d'exécution
+
+Le Scheduler est désormais directement connecté au moteur d'observation.
+
+```text id="lzy8wj"
+Scheduler
+        │
+DispatcherTaskExecutor
+        │
+PluginObservationDispatcher
+        │
+PluginObservationExecutor
+        │
+Plugin.execute()
+        │
+ObserverResult
+        │
+ObservationEngine
+        │
+ObservationPublished
+        │
+ObservationExportPipeline
+        │
+VisionObservationExporter
+        │
+Ohanna-Vision
+```
+
+Ce pipeline constitue désormais le chemin d'exécution officiel d'Ohanna-Agent.
 
 ---
 
 # Runtime
 
-Le Runtime représente l'état vivant de l'infrastructure.
+Deux runtimes coexistent.
 
-Il est indépendant du modèle.
+## InfrastructureRuntime
 
-Composants :
+Il représente l'état courant de l'infrastructure.
 
-* InfrastructureRuntime
-* NodeRuntime
-* ServiceRuntime
-* EndpointRuntime
+Il est automatiquement mis à jour par les observations.
 
-Le Runtime évolue en permanence sans modifier le modèle métier.
+Il ne contient aucune logique métier.
 
----
+## Plugin Runtime
 
-# Observations
+Chaque plugin conserve son propre état interne :
 
-Les plugins produisent des observations.
+* statistiques ;
+* historique ;
+* informations spécifiques au protocole.
 
-Une observation représente un fait observé.
-
-Exemples :
-
-* résolution DNS réussie ;
-* broker MQTT indisponible ;
-* Home Assistant dégradé.
-
-Toutes les observations sont centralisées par l'ObservationManager.
+Ces données restent locales au plugin.
 
 ---
 
-# ObservationManager
+# Séparation des responsabilités
 
-L'ObservationManager constitue le point d'entrée unique des observations.
+L'architecture suit une séparation stricte.
 
-Responsabilités :
+| Composant          | Responsabilité                         |
+| ------------------ | -------------------------------------- |
+| Infrastructure     | Décrire les services                   |
+| Plugin             | Vérifier une capacité                  |
+| Observation Engine | Transformer un résultat en observation |
+| Runtime            | Conserver l'état courant               |
+| Export Pipeline    | Diffuser les observations              |
+| Ohanna-Vision      | Présenter les observations             |
 
-* enregistrer les observations ;
-* mettre à jour le Runtime ;
-* maintenir un état cohérent de l'infrastructure.
-
-Les plugins ne modifient jamais directement le Runtime.
-
----
-
-# SchedulerObservationHandler
-
-Le SchedulerObservationHandler fait le lien entre le Scheduler et l'ObservationManager.
-
-Son rôle est de convertir le résultat d'une exécution planifiée en observation standardisée.
-
-Cette séparation évite de coupler le Scheduler à la représentation interne de l'infrastructure.
-
----
-
-# Capacités calculées
-
-Les capacités ne sont pas observées directement.
-
-Elles sont calculées.
-
-Le calculateur actuel est :
-
-* InfrastructureCapabilityCalculator
-
-Premières capacités disponibles :
-
-* dns_available
-* mqtt_available
-
-À terme, des capacités plus complexes seront calculées à partir de plusieurs observations, de dépendances et de règles métier.
-
----
-
-# Principe fondamental
-
-Le flux d'information suit toujours la même direction :
-
-```text
-Plugin
-   │
-   ▼
-Observation
-   │
-   ▼
-ObservationManager
-   │
-   ▼
-InfrastructureRuntime
-   │
-   ▼
-Capability Calculator
-   │
-   ▼
-Capabilities
-```
-
-Aucun composant ne remonte dans la chaîne.
-
-Cette architecture garantit un faible couplage et facilite les évolutions.
+Aucun composant ne remplit plusieurs rôles.
 
 ---
 
 # Principes d'architecture
 
-Le noyau respecte les principes suivants :
+Les décisions majeures sont les suivantes :
 
-* responsabilité unique ;
-* séparation entre modèle et état d'exécution ;
-* communication par événements lorsque cela est pertinent ;
-* dépendances orientées dans un seul sens ;
-* composants indépendants ;
-* testabilité maximale.
+* une seule description de l'infrastructure ;
+* aucune adresse IP dans les plugins ;
+* plugins indépendants ;
+* exécution unifiée via `Plugin.execute()` ;
+* observations normalisées ;
+* exporteurs découplés ;
+* architecture événementielle ;
+* injection de dépendances ;
+* configuration déclarative.
+
+Ces principes permettent d'ajouter de nouveaux plugins sans modifier le cœur du système.
 
 ---
 
 # État actuel
 
-Le noyau comprend désormais :
+Le cœur d'Ohanna-Agent comprend désormais :
 
-* cycle de vie de l'application ;
-* configuration ;
-* EventBus ;
-* Dispatcher ;
+* Infrastructure déclarative ;
+* InfrastructureBuilder ;
+* InfrastructureRuntime ;
 * Scheduler ;
-* Runtime des plugins ;
-* modèle d'infrastructure ;
-* Runtime de l'infrastructure ;
-* moteur d'observations ;
-* calcul des capacités.
-
-Le projet compte actuellement **706 tests unitaires**, tous validés.
+* Dispatcher ;
+* EventBus ;
+* Plugin SDK ;
+* Plugin Manager ;
+* DNS Plugin ;
+* DNSConfigurationBuilder ;
+* Observation Engine ;
+* Observation Export Pipeline ;
+* VisionObservationExporter ;
+* démonstration complète de bout en bout ;
+* intégration prête pour Ohanna-Vision.
 
 ---
 
-# Évolutions prévues
+# Vision à long terme
 
-Les prochaines évolutions du noyau sont :
+Ohanna-Agent a vocation à devenir un moteur générique d'observation des infrastructures.
 
-* infrastructure déclarative (YAML) ;
-* chargement automatique de l'infrastructure ;
-* dépendances entre services ;
-* calculs avancés des capacités ;
-* historique des observations ;
-* tableau de bord Web ;
-* intégration native avec Home Assistant.
+Chaque nouveau plugin devra uniquement répondre à une question :
 
-Le noyau est désormais suffisamment stable pour accueillir ces fonctionnalités sans remise en cause de son architecture.
+> **La capacité attendue est-elle disponible ?**
+
+La manière dont cette réponse est produite importe peu.
+
+Une fois transformée en observation normalisée, elle pourra être exploitée de manière identique par Ohanna-Vision, Home Assistant ou tout autre système consommateur.

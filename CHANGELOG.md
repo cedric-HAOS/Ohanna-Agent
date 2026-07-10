@@ -1,240 +1,198 @@
-# Changelog
+# CHANGELOG
 
 Toutes les évolutions importantes d'Ohanna-Agent sont documentées dans ce fichier.
 
-Le projet suit les principes du **Semantic Versioning** tant que cela reste compatible avec son stade de développement.
+Le projet suit les principes de **Semantic Versioning**.
 
 ---
 
-# v0.10.0 — Sprint 13 : Infrastructure Runtime
-
-*Date : Juillet 2026*
-
-Cette version marque une évolution majeure de l'architecture.
-
-Ohanna-Agent ne se contente plus d'exécuter des plugins et de planifier des tâches : il dispose désormais d'un véritable modèle d'infrastructure, d'un état d'exécution (Runtime), d'un moteur d'observations et des premières capacités calculées.
-
----
+# [0.14.0] — Pipeline d'observation déclaratif
 
 ## Ajouté
 
-### Modèle d'infrastructure
+### Infrastructure déclarative
 
-Introduction du modèle métier décrivant l'infrastructure supervisée.
+* Ajout du chargement de `config/infrastructure.yaml`.
+* Ajout d'un modèle de configuration typé (`InfrastructureConfig`).
+* Ajout de `InfrastructureLoader`.
+* Ajout de `InfrastructureBuilder`.
+* Construction automatique du modèle métier `Infrastructure`.
+* Validation de la cohérence des nœuds, services et endpoints.
 
-Nouveaux objets :
+### Configuration déclarative des plugins
 
-* Infrastructure
-* Node
-* Service
-* Endpoint
+* Ajout du fichier `config/plugins/dns.yaml`.
+* Ajout de `DNSPluginConfig`.
+* Ajout de `DNSConfigLoader`.
+* Séparation entre configuration déclarative et configuration d'exécution.
 
-Fonctionnalités :
+### DNSConfigurationBuilder
 
-* navigation dans l'infrastructure ;
-* recherche de services ;
-* recherche de nœuds ;
-* recherche d'endpoints ;
-* API métier simplifiée.
+* Ajout du composant `DNSConfigurationBuilder`.
+* Construction automatique du `DNSConfig` à partir de :
 
----
+  * `Infrastructure`
+  * `DNSPluginConfig`
+* Résolution automatique des services déclarés.
+* Vérification du type des services.
+* Vérification de la présence des endpoints.
+* Génération automatique des serveurs DNS utilisés par le plugin.
 
-### Runtime Infrastructure
+### Pipeline d'exécution
 
-Création d'un Runtime entièrement séparé du modèle métier.
+Le pipeline complet est désormais :
 
-Nouveaux composants :
+```text
+Scheduler
+        │
+DispatcherTaskExecutor
+        │
+PluginObservationDispatcher
+        │
+PluginObservationExecutor
+        │
+Plugin.execute()
+        │
+ObserverResult
+        │
+ObservationEngine
+        │
+ObservationPublished
+        │
+ObservationExportPipeline
+        │
+VisionObservationExporter
+        │
+Ohanna-Vision
+```
 
-* InfrastructureRuntime
-* NodeRuntime
-* ServiceRuntime
-* EndpointRuntime
+### Observation Engine
 
-Le Runtime représente désormais l'état vivant de l'infrastructure sans modifier les objets métier.
+* Normalisation complète des observations.
+* Publication d'événements `ObservationPublished`.
+* Mise à jour automatique du runtime infrastructure.
+* Export automatique des observations.
 
----
+### Export Ohanna-Vision
 
-### Moteur d'observations
+* Ajout de `VisionClient`.
+* Ajout de `VisionObservationExporter`.
+* Ajout de `ObservationExportPipeline`.
+* Ajout de `ObservationExportHandler`.
+* Sérialisation JSON standardisée des observations.
 
-Introduction d'un système d'observations indépendant.
+### Plugin DNS
 
-Nouveaux composants :
+Le plugin DNS est désormais capable de :
 
-* Observation
-* ObservationManager
+* charger automatiquement sa configuration ;
+* résoudre les serveurs DNS depuis l'infrastructure déclarative ;
+* mesurer la latence réelle des requêtes DNS ;
+* produire des `ObserverResult` standardisés ;
+* alimenter automatiquement le `ObservationEngine`.
 
-Les observations sont maintenant centralisées avant d'être appliquées au Runtime.
+Les métadonnées exportées contiennent désormais :
 
----
-
-### Intégration Scheduler
-
-Ajout du composant :
-
-* SchedulerObservationHandler
-
-Le Scheduler peut désormais convertir le résultat d'une vérification en observation standardisée.
-
-Cette couche prépare l'intégration complète des plugins de supervision.
-
----
-
-### Capacités calculées
-
-Ajout des premières capacités calculées à partir du Runtime.
-
-Nouveaux composants :
-
-* InfrastructureCapability
-* InfrastructureCapabilityCalculator
-
-Premières capacités disponibles :
-
-* dns_available
-* mqtt_available
-
-Les capacités sont désormais dérivées de l'état réel de l'infrastructure plutôt que directement des résultats des plugins.
-
----
+* hostname
+* serveur DNS interrogé
+* adresse IP obtenue
+* erreur éventuelle
 
 ### Démonstration
 
-Ajout du script :
+Ajout d'un script de démonstration complet :
 
-```
-scripts/show_infrastructure_status.py
-```
-
-Ce script permet de visualiser :
-
-* l'état des nœuds ;
-* l'état des services ;
-* les observations enregistrées ;
-* les capacités calculées.
-
----
-
-## Amélioré
-
-* meilleure séparation entre modèle métier et état d'exécution ;
-* architecture plus modulaire ;
-* API de navigation enrichie ;
-* meilleure extensibilité pour les futurs calculateurs de capacités ;
-* préparation de l'infrastructure déclarative.
-
----
-
-## Tests
-
-Nouveaux tests couvrant :
-
-* modèle Infrastructure ;
-* Runtime ;
-* Observation ;
-* ObservationManager ;
-* SchedulerObservationHandler ;
-* InfrastructureCapabilityCalculator.
-
-Résultat :
-
-```
-706 tests unitaires validés
+```text
+scripts/demo_dns_pipeline.py
 ```
 
-Aucune régression détectée.
+Le script réalise une exécution réelle :
+
+* chargement des deux fichiers YAML ;
+* résolution automatique du serveur DNS ;
+* interrogation réelle du serveur DNS ;
+* mise à jour du runtime ;
+* génération d'une observation ;
+* export vers un faux client Ohanna-Vision.
+
+Cette démonstration constitue le premier pipeline complet de bout en bout d'Ohanna-Agent.
 
 ---
 
-# v0.9.0
+## Modifié
 
-## Ajouté
+### Architecture
 
-* Architecture de plugins
-* Capability Engine
-* Runtime des plugins
-* DNS Observer
-* EventBus
-* Scheduler
-* Memory Manager
+L'architecture est désormais entièrement orientée observations.
 
----
+Les plugins ne produisent plus directement des états techniques.
 
-# v0.8.0
+Ils produisent des observations normalisées.
 
-## Ajouté
+### Configuration DNS
 
-* Plugin SDK
-* Runtime des plugins
-* États des plugins
+Les adresses IP ne sont plus déclarées dans le plugin.
 
----
+Le plugin référence désormais uniquement des identifiants de services définis dans l'infrastructure.
 
-# v0.7.0
+### Runtime
 
-## Ajouté
+Le runtime infrastructure est automatiquement synchronisé avec les observations produites.
 
-* Context & Memory
-* Gestionnaire mémoire
-* Injection des dépendances
+### Scheduler
+
+Le Scheduler exécute désormais les plugins via le pipeline unifié d'observation.
 
 ---
 
-# v0.6.0
+## Qualité
 
-## Ajouté
-
-* Scheduler
-* Runtime Scheduler
-* Statistiques
-* États du Scheduler
-
----
-
-# v0.5.0
-
-## Ajouté
-
-* Capability Engine
-* Gestion des capacités
+* 851 tests unitaires et d'intégration.
+* Validation Ruff.
+* Typage Python.
+* Architecture modulaire.
+* Injection de dépendances.
+* Configuration déclarative.
+* Démonstration réelle de bout en bout validée.
 
 ---
 
-# v0.4.0
+# Historique
 
-## Ajouté
+## v0.13.0
 
-* Auto-réparation
-* Health Runtime
+* Observation Engine.
+* Infrastructure Runtime.
+* Observation Export Pipeline.
+* Plugin SDK unifié.
+* Premier connecteur Ohanna-Vision.
 
----
+## v0.12.0
 
-# v0.3.0
+* Infrastructure Runtime.
+* Observation Manager.
+* Observation Factory.
+* Observation Mapper.
+* Observation Exporter.
 
-## Ajouté
+## v0.11.0
 
-* Dispatcher
-* Commandes
-* Exécution des actions
+* Plugin SDK.
+* DNS Plugin.
+* Capability Engine.
+* Runtime Plugins.
 
----
+## v0.10.0
 
-# v0.2.0
+* Scheduler.
+* Dispatcher.
+* EventBus.
+* Runtime.
 
-## Ajouté
+## v0.9.0
 
-* Services principaux
-* Configuration
-* Journalisation
-
----
-
-# v0.1.0
-
-Première fondation du projet.
-
-## Ajouté
-
-* Cycle de vie de l'application
-* Architecture du noyau
-* Configuration initiale
-* Premiers tests unitaires
+* Fondation de Shikamaru.
+* Configuration.
+* MQTT.
+* Architecture logicielle.
+* Cycle de vie de l'application.

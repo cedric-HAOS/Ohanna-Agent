@@ -4,220 +4,286 @@
 
 Une infrastructure fiable n'est pas uniquement une infrastructure qui fonctionne.
 
-C'est une infrastructure dont les capacités sont garanties dans le temps.
+C'est une infrastructure dont les capacités restent garanties dans le temps.
 
-Ohanna-Agent ne supervise pas des équipements.
+Ohanna-Agent ne supervise pas des machines.
 
-Il supervise les **capacités** attendues de l'infrastructure.
+Il garantit que les **capacités** attendues par l'architecture de référence sont disponibles, observables et mesurables.
 
 Chaque évolution du projet poursuit un objectif unique :
 
-> Transformer des observations techniques en une vision fiable de l'état réel de la maison.
+> Transformer des observations techniques en une vision fiable de l'état de l'infrastructure.
 
 ---
 
 # État actuel
 
-**Version : v0.10.0**
+Le cœur d'Ohanna-Agent est désormais opérationnel.
 
-* ✔ 706 tests unitaires
-* ✔ Architecture modulaire
-* ✔ Runtime Infrastructure
-* ✔ Moteur d'observations
-* ✔ Capacités calculées
+Les fondations suivantes sont en place :
 
-Le noyau est désormais suffisamment stable pour accueillir des fonctionnalités de plus haut niveau.
+* Infrastructure déclarative
+* Scheduler
+* Dispatcher
+* EventBus
+* Runtime Infrastructure
+* Plugin SDK
+* Plugin Manager
+* Observation Engine
+* Observation Export Pipeline
+* Vision Exporter
+* DNS Plugin
+* Configuration déclarative des plugins
+* Démonstration complète de bout en bout
+
+Le premier pipeline complet fonctionne désormais :
+
+```text
+Infrastructure
+        │
+        ▼
+Plugin DNS
+        │
+        ▼
+Observation Engine
+        │
+        ▼
+Observation Export Pipeline
+        │
+        ▼
+Ohanna-Vision
+```
+
+Ce pipeline constitue la base de tous les développements futurs.
 
 ---
 
-# Phase 1 — Fondations
-
-**Statut : Terminée**
+# Phase 1 — Fondations ✓
 
 Objectif :
 
-Construire un noyau robuste, testable et modulaire.
+Construire le socle technique d'Ohanna-Agent.
 
 Réalisé :
 
-* ✔ Lifecycle
-* ✔ Configuration
-* ✔ Logging
-* ✔ Dispatcher
-* ✔ EventBus
-* ✔ Scheduler
-* ✔ Memory
-* ✔ Plugin SDK
-* ✔ Plugin Runtime
-* ✔ Capability Engine
-* ✔ Health Runtime
+* cycle de vie de l'application ;
+* configuration ;
+* EventBus ;
+* Scheduler ;
+* Dispatcher ;
+* système de commandes ;
+* Runtime ;
+* Plugin SDK.
+
+**Statut : terminé.**
 
 ---
 
-# Phase 2 — Modèle d'infrastructure
-
-**Statut : Terminée**
+# Phase 2 — Infrastructure déclarative ✓
 
 Objectif :
 
-Permettre à l'agent de représenter l'infrastructure et son état d'exécution.
+Décrire entièrement l'infrastructure sous forme déclarative.
 
 Réalisé :
 
-* ✔ Infrastructure
-* ✔ Node
-* ✔ Service
-* ✔ Endpoint
-* ✔ Infrastructure Runtime
-* ✔ Observation
-* ✔ ObservationManager
-* ✔ SchedulerObservationHandler
-* ✔ InfrastructureCapabilityCalculator
+* modèle Infrastructure ;
+* Node ;
+* Service ;
+* Endpoint ;
+* InfrastructureRuntime ;
+* InfrastructureLoader ;
+* InfrastructureBuilder ;
+* validation de cohérence ;
+* configuration YAML.
 
-Résultat :
+Les plugins utilisent désormais cette infrastructure comme source unique de vérité.
 
-Le projet est désormais capable de représenter une infrastructure, de recevoir des observations et de calculer les premières capacités.
-
----
-
-# Phase 3 — Infrastructure déclarative
-
-**Statut : En préparation**
-
-Objectif :
-
-Décrire entièrement une infrastructure sans écrire une seule ligne de Python.
-
-Travaux prévus :
-
-* Infrastructure YAML
-* InfrastructureLoader
-* Validation de configuration
-* Création automatique des objets Infrastructure
-* Génération automatique du Runtime
-* Gestion des identifiants uniques
-* Support de plusieurs environnements
-
-À l'issue de cette phase, une infrastructure complète pourra être définie dans un simple fichier de configuration.
+**Statut : terminé.**
 
 ---
 
-# Phase 4 — Moteur de supervision
-
-**Statut : À venir**
+# Phase 3 — Moteur d'observation ✓
 
 Objectif :
 
-Transformer Ohanna-Agent en véritable moteur de supervision.
+Transformer les résultats des plugins en observations standardisées.
 
-Travaux prévus :
+Réalisé :
 
-* Dépendances entre services
-* Graphe de dépendances
-* Calculs avancés des capacités
-* Agrégation d'observations
-* Historique
-* Scores de santé
-* Corrélation des événements
-* Détection des dégradations
-* Détection des pannes en cascade
+* Observation ;
+* ObservationFactory ;
+* ObservationMapper ;
+* ObservationEngine ;
+* ObservationPublisher ;
+* ObservationExportPipeline ;
+* VisionObservationExporter ;
+* sérialisation JSON ;
+* export automatique.
 
-À l'issue de cette phase, les capacités ne seront plus évaluées individuellement mais à partir de l'ensemble de l'infrastructure.
+Toutes les observations utilisent désormais un modèle commun.
+
+**Statut : terminé.**
 
 ---
 
-# Phase 5 — Tableau de bord Web
-
-**Statut : À venir**
+# Phase 4 — Plugins déclaratifs ✓
 
 Objectif :
 
-Fournir une interface indépendante de Home Assistant.
+Unifier tous les plugins.
 
-Travaux prévus :
+Réalisé :
 
-* Interface Web
-* Vue Infrastructure
-* Vue Capacités
-* Vue Observations
-* Historique
-* Alertes
-* Timeline
-* API REST
-* API WebSocket
+* contrat `Plugin.execute()` ;
+* `ObserverResult` standardisé ;
+* DNSConfigurationBuilder ;
+* DNSConfigLoader ;
+* configuration déclarative des plugins ;
+* suppression des adresses IP des configurations des plugins ;
+* démonstration réelle de bout en bout.
 
-Cette interface devra rester disponible même si Home Assistant est indisponible.
+Le plugin DNS est désormais entièrement intégré au pipeline d'observation.
+
+**Statut : terminé.**
 
 ---
 
-# Phase 6 — Intégration Home Assistant
-
-**Statut : À venir**
+# Phase 5 — Plugins de capacités
 
 Objectif :
 
-Publier les capacités calculées dans Home Assistant.
+Étendre Ohanna-Agent à l'ensemble des capacités de l'infrastructure.
 
-Travaux prévus :
+Plugins prévus :
 
-* Entités Home Assistant
-* États des capacités
-* Diagnostics
-* Capteurs
-* Alertes
-* Device Registry
-* Area Registry
-* Découverte automatique
+* DHCP
+* MQTT
+* Internet
+* NTP
+* WireGuard
+* HTTP
+* HTTPS
+* ICMP
+* Home Assistant
+* Sauvegardes
+* Docker
+* Certificats TLS
+* NAS
+* SMB
+* SSH
 
-Home Assistant deviendra un consommateur des capacités calculées par Ohanna-Agent.
+Chaque plugin suivra exactement la même architecture que le plugin DNS.
+
+---
+
+# Phase 6 — Ohanna-Vision
+
+Objectif :
+
+Construire l'interface de supervision.
+
+Fonctionnalités prévues :
+
+* tableau de bord temps réel ;
+* historique des observations ;
+* visualisation de l'état des capacités ;
+* santé globale de l'infrastructure ;
+* chronologie des événements ;
+* statistiques ;
+* graphiques ;
+* recherche et filtrage.
+
+Ohanna-Agent deviendra alors le moteur d'observation d'Ohanna-Vision.
+
+---
+
+# Phase 7 — Intégration Home Assistant
+
+Objectif :
+
+Permettre à Home Assistant de consommer directement les observations produites par Ohanna-Agent.
+
+Fonctionnalités prévues :
+
+* publication MQTT ;
+* entités diagnostiques ;
+* capteurs de santé ;
+* événements Home Assistant ;
+* automatisations basées sur les capacités.
+
+Home Assistant ne réalisera plus les vérifications lui-même.
+
+Il exploitera celles produites par Ohanna-Agent.
+
+---
+
+# Phase 8 — Auto-réparation
+
+Objectif :
+
+Passer de l'observation à l'action.
+
+Fonctionnalités envisagées :
+
+* redémarrage automatique de services ;
+* renouvellement DHCP ;
+* redémarrage WireGuard ;
+* relance MQTT ;
+* bascule DNS ;
+* exécution de scripts ;
+* notifications.
+
+Les réparations seront déclenchées par des politiques explicites.
+
+---
+
+# Phase 9 — SDK Ohanna
+
+Objectif :
+
+Faciliter le développement de nouveaux plugins.
+
+Le SDK fournira notamment :
+
+* générateur de plugins ;
+* modèles de projet ;
+* tests automatiques ;
+* simulateurs ;
+* documentation ;
+* outils de validation.
+
+Créer un nouveau plugin devra nécessiter seulement quelques fichiers.
+
+---
+
+# Phase 10 — Écosystème Ohanna
+
+Objectif :
+
+Construire une architecture complète autour d'Ohanna-Agent.
+
+Les principaux projets seront :
+
+* **Ohanna-Agent** : moteur d'observation.
+* **Ohanna-Vision** : interface Web.
+* **Ohanna-SDK** : développement des plugins.
+* **Ohanna-CLI** : administration et diagnostic.
+* **Ohanna-House** : description déclarative de l'infrastructure.
+
+Chaque projet possédera une responsabilité clairement définie.
 
 ---
 
 # Objectif à long terme
 
-À terme, Ohanna-Agent devra être capable de répondre automatiquement à des questions telles que :
+À terme, l'ajout d'une nouvelle capacité devra suivre un processus simple :
 
-* Le DNS est-il réellement disponible ?
-* Puis-je encore résoudre les noms locaux ?
-* La maison peut-elle envoyer des notifications ?
-* Les sauvegardes sont-elles garanties ?
-* Home Assistant est-il opérationnel ?
-* Le réseau est-il encore fonctionnel malgré une panne ?
+1. Déclarer le service dans `infrastructure.yaml`.
+2. Ajouter la configuration du plugin dans `config/plugins/`.
+3. Développer un plugin implémentant `Plugin.execute()`.
+4. Laisser le pipeline produire, publier et exporter automatiquement les observations.
 
-L'objectif est de raisonner sur les **capacités réelles** de l'infrastructure, plutôt que sur l'état isolé de ses composants.
+Aucune modification du cœur d'Ohanna-Agent ne devra être nécessaire.
 
----
-
-# Qualité
-
-Le projet conserve les objectifs suivants :
-
-* Architecture modulaire
-* Couplage faible
-* Typage complet
-* Documentation systématique
-* Forte couverture de tests
-* Revue d'architecture à chaque sprint
-* Aucune régression fonctionnelle
-
-Chaque sprint est validé par :
-
-* Ruff
-* Pytest
-* Audit d'architecture
-* Mise à jour de la documentation
-
----
-
-# Prochaine étape
-
-## Sprint 14 — Infrastructure déclarative
-
-Objectifs :
-
-* Décrire l'infrastructure en YAML
-* Charger automatiquement les nœuds, services et endpoints
-* Construire automatiquement le Runtime
-* Préparer les futures dépendances entre services
-
-Ce sprint marquera la transition entre une infrastructure codée en Python et une infrastructure entièrement déclarative.
+C'est ce principe qui garantit la pérennité et l'extensibilité de l'architecture.

@@ -1,0 +1,13 @@
+services:
+  - dns-primary
+
+queries:
+  - example.com
+  - openai.com
+  - home-assistant.io
+
+timeout: 2.0
+retries: 1
+
+policy:
+  minimum_healthy_servers: 1

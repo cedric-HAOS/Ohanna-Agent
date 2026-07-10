@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from time import perf_counter
 from typing import TYPE_CHECKING, Any
 
 from plugin.plugin import Plugin
+from plugin.plugin_context import PluginContext
 from plugin.plugin_manifest import PluginManifest
 from plugin.plugin_runtime import PluginState
 from plugins.dns.dns_capability_runtime import DNSCapabilityRuntime
@@ -47,21 +49,26 @@ class DNSPlugin(Plugin):
     def state(self) -> PluginState:
         return self._state
 
+    @property
     def manifest(self) -> PluginManifest:
+        """Return the DNS plugin manifest."""
         return PluginManifest(
             name="dns",
             version="0.1.0",
             description="DNS capability plugin for Ohanna-Agent.",
         )
 
-    def register(self) -> None:
-        self._state = PluginState.LOADED
+    def register(self, context: PluginContext) -> None:
+        """Register the DNS plugin in the Ohanna-Agent context."""
+        self._event_bus = context.event_bus
+        self._state = PluginState.REGISTERED
 
     def execute(
         self,
         **kwargs: Any,
     ) -> ObserverResult:
         """Execute a DNS check through the common plugin API."""
+
         from observer.observer_result import ObserverResult
 
         hostname = kwargs.get("hostname")
@@ -71,7 +78,9 @@ class DNSPlugin(Plugin):
                 "DNSPlugin.execute() requires a non-empty 'hostname' argument."
             )
 
+        started_at = perf_counter()
         result = self.check(hostname)
+        latency_ms = (perf_counter() - started_at) * 1000
 
         if result.healthy:
             message = f"DNS resolution succeeded for {result.hostname}."
@@ -82,12 +91,13 @@ class DNSPlugin(Plugin):
 
         return ObserverResult(
             success=result.healthy,
-            latency=0.0,
+            latency=latency_ms,
             message=message,
             check="dns.resolve",
             description="Resolve a hostname using the DNS plugin.",
             metadata={
                 "hostname": result.hostname,
+                "server": result.server,
                 "address": result.address,
                 "error": result.error,
             },

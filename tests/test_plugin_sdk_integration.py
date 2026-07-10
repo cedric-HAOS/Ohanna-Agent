@@ -46,9 +46,6 @@ class EchoPlugin(Plugin):
     def register(self, context):
         self.context = context
 
-    def register(self, context):
-        self.context = context
-
     def execute(self, **kwargs):
         return ObserverResult(
             success=True,

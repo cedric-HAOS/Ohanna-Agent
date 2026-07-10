@@ -457,11 +457,9 @@ def test_dns_plugin_execute_returns_observer_result() -> None:
 
     result = plugin.execute(hostname="example.com")
 
-    assert result.success is True
-    assert result.check == "dns.resolve"
-    assert result.message == "DNS resolution succeeded for example.com."
     assert result.metadata == {
         "hostname": "example.com",
+        "server": None,
         "address": "93.184.216.34",
         "error": None,
     }

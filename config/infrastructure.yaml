@@ -1,0 +1,25 @@
+infrastructure:
+  id: ohanna-house
+  name: Ohanna House
+  environment: production
+
+metadata:
+  version: "1.0"
+  tags:
+    - production
+    - home
+
+nodes:
+  - id: zwave-01
+    name: ZWAVE-01
+    description: Serveur Z-Wave et DNS Primaire
+    endpoint:
+      type: ip
+      address: 192.168.1.11
+
+services:
+  - id: dns-primary
+    name: DNS Primary
+    type: dns
+    node: zwave-01
+    port: 53

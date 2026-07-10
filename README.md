@@ -1,10 +1,6 @@
 # Ohanna-Agent
 
-> Garantir les capacités d'une infrastructure, plutôt que simplement surveiller ses équipements.
-
-![Python](https://img.shields.io/badge/Python-3.13-blue.svg)
-![Tests](https://img.shields.io/badge/tests-706-success)
-![License](https://img.shields.io/badge/license-MIT-green)
+> Garantir les capacités de l'infrastructure, plutôt que surveiller des équipements.
 
 ---
 
@@ -12,303 +8,287 @@
 
 Une infrastructure fiable n'est pas uniquement une infrastructure qui fonctionne.
 
-C'est une infrastructure dont les capacités sont garanties dans le temps.
-
-Les machines tombent en panne.
+C'est une infrastructure dont les capacités restent garanties dans le temps.
 
 Les logiciels évoluent.
 
-Les configurations dérivent.
+Les configurations changent.
 
-Les dépendances changent.
+Les machines peuvent tomber en panne.
 
-Pourtant, les services attendus doivent continuer à fonctionner.
+Pourtant, les services attendus par la maison doivent continuer à être disponibles.
 
-Ohanna-Agent est né de cette idée.
+**Ohanna-Agent** est un moteur d'observation capable de vérifier ces capacités de manière continue, de produire des observations normalisées et de les transmettre à **Ohanna-Vision**.
 
-Sa mission n'est pas de superviser des serveurs.
+L'objectif n'est pas de superviser des machines.
 
-Sa mission est de garantir les capacités décrites par l'architecture de référence d'Ohanna-House.
+L'objectif est de superviser des **capacités**.
+
+Par exemple :
+
+* Résolution DNS
+* Service DHCP
+* Broker MQTT
+* Home Assistant
+* Internet
+* WireGuard
+* NTP
+* Sauvegardes
+* etc.
 
 ---
 
 # Philosophie
 
-Ohanna-Agent ne surveille pas des machines.
+L'architecture repose sur trois principes.
 
-Il surveille des **capacités**.
+## 1. Infrastructure déclarative
 
-Par exemple :
+L'infrastructure est décrite une seule fois.
 
-- Résolution DNS
-- Distribution DHCP
-- Broker MQTT
-- Home Assistant
-- Sauvegardes
-- Synchronisation NTP
-- Accès Internet
-- API REST
-- Stockage
+Exemple :
 
-Chaque capacité est calculée à partir d'observations réalisées par des plugins indépendants.
+```text
+config/infrastructure.yaml
+```
+
+Chaque plugin référence des services de cette infrastructure.
+
+Il ne contient jamais d'adresse IP codée en dur.
+
+---
+
+## 2. Plugins indépendants
+
+Chaque capacité est implémentée dans un plugin indépendant.
+
+Exemple :
+
+```
+plugins/
+    dns/
+    mqtt/
+    dhcp/
+    internet/
+    ntp/
+```
+
+Chaque plugin possède :
+
+* sa configuration
+* son runtime
+* ses statistiques
+* ses observations
+
+---
+
+## 3. Observations standardisées
+
+Tous les plugins produisent exactement le même modèle d'observation.
+
+Une observation contient notamment :
+
+* la capacité observée
+* le nœud concerné
+* le service concerné
+* le statut
+* la latence
+* le message
+* les métadonnées techniques
+
+Les exporteurs peuvent ensuite envoyer ces observations vers différents systèmes.
 
 ---
 
 # Architecture
 
-Aujourd'hui, Ohanna-Agent est organisé autour de plusieurs sous-systèmes indépendants.
+Le pipeline d'exécution est désormais entièrement unifié.
 
+```text
+Scheduler
+      │
+      ▼
+DispatcherTaskExecutor
+      │
+      ▼
+PluginObservationDispatcher
+      │
+      ▼
+PluginObservationExecutor
+      │
+      ▼
+Plugin.execute()
+      │
+      ▼
+ObserverResult
+      │
+      ▼
+ObservationEngine
+      │
+      ▼
+ObservationPublished
+      │
+      ▼
+ObservationExportPipeline
+      │
+      ▼
+VisionObservationExporter
+      │
+      ▼
+Ohanna-Vision
 ```
-                 Scheduler
-                      │
-                      ▼
-       SchedulerObservationHandler
-                      │
-                      ▼
-           ObservationManager
-                      │
-                      ▼
-         InfrastructureRuntime
-                      │
-       ┌──────────────┴──────────────┐
-       ▼                             ▼
- NodeRuntime                 ServiceRuntime
-       │                             │
-       └──────────────┬──────────────┘
-                      ▼
- InfrastructureCapabilityCalculator
-                      │
-                      ▼
-          InfrastructureCapability
-```
 
-Cette architecture sépare clairement :
-
-- la description de l'infrastructure ;
-- son état courant ;
-- les observations ;
-- les capacités calculées.
+Chaque étape possède une responsabilité unique.
 
 ---
 
-# Fonctionnalités
-
-## Core
-
-- Cycle de vie de l'application
-- Gestion de configuration
-- Journalisation
-- Dispatcher de commandes
-- EventBus
-- Scheduler
-- Gestion mémoire
-
-## Plugins
-
-- Architecture extensible
-- Découverte automatique
-- Runtime indépendant
-- États des plugins
-- Cycle de vie
+# Configuration
 
 ## Infrastructure
 
-- Modèle Infrastructure
-- Node
-- Service
-- Endpoint
-- Runtime Infrastructure
-- Observations
-- Capacités calculées
+L'infrastructure est décrite dans :
 
-## Qualité
-
-- Typage complet
-- Ruff
-- Pytest
-- Architecture modulaire
-- Forte couverture de tests
-
----
-
-# Structure du projet
-
+```text
+config/infrastructure.yaml
 ```
-application/
-capabilities/
-configuration/
-core/
-dispatcher/
-events/
-health/
-infrastructure/
-memory/
-mqtt/
-plugins/
-scheduler/
-scripts/
-tests/
+
+Elle définit notamment :
+
+* les nœuds
+* les services
+* les endpoints
+* les ports
+
+Exemple :
+
+```yaml
+services:
+  - id: dns-primary
+    name: DNS principal
+    type: dns
+    node: zwave-01
+    port: 53
 ```
 
 ---
 
-# Exemple
+## Plugins
 
-Création d'une infrastructure :
+Chaque plugin possède son propre fichier déclaratif.
 
-```python
-from infrastructure import (
-    Infrastructure,
-    Node,
-    Service,
-    ServiceType,
-)
+Exemple :
 
-infra = Infrastructure(name="Ohanna")
-
-node = Node(name="INFRA-01")
-
-node.add_service(
-    Service(
-        name="DNS",
-        type=ServiceType.DNS,
-    )
-)
-
-infra.add_node(node)
+```text
+config/plugins/dns.yaml
 ```
 
-Création du Runtime :
+```yaml
+services:
+  - dns-primary
 
-```python
-runtime = InfrastructureRuntime.from_infrastructure(infra)
+queries:
+  - example.com
+  - openai.com
+
+timeout: 2.0
+
+retries: 1
 ```
 
-Calcul d'une capacité :
+Aucune adresse IP n'est dupliquée.
 
-```python
-calculator = InfrastructureCapabilityCalculator(runtime)
-
-dns = calculator.calculate_dns_available()
-
-print(dns.available)
-```
+Le plugin résout automatiquement les services à partir de l'infrastructure.
 
 ---
 
 # Démonstration
 
-Une démonstration est disponible :
+Une démonstration complète est fournie.
+
+```bash
+python -m scripts.demo_dns_pipeline
+```
+
+Le script :
+
+* charge l'infrastructure ;
+* charge la configuration DNS ;
+* résout automatiquement le serveur DNS ;
+* exécute une vraie résolution DNS ;
+* met à jour le runtime ;
+* génère une observation ;
+* exporte cette observation vers un faux client Ohanna-Vision.
+
+Exemple de sortie :
 
 ```
-python -m scripts.show_infrastructure_status
-```
+Resolved DNS server : 192.168.1.11
 
-Exemple :
+Hostname            : example.com
 
-```
-OHANNA INFRASTRUCTURE STATUS
+Latency             : 3.86 ms
 
-❔ INFRA-01
+Status              : healthy
 
-   ✅ DNS
-   ❌ MQTT
-
-⚠️ HA-01
-
-   ❔ Home Assistant
-
-CALCULATED CAPABILITIES
-
-✅ dns_available
-❌ mqtt_available
+Observation exported to Vision
 ```
 
 ---
 
 # Tests
 
-```
+Le projet est fortement orienté qualité.
+
+À ce jour :
+
+* **851 tests unitaires et d'intégration**
+* Ruff
+* Typage Python
+* Architecture modulaire
+* Injection de dépendances
+
+Lancer les tests :
+
+```bash
 ruff check .
 pytest
 ```
 
-Version actuelle :
+---
 
-```
-706 tests
-```
+# État actuel
+
+Les composants actuellement disponibles sont notamment :
+
+* Infrastructure déclarative
+* Scheduler
+* Dispatcher
+* EventBus
+* Plugin SDK
+* Plugin Manager
+* DNS Plugin
+* Observation Engine
+* Observation Export Pipeline
+* Vision Exporter
+* Runtime Infrastructure
+* Observation Runtime
+* Pipeline d'exécution unifié
 
 ---
 
 # Roadmap
 
-## Phase 1
+Les prochaines étapes concernent notamment :
 
-- ✅ Core
-- ✅ Scheduler
-- ✅ EventBus
-- ✅ Plugins
-- ✅ Runtime
-- ✅ Memory
-
-## Phase 2
-
-- ✅ Infrastructure
-- ✅ Runtime Infrastructure
-- ✅ Observation Engine
-- ✅ Capacités calculées
-
-## Phase 3
-
-- Infrastructure déclarative
-- Loader YAML
-- Dépendances entre services
-- Calculs avancés des capacités
-
-## Phase 4
-
-- Tableau de bord Web
-
-## Phase 5
-
-- Intégration Home Assistant
+* nouveaux plugins (DHCP, MQTT, Internet, NTP, WireGuard…) ;
+* enrichissement du modèle d'infrastructure ;
+* interface Web Ohanna-Vision ;
+* intégration native avec Home Assistant.
 
 ---
 
-# Documentation
+# Licence
 
-La documentation complète est disponible dans :
+Projet développé dans le cadre de l'écosystème **Ohanna**.
 
-```
-docs/
-```
-
-Elle comprend notamment :
-
-- Architecture
-- ADR
-- Roadmap
-- Philosophie
-- Capacités
-- Plugins
-- MQTT
-- Configuration
-
----
-
-# État du projet
-
-Version actuelle :
-
-**v0.10.0**
-
-Sprint terminé :
-
-**Sprint 13 — Infrastructure Runtime**
-
-706 tests unitaires.
-
-Architecture stable.
-
-Prêt pour le Sprint 14.
+© Cédric Harnois

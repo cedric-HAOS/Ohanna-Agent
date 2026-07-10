@@ -11,6 +11,7 @@ from plugin.plugin_events import PluginRegistered, PluginUnregistered
 from plugin.plugin_manager import PluginManager
 from plugin.plugin_manifest import PluginManifest
 from plugin.plugin_state import PluginState
+from plugins.dns.dns_plugin import DNSPlugin
 
 
 class FakeEventBus:
@@ -166,3 +167,20 @@ def test_plugin_manager_start_runs_full_pipeline() -> None:
     assert plugins == (plugin,)
     assert manager.has("dns") is True
     assert manager.runtime.state("dns") == PluginState.REGISTERED
+
+def test_plugin_manager_registers_dns_plugin() -> None:
+    event_bus = FakeEventBus()
+    context = make_context(event_bus)
+    plugin = DNSPlugin()
+    manager = PluginManager(context=context)
+
+    manager.register(plugin)
+
+    assert manager.count == 1
+    assert manager.get("dns") is plugin
+    assert manager.has("dns") is True
+    assert plugin.state is PluginState.REGISTERED
+    assert manager.runtime.get_state("dns") is PluginState.REGISTERED
+    assert plugin.manifest.name == "dns"
+    assert plugin._event_bus is event_bus
+    assert isinstance(event_bus.events[-1], PluginRegistered)

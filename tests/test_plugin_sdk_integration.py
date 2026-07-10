@@ -29,6 +29,7 @@ def test_plugin_sdk_end_to_end(tmp_path) -> None:
         '''
 from plugin.plugin import Plugin
 from plugin.plugin_manifest import PluginManifest
+from observer.observer_result import ObserverResult
 
 
 class EchoPlugin(Plugin):
@@ -44,6 +45,16 @@ class EchoPlugin(Plugin):
 
     def register(self, context):
         self.context = context
+
+    def register(self, context):
+        self.context = context
+
+    def execute(self, **kwargs):
+        return ObserverResult(
+            success=True,
+            latency=0.0,
+            check="echo",
+        )
 
 
 def create_plugin():

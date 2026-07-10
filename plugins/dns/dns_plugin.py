@@ -1,4 +1,6 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from plugin.plugin import Plugin
 from plugin.plugin_manifest import PluginManifest
@@ -12,6 +14,8 @@ from plugins.dns.dns_runtime import DNSRuntime
 from plugins.dns.dns_server import DNSServer
 from plugins.dns.dns_statistics import DNSStatistics
 
+if TYPE_CHECKING:
+    from observer.observer_result import ObserverResult
 
 class DNSPlugin(Plugin):
     """Plugin responsible for DNS capability checks."""
@@ -53,6 +57,42 @@ class DNSPlugin(Plugin):
     def register(self) -> None:
         self._state = PluginState.LOADED
 
+    def execute(
+        self,
+        **kwargs: Any,
+    ) -> ObserverResult:
+        """Execute a DNS check through the common plugin API."""
+        from observer.observer_result import ObserverResult
+
+        hostname = kwargs.get("hostname")
+
+        if not isinstance(hostname, str) or not hostname:
+            raise ValueError(
+                "DNSPlugin.execute() requires a non-empty 'hostname' argument."
+            )
+
+        result = self.check(hostname)
+
+        if result.healthy:
+            message = f"DNS resolution succeeded for {result.hostname}."
+        else:
+            message = result.error or (
+                f"DNS resolution failed for {result.hostname}."
+            )
+
+        return ObserverResult(
+            success=result.healthy,
+            latency=0.0,
+            message=message,
+            check="dns.resolve",
+            description="Resolve a hostname using the DNS plugin.",
+            metadata={
+                "hostname": result.hostname,
+                "address": result.address,
+                "error": result.error,
+            },
+        )
+    
     def check(self, hostname: str) -> DNSCheckResult:
         self._publish(DNSCheckStarted(hostname=hostname))
 

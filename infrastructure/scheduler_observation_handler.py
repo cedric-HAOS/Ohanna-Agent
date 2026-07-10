@@ -3,7 +3,9 @@
 from dataclasses import dataclass
 
 from infrastructure.enums import HealthStatus
-from infrastructure.observation import Observation
+from infrastructure.infrastructure_health_update import (
+    InfrastructureHealthUpdate,
+)
 from infrastructure.observation_manager import ObservationManager
 
 
@@ -20,7 +22,7 @@ class SchedulerObservationHandler:
         message: str = "",
     ) -> bool:
         """Record a successful scheduler observation."""
-        observation = Observation(
+        observation = InfrastructureHealthUpdate(
             target_name=target_name,
             health=HealthStatus.HEALTHY,
             source=source,
@@ -35,7 +37,7 @@ class SchedulerObservationHandler:
         message: str = "",
     ) -> bool:
         """Record a failed scheduler observation."""
-        observation = Observation(
+        observation = InfrastructureHealthUpdate(
             target_name=target_name,
             health=HealthStatus.UNHEALTHY,
             source=source,
@@ -50,7 +52,7 @@ class SchedulerObservationHandler:
         message: str = "",
     ) -> bool:
         """Record a degraded scheduler observation."""
-        observation = Observation(
+        observation = InfrastructureHealthUpdate(
             target_name=target_name,
             health=HealthStatus.DEGRADED,
             source=source,

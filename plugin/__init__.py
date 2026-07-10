@@ -1,4 +1,5 @@
 from plugin.plugin import Plugin
+from plugin.plugin_command import PluginCommand
 from plugin.plugin_descriptor import PluginDescriptor
 from plugin.plugin_discovery import PluginDiscovery
 from plugin.plugin_errors import (
@@ -30,4 +31,5 @@ __all__ = [
     "PluginDescriptor",
     "PluginDiscovery",
     "PluginLoader",
+    "PluginCommand",
 ]

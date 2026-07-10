@@ -12,6 +12,7 @@ def test_python_plugin_factory_creates_plugin(tmp_path) -> None:
 
     (plugin_dir / "plugin.py").write_text(
         """
+from observer.observer_result import ObserverResult
 from plugin.plugin import Plugin
 from plugin.plugin_manifest import PluginManifest
 
@@ -24,12 +25,19 @@ class EchoPlugin(Plugin):
     def register(self, context):
         pass
 
+    def execute(self, **kwargs):
+        return ObserverResult(
+            success=True,
+            latency=0.0,
+            check="echo",
+        )
+
 
 def create_plugin():
     return EchoPlugin()
 """,
-        encoding="utf-8",
-    )
+    encoding="utf-8",
+)
 
     factory = PythonPluginFactory()
     descriptor = PluginDescriptor(name="echo", path=plugin_dir)

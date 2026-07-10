@@ -1,5 +1,6 @@
 import pytest
 
+from observer import ObserverResult
 from plugin.plugin import Plugin
 from plugin.plugin_errors import PluginAlreadyLoadedError, PluginNotFoundError
 from plugin.plugin_manifest import PluginManifest
@@ -15,6 +16,14 @@ class FakePlugin(Plugin):
             description="Fake plugin",
         )
         self.registered_context = None
+    
+    def execute(self, **kwargs: object) -> ObserverResult:
+        """Execute the fake plugin."""
+        return ObserverResult(
+            success=True,
+            latency=0.0,
+            check="test",
+        )
 
     @property
     def manifest(self) -> PluginManifest:

@@ -7,6 +7,9 @@ from infrastructure.infrastructure_capability_calculator import (
     InfrastructureCapability,
     InfrastructureCapabilityCalculator,
 )
+from infrastructure.infrastructure_health_update import (
+    InfrastructureHealthUpdate,
+)
 from infrastructure.node import Node
 from infrastructure.observation import Observation
 from infrastructure.observation_manager import ObservationManager
@@ -36,4 +39,5 @@ __all__ = [
     "InfrastructureCapability",
     "InfrastructureCapabilityCalculator",
     "Observation",
+    "InfrastructureHealthUpdate",
 ]

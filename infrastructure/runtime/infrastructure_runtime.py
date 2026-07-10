@@ -51,6 +51,32 @@ class InfrastructureRuntime:
             if node_runtime.node.name == name:
                 return node_runtime
         return None
+    
+    def get_node_runtime_for_service(
+        self,
+        service: Service,
+    ) -> NodeRuntime | None:
+        """Return the node runtime containing the given service."""
+        for node_runtime in self.node_runtimes:
+            if node_runtime.get_service_runtime(service) is not None:
+                return node_runtime
+
+        return None
+
+    def get_node_runtime_for_service_type(
+        self,
+        service_type: ServiceType,
+    ) -> NodeRuntime | None:
+        """Return the first node runtime providing a service type."""
+        for node_runtime in self.node_runtimes:
+            service_runtime = node_runtime.get_service_runtime_by_type(
+                service_type
+            )
+
+            if service_runtime is not None:
+                return node_runtime
+
+        return None
 
     def get_service_runtime(self, service: Service) -> ServiceRuntime | None:
         """Return runtime state associated with a service."""

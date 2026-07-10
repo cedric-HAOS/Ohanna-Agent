@@ -1,7 +1,11 @@
 from observer.event_publisher import EventPublisher
 from observer.events import ObservationPublished
+from observer.infrastructure_observation_mapper import (
+    InfrastructureObservationMapper,
+)
 from observer.observation import Observation
 from observer.observation_definition import ObservationDefinition
+from observer.observation_engine import ObservationEngine
 from observer.observation_event_publisher import (
     ObservationEventPublisher,
 )
@@ -18,9 +22,16 @@ from observer.observation_status import ObservationStatus
 from observer.observation_status_mapper import ObservationStatusMapper
 from observer.observer import Observer
 from observer.observer_result import ObserverResult
+from observer.observer_result_mapper import ObserverResultMapper
 from observer.observer_runtime import ObserverRuntime
 from observer.observer_state import ObserverState
 from observer.observer_statistics import ObserverStatistics
+from observer.plugin_observation_dispatcher import (
+    PluginObservationDispatcher,
+)
+from observer.plugin_observation_executor import (
+    PluginObservationExecutor,
+)
 
 __all__ = [
     "Observer",
@@ -33,7 +44,6 @@ __all__ = [
     "ObservationState",
     "ObservationStatus",
     "ObservationStatusMapper",
-    "Observation",
     "ObservationFactory",
     "ObservationDefinition",
     "ObservationExporter",
@@ -43,4 +53,9 @@ __all__ = [
     "ObservationEventPublisher",
     "ObservationPublished",
     "ObservationExportHandler",
+    "InfrastructureObservationMapper",
+    "ObservationEngine",
+    "ObserverResultMapper",
+    "PluginObservationExecutor",
+    "PluginObservationDispatcher",
 ]

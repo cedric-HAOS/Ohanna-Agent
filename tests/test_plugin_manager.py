@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from observer import ObserverResult
 from plugin.plugin import Plugin
 from plugin.plugin_context import PluginContext
 from plugin.plugin_descriptor import PluginDescriptor
@@ -21,9 +22,12 @@ class FakeEventBus:
 
 
 class FakePlugin(Plugin):
-    def __init__(self, name: str = "fake") -> None:
-        self._manifest = PluginManifest(name=name, version="1.0.0")
-        self.registered_context = None
+    def __init__(self, name: str) -> None:
+        self._manifest = PluginManifest(
+            name=name,
+            version="1.0.0",
+        )
+        self.registered_context: PluginContext | None = None
 
     @property
     def manifest(self) -> PluginManifest:
@@ -32,7 +36,14 @@ class FakePlugin(Plugin):
     def register(self, context: PluginContext) -> None:
         self.registered_context = context
 
-
+    def execute(self, **kwargs: object) -> ObserverResult:
+        """Execute the fake plugin."""
+        return ObserverResult(
+            success=True,
+            latency=0.0,
+            check="test",
+        )
+   
 class FakeDiscovery:
     def __init__(self, descriptors) -> None:
         self._descriptors = descriptors

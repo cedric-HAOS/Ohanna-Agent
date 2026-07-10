@@ -1,3 +1,5 @@
+import pytest
+
 from plugins.dns.dns_capability_runtime import DNSCapabilityRuntime
 from plugins.dns.dns_check_result import DNSCheckResult
 from plugins.dns.dns_config import DNSConfig, DNSPolicyConfig, DNSServerConfig
@@ -442,3 +444,53 @@ def test_dns_plugin_check_all_uses_each_server_address() -> None:
     assert runtime.healthy_servers == 2
     assert runtime.failed_servers == 0
     assert runtime.healthy is True
+
+def test_dns_plugin_execute_returns_observer_result() -> None:
+    dns_check = FakeDNSCheck(
+        DNSCheckResult(
+            hostname="example.com",
+            healthy=True,
+            address="93.184.216.34",
+        )
+    )
+    plugin = DNSPlugin(check=dns_check)
+
+    result = plugin.execute(hostname="example.com")
+
+    assert result.success is True
+    assert result.check == "dns.resolve"
+    assert result.message == "DNS resolution succeeded for example.com."
+    assert result.metadata == {
+        "hostname": "example.com",
+        "address": "93.184.216.34",
+        "error": None,
+    }
+
+
+def test_dns_plugin_execute_returns_failed_observer_result() -> None:
+    dns_check = FakeDNSCheck(
+        DNSCheckResult(
+            hostname="missing.local",
+            healthy=False,
+            error="host not found",
+        )
+    )
+    plugin = DNSPlugin(check=dns_check)
+
+    result = plugin.execute(hostname="missing.local")
+
+    assert result.success is False
+    assert result.check == "dns.resolve"
+    assert result.message == "host not found"
+    assert result.metadata["hostname"] == "missing.local"
+    assert result.metadata["error"] == "host not found"
+
+
+def test_dns_plugin_execute_requires_hostname() -> None:
+    plugin = DNSPlugin()
+
+    with pytest.raises(
+        ValueError,
+        match="requires a non-empty 'hostname' argument",
+    ):
+        plugin.execute()

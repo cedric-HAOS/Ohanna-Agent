@@ -1,26 +1,12 @@
-"""Infrastructure observation model."""
+"""Backward-compatible infrastructure observation import."""
 
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
-from typing import Any
+from infrastructure.infrastructure_health_update import (
+    InfrastructureHealthUpdate,
+)
 
-from infrastructure.enums import HealthStatus
+Observation = InfrastructureHealthUpdate
 
-
-@dataclass(slots=True)
-class Observation:
-    """Represents a runtime observation emitted by a plugin or checker."""
-
-    target_name: str
-
-    health: HealthStatus
-
-    source: str
-
-    message: str = ""
-
-    timestamp: datetime = field(
-        default_factory=lambda: datetime.now(UTC)
-    )
-
-    metadata: dict[str, Any] = field(default_factory=dict)
+__all__ = [
+    "InfrastructureHealthUpdate",
+    "Observation",
+]

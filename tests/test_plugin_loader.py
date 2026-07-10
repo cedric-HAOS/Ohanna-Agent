@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from observer import ObserverResult
 from plugin.plugin import Plugin
 from plugin.plugin_descriptor import PluginDescriptor
 from plugin.plugin_loader import PluginLoader
@@ -14,6 +15,13 @@ class FakePlugin(Plugin):
     def register(self, context: object) -> None:
         pass
 
+    def execute(self, **kwargs: object) -> ObserverResult:
+        """Execute the fake plugin."""
+        return ObserverResult(
+            success=True,
+            latency=0.0,
+            check="test",
+        )
 
 class FakeFactory:
     def __init__(self) -> None:

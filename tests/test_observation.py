@@ -1,83 +1,76 @@
-from datetime import timedelta
+from datetime import UTC
+from uuid import UUID
 
-from observer import Observation, ObservationRuntime
-from observer.checks import FakeCheck
+from observer import Observation, ObservationStatus
 
 
-def test_observation_stores_identifier() -> None:
+def test_observation_can_be_created() -> None:
     observation = Observation(
-        id="dns-google",
-        display_name="DNS Google",
-        check=FakeCheck(),
+        node="infra-01",
+        service="dns-primary",
+        capability="dns",
+        status=ObservationStatus.HEALTHY,
+        success=True,
+        message="DNS resolution succeeded.",
+        source="dns-plugin",
+        latency_ms=12.4,
+        metadata={
+            "hostname": "example.com",
+        },
     )
 
-    assert observation.id == "dns-google"
+    assert observation.node == "infra-01"
+    assert observation.service == "dns-primary"
+    assert observation.capability == "dns"
+
+    assert observation.status == ObservationStatus.HEALTHY
+    assert observation.success is True
+
+    assert observation.message == "DNS resolution succeeded."
+    assert observation.source == "dns-plugin"
+
+    assert observation.latency_ms == 12.4
+
+    assert observation.metadata["hostname"] == "example.com"
 
 
-def test_observation_stores_name() -> None:
+def test_observation_generates_uuid() -> None:
     observation = Observation(
-        id="dns-google",
-        display_name="DNS Google",
-        check=FakeCheck(),
+        node="infra-01",
+        service="dns-primary",
+        capability="dns",
+        status=ObservationStatus.UNKNOWN,
+        success=False,
+        message="Unknown",
+        source="test",
     )
 
-    assert observation.display_name == "DNS Google"
+    assert isinstance(observation.id, UUID)
 
 
-def test_observation_stores_check() -> None:
-    check = FakeCheck()
-
+def test_observation_generates_utc_timestamp() -> None:
     observation = Observation(
-        id="dns-google",
-        display_name="DNS Google",
-        check=check,
+        node="infra-01",
+        service="dns-primary",
+        capability="dns",
+        status=ObservationStatus.UNKNOWN,
+        success=False,
+        message="Unknown",
+        source="test",
     )
 
-    assert observation.check is check
+    assert observation.timestamp.tzinfo == UTC
 
-def test_observation_default_enabled() -> None:
+
+def test_observation_metadata_defaults_to_empty_dict() -> None:
     observation = Observation(
-        id="dns-google",
-        display_name="DNS Google",
-        check=FakeCheck(),
+        node="infra-01",
+        service="dns-primary",
+        capability="dns",
+        status=ObservationStatus.UNKNOWN,
+        success=False,
+        message="Unknown",
+        source="test",
     )
 
-    assert observation.enabled is True
-
-def test_observation_default_retries() -> None:
-    observation = Observation(
-        id="dns-google",
-        display_name="DNS Google",
-        check=FakeCheck(),
-    )
-
-    assert observation.retries == 0
-
-def test_observation_default_runtime() -> None:
-    observation = Observation(
-        id="dns-google",
-        display_name="DNS Google",
-        check=FakeCheck(),
-    )
-
-    assert isinstance(observation.runtime, ObservationRuntime)
-
-
-def test_observation_default_interval() -> None:
-    observation = Observation(
-        id="dns-google",
-        display_name="DNS Google",
-        check=FakeCheck(),
-    )
-
-    assert observation.interval == timedelta(minutes=1)
-
-
-def test_observation_default_timeout() -> None:
-    observation = Observation(
-        id="dns-google",
-        display_name="DNS Google",
-        check=FakeCheck(),
-    )
-
-    assert observation.timeout == timedelta(seconds=5)
+    assert observation.metadata == {}

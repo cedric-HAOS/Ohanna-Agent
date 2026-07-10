@@ -31,9 +31,9 @@ __all__ = [
     "InfrastructureRuntime",
     "NodeRuntime",
     "ServiceRuntime",
-    "Observation",
     "ObservationManager",
     "SchedulerObservationHandler",
     "InfrastructureCapability",
     "InfrastructureCapabilityCalculator",
+    "Observation",
 ]

@@ -1,28 +1,35 @@
 from dataclasses import dataclass, field
-from datetime import timedelta
+from datetime import UTC, datetime
+from typing import Any
+from uuid import UUID, uuid4
 
-from observer.checks.base_check import BaseCheck
-from observer.observation_runtime import ObservationRuntime
+from observer.observation_status import ObservationStatus
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class Observation:
-    """Observation configuration."""
+    """Standard observation produced by Ohanna-Agent."""
 
-    id: str
+    node: str
 
-    display_name: str
+    service: str
 
-    check: BaseCheck
+    capability: str
 
-    interval: timedelta = timedelta(minutes=1)
+    status: ObservationStatus
 
-    enabled: bool = True
+    success: bool
 
-    timeout: timedelta = timedelta(seconds=5)
+    message: str
 
-    retries: int = 0
+    source: str
 
-    runtime: ObservationRuntime = field(
-        default_factory=ObservationRuntime
+    id: UUID = field(default_factory=uuid4)
+
+    timestamp: datetime = field(
+        default_factory=lambda: datetime.now(UTC)
     )
+
+    latency_ms: float | None = None
+
+    metadata: dict[str, Any] = field(default_factory=dict)

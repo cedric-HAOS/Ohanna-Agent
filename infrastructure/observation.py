@@ -12,8 +12,15 @@ class Observation:
     """Represents a runtime observation emitted by a plugin or checker."""
 
     target_name: str
+
     health: HealthStatus
+
     source: str
+
     message: str = ""
-    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+    timestamp: datetime = field(
+        default_factory=lambda: datetime.now(UTC)
+    )
+
     metadata: dict[str, Any] = field(default_factory=dict)

@@ -23,6 +23,7 @@ def test_observation_manager_records_observation() -> None:
     infrastructure = Infrastructure(name="Ohanna")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     manager = ObservationManager(runtime=runtime)
+
     observation = Observation(
         target_name="unknown",
         health=HealthStatus.HEALTHY,
@@ -39,7 +40,11 @@ def test_observation_manager_applies_observation_to_service_runtime() -> None:
     service = Service(name="DNS", type=ServiceType.DNS)
     node = Node(name="INFRA-01", services=[service])
     infrastructure = Infrastructure(name="Ohanna", nodes=[node])
-    runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
+
+    runtime = InfrastructureRuntime.from_infrastructure(
+        infrastructure
+    )
+
     manager = ObservationManager(runtime=runtime)
 
     observation = Observation(
@@ -50,7 +55,9 @@ def test_observation_manager_applies_observation_to_service_runtime() -> None:
 
     result = manager.record(observation)
 
-    service_runtime = runtime.get_service_runtime_by_type(ServiceType.DNS)
+    service_runtime = runtime.get_service_runtime_by_type(
+        ServiceType.DNS
+    )
 
     assert result is True
     assert service_runtime is not None
@@ -60,8 +67,15 @@ def test_observation_manager_applies_observation_to_service_runtime() -> None:
 
 def test_observation_manager_applies_observation_to_node_runtime() -> None:
     node = Node(name="INFRA-01")
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
-    runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
+    infrastructure = Infrastructure(
+        name="Ohanna",
+        nodes=[node],
+    )
+
+    runtime = InfrastructureRuntime.from_infrastructure(
+        infrastructure
+    )
+
     manager = ObservationManager(runtime=runtime)
 
     observation = Observation(
@@ -82,7 +96,11 @@ def test_observation_manager_applies_observation_to_node_runtime() -> None:
 
 def test_observation_manager_returns_false_for_unknown_target() -> None:
     infrastructure = Infrastructure(name="Ohanna")
-    runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
+
+    runtime = InfrastructureRuntime.from_infrastructure(
+        infrastructure
+    )
+
     manager = ObservationManager(runtime=runtime)
 
     observation = Observation(

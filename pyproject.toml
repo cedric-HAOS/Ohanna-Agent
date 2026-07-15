@@ -1,19 +1,83 @@
+[build-system]
+requires = [
+    "setuptools>=75",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "ohanna-agent"
+version = "0.14.0"
+description = "Infrastructure observation agent for the Ohanna platform."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "PyYAML",
+    "pydantic>=2",
+    "dnspython>=2.7.0",
+]
+
+
+[project.scripts]
+ohanna-agent = "main:main"
+
+
+[tool.setuptools]
+py-modules = [
+    "application",
+    "bootstrap",
+    "main",
+    "production_agent",
+]
+
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "builder*",
+    "configuration*",
+    "core*",
+    "health*",
+    "infrastructure*",
+    "loader*",
+    "memory*",
+    "mqtt*",
+    "observer*",
+    "plugin*",
+    "plugins*",
+    "recovery*",
+    "scheduler*",
+]
+exclude = [
+    "tests*",
+    "scripts*",
+]
+
+
 [tool.ruff]
 line-length = 88
 target-version = "py313"
 
+
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+]
 ignore = []
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
 
-[project]
-dependencies = [
-    "PyYAML",
-    "pydantic",
-    "dnspython>=2.7.0",
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+python_files = [
+    "test_*.py",
+]
+python_functions = [
+    "test_*",
 ]

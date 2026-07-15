@@ -24,39 +24,76 @@ class Application:
         self.services = ServiceRegistry()
 
         self.event_bus = event_bus or EventBus()
-        self.command_dispatcher = CommandDispatcher(self.event_bus)
-        self.memory = memory if memory is not None else MemoryManager()
+        self.command_dispatcher = CommandDispatcher(
+            self.event_bus,
+        )
+        self.memory = (
+            memory
+            if memory is not None
+            else MemoryManager()
+        )
         self.scheduler = Scheduler(
-            executor=DispatcherTaskExecutor(self.command_dispatcher),
+            executor=DispatcherTaskExecutor(
+                self.command_dispatcher,
+            ),
             event_bus=self.event_bus,
         )
-        self.plugin_manager = PluginManager(self.services, self.event_bus)
-        event_bus=self.event_bus
+        self.plugin_manager = PluginManager(
+            self.services,
+            self.event_bus,
+        )
+
         self._register_core_services()
 
     def _register_core_services(self) -> None:
         """Register core services in the service registry."""
-        self.services.register(ServiceRegistry, self.services)
-        self.services.register(EventBus, self.event_bus)
-        self.services.register(Scheduler, self.scheduler)
-        self.services.register(PluginManager, self.plugin_manager)
-        self.services.register(CommandDispatcher, self.command_dispatcher)
-        self.services.register(MemoryManager, self.memory)
+        self.services.register(
+            ServiceRegistry,
+            self.services,
+        )
+        self.services.register(
+            EventBus,
+            self.event_bus,
+        )
+        self.services.register(
+            Scheduler,
+            self.scheduler,
+        )
+        self.services.register(
+            PluginManager,
+            self.plugin_manager,
+        )
+        self.services.register(
+            CommandDispatcher,
+            self.command_dispatcher,
+        )
+        self.services.register(
+            MemoryManager,
+            self.memory,
+        )
 
     def start(self) -> None:
         """Start application services."""
         self.scheduler.start()
-        self.event_bus.publish(ApplicationStarted())
-
+        self.event_bus.publish(
+            ApplicationStarted(),
+        )
 
     def stop(self) -> None:
         """Stop application services."""
         self.scheduler.stop()
-        self.event_bus.publish(ApplicationStopped())
-
+        self.event_bus.publish(
+            ApplicationStopped(),
+        )
 
     def tick(self) -> object:
         """Execute one application scheduler tick."""
         result = self.scheduler.tick()
-        self.event_bus.publish(ApplicationTicked(result=result))
+
+        self.event_bus.publish(
+            ApplicationTicked(
+                result=result,
+            )
+        )
+
         return result

@@ -35,23 +35,48 @@ def parse_arguments() -> argparse.Namespace:
         default=Path("config/plugins/dns.yaml"),
         help="DNS plugin configuration file.",
     )
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=[
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL",
+        ],
+        help="Console logging level.",
+    )
 
     return parser.parse_args()
 
 
 def configure_logging(level: str) -> None:
     """Configure console logging for systemd and manual runs."""
+    normalized_level = level.upper()
+
+    if normalized_level not in {
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL",
+    }:
+        raise ValueError(
+            f"Unsupported logging level: {level!r}."
+        )
+
     logging.basicConfig(
         level=getattr(
             logging,
-            level.upper(),
-            logging.INFO,
+            normalized_level,
         ),
         format=(
             "%(asctime)s "
             "%(levelname)s "
             "%(name)s — %(message)s"
         ),
+        force=True,
     )
 
 
@@ -77,11 +102,12 @@ def install_signal_handlers(
     )
 
 
+
 def main() -> int:
     """Build and run Ohanna-Agent."""
     arguments = parse_arguments()
-
-    configure_logging("INFO")
+    
+    configure_logging(arguments.log_level)
 
     agent = build_production_agent(
         application_config_path=arguments.config,

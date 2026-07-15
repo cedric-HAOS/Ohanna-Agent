@@ -1,0 +1,99 @@
+"""Command-line entry point for Ohanna-Agent."""
+
+from __future__ import annotations
+
+import argparse
+import logging
+import signal
+from pathlib import Path
+from types import FrameType
+
+from bootstrap import build_production_agent
+from production_agent import ProductionAgent
+
+
+def parse_arguments() -> argparse.Namespace:
+    """Parse Ohanna-Agent command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Run Ohanna-Agent.",
+    )
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("config/shikamaru.yaml"),
+        help="Application configuration file.",
+    )
+    parser.add_argument(
+        "--infrastructure",
+        type=Path,
+        default=Path("config/infrastructure.yaml"),
+        help="Infrastructure configuration file.",
+    )
+    parser.add_argument(
+        "--dns-config",
+        type=Path,
+        default=Path("config/plugins/dns.yaml"),
+        help="DNS plugin configuration file.",
+    )
+
+    return parser.parse_args()
+
+
+def configure_logging(level: str) -> None:
+    """Configure console logging for systemd and manual runs."""
+    logging.basicConfig(
+        level=getattr(
+            logging,
+            level.upper(),
+            logging.INFO,
+        ),
+        format=(
+            "%(asctime)s "
+            "%(levelname)s "
+            "%(name)s — %(message)s"
+        ),
+    )
+
+
+def install_signal_handlers(
+    agent: ProductionAgent,
+) -> None:
+    """Stop the agent cleanly on SIGINT or SIGTERM."""
+
+    def request_stop(
+        signum: int,
+        frame: FrameType | None,
+    ) -> None:
+        del signum, frame
+        agent.request_stop()
+
+    signal.signal(
+        signal.SIGINT,
+        request_stop,
+    )
+    signal.signal(
+        signal.SIGTERM,
+        request_stop,
+    )
+
+
+def main() -> int:
+    """Build and run Ohanna-Agent."""
+    arguments = parse_arguments()
+
+    configure_logging("INFO")
+
+    agent = build_production_agent(
+        application_config_path=arguments.config,
+        infrastructure_config_path=arguments.infrastructure,
+        dns_config_path=arguments.dns_config,
+    )
+
+    install_signal_handlers(agent)
+    agent.run()
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

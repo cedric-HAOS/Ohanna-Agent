@@ -1,14 +1,14 @@
-"""Declarative DNS plugin configuration models."""
+"""DNS plugin configuration models."""
 
-from pydantic import Field, field_validator
+from pydantic import Field, PositiveFloat, PositiveInt, field_validator
 
 from configuration.base import Config
 
 
 class DNSPolicyConfig(Config):
-    """Policy used to evaluate the DNS capability."""
+    """Health policy applied to the DNS plugin."""
 
-    minimum_healthy_servers: int = 1
+    minimum_healthy_servers: PositiveInt = 1
 
 
 class DNSPluginConfig(Config):
@@ -16,10 +16,13 @@ class DNSPluginConfig(Config):
 
     services: list[str] = Field(default_factory=list)
     queries: list[str] = Field(default_factory=list)
-    timeout: float = 2.0
-    retries: int = 1
+
+    timeout: PositiveFloat = 2.0
+    retries: int = Field(default=1, ge=0)
+    interval_seconds: PositiveInt = 60
+
     policy: DNSPolicyConfig = Field(
-        default_factory=DNSPolicyConfig
+        default_factory=DNSPolicyConfig,
     )
 
     @field_validator("services")
@@ -28,7 +31,7 @@ class DNSPluginConfig(Config):
         cls,
         services: list[str],
     ) -> list[str]:
-        """Reject empty infrastructure service identifiers."""
+        """Normalize and validate service identifiers."""
         normalized_services = [
             service.strip()
             for service in services
@@ -47,7 +50,7 @@ class DNSPluginConfig(Config):
         cls,
         queries: list[str],
     ) -> list[str]:
-        """Reject empty DNS queries."""
+        """Normalize and validate DNS queries."""
         normalized_queries = [
             query.strip()
             for query in queries

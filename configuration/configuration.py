@@ -21,6 +21,7 @@ from configuration.health import HealthConfig
 from configuration.logging import LoggingConfig
 from configuration.mqtt import MQTTConfig
 from configuration.plugins import PluginsConfig
+from configuration.vision import VisionConfig
 
 
 class Configuration(Config):
@@ -33,3 +34,4 @@ class Configuration(Config):
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
     health: HealthConfig = Field(default_factory=HealthConfig)
     plugins: PluginsConfig = Field(default_factory=PluginsConfig)
+    vision: VisionConfig = Field(default_factory=VisionConfig)

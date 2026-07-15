@@ -203,10 +203,8 @@ def test_dns_configuration_builder_uses_real_yaml_files() -> None:
 
     assert len(dns_config.servers) == 1
     assert dns_config.servers[0].name == "dns-primary"
-    assert dns_config.servers[0].address == "192.168.1.11"
+    assert dns_config.servers[0].address == "192.168.1.10"
     assert dns_config.servers[0].enabled is True
     assert dns_config.queries == [
         "example.com",
-        "openai.com",
-        "home-assistant.io",
     ]

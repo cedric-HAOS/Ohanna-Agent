@@ -111,7 +111,7 @@ def test_mapper_copies_update_metadata() -> None:
 
 def test_mapper_maps_service_update_from_runtime_context() -> None:
     service = Service(
-        name="Primary DNS",
+        name="dns-primary",
         type=ServiceType.DNS,
     )
     node = Node(
@@ -142,7 +142,7 @@ def test_mapper_maps_service_update_from_runtime_context() -> None:
     )
 
     assert observation.node == "INFRA-01"
-    assert observation.service == "dns"
+    assert observation.service == "dns-primary"
     assert observation.capability == "dns.resolve"
     assert observation.status is ObservationStatus.HEALTHY
     assert observation.success is True

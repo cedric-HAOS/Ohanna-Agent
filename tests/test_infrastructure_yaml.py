@@ -13,11 +13,13 @@ def test_real_infrastructure_yaml_declares_dns_service() -> None:
     node = data["nodes"][0]
     service = data["services"][0]
 
-    assert node["id"] == "zwave-01"
-    assert node["endpoint"]["address"] == "192.168.1.11"
+    assert node["id"] == "infra-01"
+    assert node["name"] == "INFRA-01"
+    assert node["endpoint"]["type"] == "ip"
+    assert node["endpoint"]["address"] == "192.168.1.10"
 
     assert service["id"] == "dns-primary"
-    assert service["name"] == "DNS Primary"
+    assert service["name"] == "DNS principal"
     assert service["type"] == "dns"
-    assert service["node"] == "zwave-01"
+    assert service["node"] == "infra-01"
     assert service["port"] == 53

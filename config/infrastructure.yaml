@@ -10,16 +10,16 @@ metadata:
     - home
 
 nodes:
-  - id: zwave-01
-    name: ZWAVE-01
-    description: Serveur Z-Wave et DNS Primaire
+  - id: infra-01
+    name: INFRA-01
+    description: Serveur principal de l'infrastructure Ohanna
     endpoint:
       type: ip
-      address: 192.168.1.11
+      address: 192.168.1.10
 
 services:
   - id: dns-primary
-    name: DNS Primary
+    name: DNS principal
     type: dns
-    node: zwave-01
+    node: infra-01
     port: 53

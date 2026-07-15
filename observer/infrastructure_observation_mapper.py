@@ -81,7 +81,7 @@ class InfrastructureObservationMapper:
         return self.map(
             update,
             node=node_runtime.node.name,
-            service=service_runtime.service.type.value,
+            service=service_runtime.service.name,
             capability=capability,
             latency_ms=latency_ms,
         )

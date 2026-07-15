@@ -90,7 +90,7 @@ def build_executor(
     plugin_manager.register(plugin)
 
     service = Service(
-        name="Primary DNS",
+        name="dns-primary",
         type=ServiceType.DNS,
     )
     node = Node(
@@ -163,7 +163,7 @@ def test_executor_processes_plugin_result() -> None:
     assert service_runtime is not None
     assert service_runtime.health is HealthStatus.HEALTHY
     assert event.observation.node == "INFRA-01"
-    assert event.observation.service == "dns"
+    assert event.observation.service == "dns-primary"
     assert event.observation.capability == "dns.resolve"
     assert event.observation.status is ObservationStatus.HEALTHY
     assert event.observation.latency_ms == 4.5
@@ -230,6 +230,6 @@ def test_executor_executes_structured_plugin_command() -> None:
     assert plugin.received_arguments == {
         "hostname": "example.com",
     }
-    assert event.observation.service == "dns"
+    assert event.observation.service == "dns-primary"
     assert event.observation.capability == "dns.resolve"
     assert event.observation.source == "dns.resolve"

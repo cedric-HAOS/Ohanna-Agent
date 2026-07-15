@@ -1,5 +1,6 @@
 # plugins/dns/__init__.py
 
+from plugins.dns.configured_dns_check import ConfiguredDNSCheck
 from plugins.dns.dns_capability_runtime import DNSCapabilityRuntime
 from plugins.dns.dns_check import DNSCheck
 from plugins.dns.dns_check_result import DNSCheckResult
@@ -29,5 +30,6 @@ __all__ = [
     "DNSServerConfig",
     "DNSServer",
     "DNSCapabilityRuntime",
-    "DNSServerRuntime"
+    "DNSServerRuntime",
+    "ConfiguredDNSCheck"
 ]

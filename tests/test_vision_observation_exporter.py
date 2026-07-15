@@ -3,10 +3,12 @@ from typing import Any
 
 from observer import (
     Observation,
-    ObservationSerializer,
     ObservationStatus,
 )
-from observer.exporters import VisionObservationExporter
+from observer.exporters import (
+    VisionObservationExporter,
+    VisionObservationMapper,
+)
 
 
 @dataclass
@@ -24,71 +26,89 @@ class FakeVisionClient:
 
 def build_observation() -> Observation:
     return Observation(
-        node="zwave-01",
+        node="infra-01",
         service="dns-primary",
-        capability="dns",
+        capability="dns.resolve",
         status=ObservationStatus.HEALTHY,
         success=True,
         message="DNS resolution succeeded.",
-        source="dns-plugin",
+        source="dns.resolve",
         latency_ms=12.5,
         metadata={
             "hostname": "example.com",
-            "server": "192.168.1.54",
+            "server": "192.168.1.10",
         },
     )
 
 
 def test_vision_exporter_can_be_created() -> None:
     client = FakeVisionClient()
-    serializer = ObservationSerializer()
+    mapper = VisionObservationMapper()
 
     exporter = VisionObservationExporter(
         client=client,
-        serializer=serializer,
+        mapper=mapper,
     )
 
     assert exporter.client is client
-    assert exporter.serializer is serializer
+    assert exporter.mapper is mapper
 
 
-def test_vision_exporter_sends_serialized_observation() -> None:
+def test_vision_exporter_sends_mapped_observation() -> None:
     client = FakeVisionClient()
     exporter = VisionObservationExporter(
         client=client,
-        serializer=ObservationSerializer(),
+        mapper=VisionObservationMapper(),
     )
 
-    observation = build_observation()
-
-    exporter.export(observation)
+    exporter.export(build_observation())
 
     assert len(client.payloads) == 1
 
     payload = client.payloads[0]
 
-    assert payload["node"] == "zwave-01"
-    assert payload["service"] == "dns-primary"
-    assert payload["capability"] == "dns"
+    assert payload["node_id"] == "infra-01"
+    assert payload["service_id"] == "dns-primary"
+    assert payload["capability_id"] == "dns.resolve"
     assert payload["status"] == "healthy"
-    assert payload["success"] is True
     assert payload["latency_ms"] == 12.5
 
 
-def test_vision_exporter_preserves_metadata() -> None:
+def test_vision_exporter_preserves_business_metadata() -> None:
     client = FakeVisionClient()
     exporter = VisionObservationExporter(
         client=client,
-        serializer=ObservationSerializer(),
+        mapper=VisionObservationMapper(),
     )
 
     exporter.export(build_observation())
 
     metadata = client.payloads[0]["metadata"]
 
-    assert metadata == {
-        "hostname": "example.com",
-        "server": "192.168.1.54",
+    assert metadata["hostname"] == "example.com"
+    assert metadata["server"] == "192.168.1.10"
+
+
+def test_vision_exporter_adds_agent_traceability() -> None:
+    client = FakeVisionClient()
+    exporter = VisionObservationExporter(
+        client=client,
+        mapper=VisionObservationMapper(),
+    )
+
+    observation = build_observation()
+
+    exporter.export(observation)
+
+    agent_metadata = client.payloads[0]["metadata"][
+        "agent_observation"
+    ]
+
+    assert agent_metadata == {
+        "id": str(observation.id),
+        "source": "dns.resolve",
+        "success": True,
+        "message": "DNS resolution succeeded.",
     }
 
 
@@ -96,13 +116,10 @@ def test_vision_exporter_sends_each_observation() -> None:
     client = FakeVisionClient()
     exporter = VisionObservationExporter(
         client=client,
-        serializer=ObservationSerializer(),
+        mapper=VisionObservationMapper(),
     )
 
-    first = build_observation()
-    second = build_observation()
-
-    exporter.export(first)
-    exporter.export(second)
+    exporter.export(build_observation())
+    exporter.export(build_observation())
 
     assert len(client.payloads) == 2

@@ -18,10 +18,10 @@ from observer import (
     ObservationExportHandler,
     ObservationExportPipeline,
     ObservationPublished,
-    ObservationSerializer,
     ObserverResultMapper,
     PluginObservationExecutor,
 )
+from observer.exporters import VisionObservationMapper
 from observer.exporters.vision_observation_exporter import (
     VisionObservationExporter,
 )
@@ -74,9 +74,9 @@ def test_dns_observation_is_exported_to_vision_client() -> None:
     vision_client = FakeVisionClient()
 
     vision_exporter = VisionObservationExporter(
-        client=vision_client,
-        serializer=ObservationSerializer(),
-    )
+    client=vision_client,
+    mapper=VisionObservationMapper(),
+)
     export_pipeline = ObservationExportPipeline(
         exporters=[vision_exporter],
     )
@@ -90,7 +90,7 @@ def test_dns_observation_is_exported_to_vision_client() -> None:
     )
 
     service = Service(
-        name="Primary DNS",
+        name="dns-primary",
         type=ServiceType.DNS,
     )
     node = Node(
@@ -149,19 +149,26 @@ def test_dns_observation_is_exported_to_vision_client() -> None:
 
     payload = vision_client.payloads[0]
 
-    assert payload["id"] == str(event.observation.id)
-    assert payload["source"] == "dns.resolve"
-    assert payload["node"] == "INFRA-01"
-    assert payload["service"] == "dns"
-    assert payload["capability"] == "dns.resolve"
+    assert payload["node_id"] == "INFRA-01"
+    assert payload["service_id"] == "dns-primary"
+    assert payload["capability_id"] == "dns.resolve"
     assert payload["status"] == "healthy"
-    assert payload["success"] is True
-    assert payload["message"] == (
-        "DNS resolution succeeded for example.com."
+    assert payload["observed_at"] == (
+        event.observation.timestamp.isoformat()
     )
+    assert payload["latency_ms"] == event.observation.latency_ms
+
     assert payload["metadata"] == {
         "hostname": "example.com",
         "server": None,
         "address": "93.184.216.34",
         "error": None,
+        "agent_observation": {
+            "id": str(event.observation.id),
+            "source": "dns.resolve",
+            "success": True,
+            "message": (
+                "DNS resolution succeeded for example.com."
+            ),
+        },
     }

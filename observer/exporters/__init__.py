@@ -1,15 +1,23 @@
 """Observation exporter implementations."""
 
+from observer.exporters.http_vision_client import HttpVisionClient
 from observer.exporters.in_memory_observation_exporter import (
     InMemoryObservationExporter,
 )
 from observer.exporters.vision_client import VisionClient
+from observer.exporters.vision_client_error import VisionClientError
 from observer.exporters.vision_observation_exporter import (
     VisionObservationExporter,
 )
+from observer.exporters.vision_observation_mapper import (
+    VisionObservationMapper,
+)
 
 __all__ = [
+    "HttpVisionClient",
     "InMemoryObservationExporter",
     "VisionClient",
+    "VisionClientError",
     "VisionObservationExporter",
+    "VisionObservationMapper",
 ]

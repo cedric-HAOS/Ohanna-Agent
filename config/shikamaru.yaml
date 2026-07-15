@@ -1,16 +1,16 @@
 # -----------------------------------------------------------------------------
 # Ohanna-Agent
-# Shikamaru Configuration
+# Production configuration for infra-01
 # -----------------------------------------------------------------------------
 
 version: 1
 
 agent:
   name: Shikamaru
-  environment: development
+  environment: production
 
 mqtt:
-  host: localhost
+  host: ha-green.ohanna.lan
   port: 1883
 
 logging:
@@ -22,4 +22,9 @@ health:
 
 plugins:
   enabled: true
-  directory: ./plugins
+  directory: plugins
+
+vision:
+  enabled: true
+  observation_url: http://127.0.0.1:8000/api/observations
+  timeout_seconds: 5.0

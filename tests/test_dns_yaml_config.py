@@ -28,8 +28,6 @@ def test_dns_yaml_declares_queries_and_policy() -> None:
 
     assert data["queries"] == [
         "example.com",
-        "openai.com",
-        "home-assistant.io",
     ]
     assert data["timeout"] == 2.0
     assert data["retries"] == 1

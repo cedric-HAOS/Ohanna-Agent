@@ -1,96 +1,13 @@
-# -----------------------------------------------------------------------------
-# Ohanna-Agent
-# Shikamaru
-# Example configuration
-#
-# This file documents every available configuration option.
-# Copy this file to "shikamaru.yaml" and adapt it to your environment.
-# -----------------------------------------------------------------------------
-
-version: 1
-
-
 # =============================================================================
-# Agent
+# Ohanna-Vision
 # =============================================================================
 
-agent:
-  # Agent display name.
-  name: Shikamaru
-
-  # Runtime environment.
-  #
-  # Allowed values:
-  #   - development
-  #   - test
-  #   - staging
-  #   - production
-  environment: development
-
-
-# =============================================================================
-# MQTT
-# =============================================================================
-
-mqtt:
-  # MQTT broker hostname or IP address.
-  host: localhost
-
-  # MQTT broker port.
-  port: 1883
-
-  # Optional MQTT client identifier.
-  #
-  # Leave null to let the MQTT component generate one automatically.
-  client_id: null
-
-  # MQTT Keep Alive (seconds).
-  keepalive_seconds: 60
-
-  authentication:
-
-    # MQTT username.
-    username: null
-
-    # MQTT password.
-    password: null
-
-
-# =============================================================================
-# Logging
-# =============================================================================
-
-logging:
-  # Logging level.
-  #
-  # Allowed values:
-  #   - DEBUG
-  #   - INFO
-  #   - WARNING
-  #   - ERROR
-  #   - CRITICAL
-  level: INFO
-
-
-# =============================================================================
-# Health
-# =============================================================================
-
-health:
-  # Enable the Health component.
+vision:
+  # Enable observation export to Ohanna-Vision.
   enabled: true
 
-  # Health publication interval (seconds).
-  interval_seconds: 30
+  # Complete REST ingestion endpoint.
+  observation_url: http://127.0.0.1:8000/api/observations
 
-
-# =============================================================================
-# Plugins
-# =============================================================================
-
-plugins:
-  # Enable plugin loading.
-  enabled: true
-
-  # Directory containing plugins.
-  directory: ./plugins
+  # Maximum duration of one HTTP request.
+  timeout_seconds: 5.0

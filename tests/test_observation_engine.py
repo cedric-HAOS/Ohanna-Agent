@@ -45,7 +45,7 @@ def build_engine() -> tuple[
 ]:
     """Build an observation engine with a DNS infrastructure."""
     service = Service(
-        name="Primary DNS",
+        name="dns-primary",
         type=ServiceType.DNS,
     )
     node = Node(
@@ -99,7 +99,7 @@ def test_observation_engine_processes_service_update() -> None:
     assert service_runtime.health is HealthStatus.HEALTHY
     assert isinstance(event, ObservationPublished)
     assert event.observation.node == "INFRA-01"
-    assert event.observation.service == "dns"
+    assert event.observation.service == "dns-primary"
     assert event.observation.capability == "dns.resolve"
     assert event.observation.status is ObservationStatus.HEALTHY
     assert event.observation.success is True
@@ -187,7 +187,7 @@ def test_observation_engine_processes_observer_result() -> None:
     assert service_runtime is not None
     assert service_runtime.health is HealthStatus.HEALTHY
     assert event.observation.node == "INFRA-01"
-    assert event.observation.service == "dns"
+    assert event.observation.service == "dns-primary"
     assert event.observation.capability == "dns.resolve"
     assert event.observation.status is ObservationStatus.HEALTHY
     assert event.observation.success is True

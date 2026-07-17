@@ -68,8 +68,7 @@ def run_command(
 
     if result.returncode != 0:
         raise RuntimeError(
-            f"Command failed with exit code {result.returncode}: "
-            f"{printable_command}"
+            f"Command failed with exit code {result.returncode}: {printable_command}"
         )
 
     return result
@@ -82,9 +81,7 @@ def main() -> int:
     print(f"Testing clean installation from {wheel.name}")
     print()
 
-    temporary_root = Path(
-        tempfile.mkdtemp(prefix="ohanna-agent-install-")
-    )
+    temporary_root = Path(tempfile.mkdtemp(prefix="ohanna-agent-install-"))
     environment = temporary_root / "venv"
 
     try:
@@ -115,9 +112,7 @@ def main() -> int:
         )
 
         if not cli_executable.is_file():
-            raise RuntimeError(
-                f"The CLI executable was not created: {cli_executable}"
-            )
+            raise RuntimeError(f"The CLI executable was not created: {cli_executable}")
 
         print()
         print("Checking installed package metadata...")
@@ -135,20 +130,15 @@ def main() -> int:
         )
 
         metadata_lines = [
-            line.strip()
-            for line in metadata_result.stdout.splitlines()
-            if line.strip()
+            line.strip() for line in metadata_result.stdout.splitlines() if line.strip()
         ]
 
         if len(metadata_lines) < 2:
-            raise RuntimeError(
-                "The installed distribution metadata is incomplete."
-            )
+            raise RuntimeError("The installed distribution metadata is incomplete.")
 
         if metadata_lines[0] != PACKAGE_NAME:
             raise RuntimeError(
-                "Unexpected installed package name: "
-                f"{metadata_lines[0]!r}"
+                f"Unexpected installed package name: {metadata_lines[0]!r}"
             )
 
         print()
@@ -169,15 +159,12 @@ def main() -> int:
         }
 
         missing_options = {
-            option
-            for option in expected_options
-            if option not in help_result.stdout
+            option for option in expected_options if option not in help_result.stdout
         }
 
         if missing_options:
             raise RuntimeError(
-                "Missing CLI options: "
-                + ", ".join(sorted(missing_options))
+                "Missing CLI options: " + ", ".join(sorted(missing_options))
             )
 
         print()
@@ -211,9 +198,7 @@ def main() -> int:
         )
 
         if invalid_result.returncode == 0:
-            raise RuntimeError(
-                "The CLI accepted an unknown option."
-            )
+            raise RuntimeError("The CLI accepted an unknown option.")
 
         print()
         print("Clean installation validation succeeded.")

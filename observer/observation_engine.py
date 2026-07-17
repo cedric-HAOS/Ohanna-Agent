@@ -40,7 +40,7 @@ class ObservationEngine:
             result,
             target_name=target_name,
             source=source,
-        ) 
+        )
 
         capability = source or result.check
 

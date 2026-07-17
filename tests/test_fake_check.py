@@ -40,6 +40,7 @@ def test_fake_check_can_return_failure() -> None:
     assert result.failed is True
     assert result.message == "fake failure"
 
+
 def test_fake_check_has_name() -> None:
     check = FakeCheck()
 

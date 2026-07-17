@@ -98,12 +98,10 @@ class CapabilityManager:
         self._ensure_all_required_dependencies_exist()
 
         graph: dict[str, list[str]] = {
-            capability_id: []
-            for capability_id in self._capabilities
+            capability_id: [] for capability_id in self._capabilities
         }
         indegree: dict[str, int] = {
-            capability_id: 0
-            for capability_id in self._capabilities
+            capability_id: 0 for capability_id in self._capabilities
         }
 
         for capability in self._capabilities.values():
@@ -112,9 +110,7 @@ class CapabilityManager:
                 indegree[capability.capability_id] += 1
 
         queue = deque(
-            capability_id
-            for capability_id, degree in indegree.items()
-            if degree == 0
+            capability_id for capability_id, degree in indegree.items() if degree == 0
         )
 
         ordered: list[str] = []

@@ -7,9 +7,7 @@ from loader import DNSConfigLoader
 def test_dns_config_loader_loads_dns_yaml() -> None:
     loader = DNSConfigLoader()
 
-    config = loader.load(
-        "config/plugins/dns.yaml"
-    )
+    config = loader.load("config/plugins/dns.yaml")
 
     assert isinstance(config, DNSPluginConfig)
     assert config.services == ["dns-primary"]
@@ -25,8 +23,6 @@ def test_dns_config_loader_loads_dns_yaml() -> None:
 def test_dns_config_loader_accepts_path_object() -> None:
     loader = DNSConfigLoader()
 
-    config = loader.load(
-        Path("config/plugins/dns.yaml")
-    )
+    config = loader.load(Path("config/plugins/dns.yaml"))
 
     assert config.services == ["dns-primary"]

@@ -67,7 +67,7 @@ class InfrastructureValidator:
                 raise InfrastructureValidationError(
                     f"Service '{service.id}' references unknown node '{service.node}'."
                 )
-    
+
     def _validate_service_ports(
         self,
         config: InfrastructureConfig,

@@ -12,6 +12,4 @@ class ObservationPublished:
 
     observation: Observation
 
-    occurred_at: datetime = field(
-        default_factory=lambda: datetime.now(UTC)
-    )
+    occurred_at: datetime = field(default_factory=lambda: datetime.now(UTC))

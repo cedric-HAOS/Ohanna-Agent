@@ -184,17 +184,12 @@ def test_dns_configuration_builder_disables_unavailable_server(
 
     assert config.servers[0].enabled is False
 
-def test_dns_configuration_builder_uses_real_yaml_files() -> None:
-    infrastructure_config = InfrastructureLoader().load(
-        "config/infrastructure.yaml"
-    )
-    infrastructure = InfrastructureBuilder().build(
-        infrastructure_config
-    )
 
-    dns_plugin_config = DNSConfigLoader().load(
-        "config/plugins/dns.yaml"
-    )
+def test_dns_configuration_builder_uses_real_yaml_files() -> None:
+    infrastructure_config = InfrastructureLoader().load("config/infrastructure.yaml")
+    infrastructure = InfrastructureBuilder().build(infrastructure_config)
+
+    dns_plugin_config = DNSConfigLoader().load("config/plugins/dns.yaml")
 
     dns_config = DNSConfigurationBuilder().build(
         infrastructure,

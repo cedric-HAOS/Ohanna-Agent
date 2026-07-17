@@ -156,9 +156,7 @@ def test_executor_processes_plugin_result() -> None:
         arguments={"hostname": "example.com"},
     )
 
-    service_runtime = runtime.get_service_runtime_by_type(
-        ServiceType.DNS
-    )
+    service_runtime = runtime.get_service_runtime_by_type(ServiceType.DNS)
 
     assert service_runtime is not None
     assert service_runtime.health is HealthStatus.HEALTHY
@@ -206,6 +204,7 @@ def test_executor_rejects_unknown_plugin() -> None:
             "unknown",
             target_name="dns",
         )
+
 
 def test_executor_executes_structured_plugin_command() -> None:
     result = ObserverResult(

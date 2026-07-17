@@ -70,8 +70,8 @@ class CommandDispatcher:
         command_type = type(command)
 
         if command_type not in self._handlers:
-         raise CommandNotFoundError(
-               f"Command handler not found: {command_type.__name__}"
+            raise CommandNotFoundError(
+                f"Command handler not found: {command_type.__name__}"
             )
 
         handler = self._handlers[command_type]

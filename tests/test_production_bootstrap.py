@@ -11,9 +11,7 @@ from scheduler.clock import FakeClock
 class FakeVisionClient:
     """Capture observations exported by the production bootstrap."""
 
-    payloads: list[dict[str, Any]] = field(
-        default_factory=list
-    )
+    payloads: list[dict[str, Any]] = field(default_factory=list)
 
     def send_observation(
         self,
@@ -35,15 +33,9 @@ def test_production_bootstrap_builds_dns_task() -> None:
     )
 
     agent = build_production_agent(
-        application_config_path=Path(
-            "config/shikamaru.yaml"
-        ),
-        infrastructure_config_path=Path(
-            "config/infrastructure.yaml"
-        ),
-        dns_config_path=Path(
-            "config/plugins/dns.yaml"
-        ),
+        application_config_path=Path("config/shikamaru.yaml"),
+        infrastructure_config_path=Path("config/infrastructure.yaml"),
+        dns_config_path=Path("config/plugins/dns.yaml"),
         vision_client=FakeVisionClient(),
         clock=clock,
     )

@@ -16,7 +16,7 @@ class FakePlugin(Plugin):
             description="Fake plugin",
         )
         self.registered_context = None
-    
+
     def execute(self, **kwargs: object) -> ObserverResult:
         """Execute the fake plugin."""
         return ObserverResult(

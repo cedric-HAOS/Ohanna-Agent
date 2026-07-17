@@ -23,12 +23,14 @@ class FakeDNSCheck:
         self.server = server
         return self.result
 
+
 class FakeEventBus:
     def __init__(self) -> None:
         self.events: list[object] = []
 
     def publish(self, event: object) -> None:
         self.events.append(event)
+
 
 def test_dns_plugin_runs_dns_check() -> None:
     dns_check = FakeDNSCheck(
@@ -68,6 +70,7 @@ def test_dns_plugin_returns_failed_dns_check() -> None:
     assert result.healthy is False
     assert result.address is None
     assert result.error == "host not found"
+
 
 def test_dns_plugin_publishes_started_and_succeeded_events() -> None:
     event_bus = FakeEventBus()
@@ -113,6 +116,7 @@ def test_dns_plugin_publishes_started_and_failed_events() -> None:
             error="host not found",
         ),
     ]
+
 
 def test_dns_plugin_updates_runtime_on_success() -> None:
     runtime = DNSRuntime()
@@ -164,6 +168,7 @@ def test_dns_plugin_updates_runtime_on_failure() -> None:
     assert runtime.last_address is None
     assert runtime.last_error == "host not found"
     assert runtime.healthy is False
+
 
 def test_dns_plugin_returns_empty_statistics() -> None:
     plugin = DNSPlugin()
@@ -219,6 +224,7 @@ def test_dns_plugin_returns_statistics_after_failure() -> None:
     assert statistics.failed_checks == 1
     assert statistics.success_rate == 0.0
     assert statistics.healthy is False
+
 
 def test_dns_plugin_uses_default_dns_config() -> None:
     plugin = DNSPlugin()
@@ -318,6 +324,7 @@ def test_dns_plugin_updates_capability_runtime_with_strict_policy() -> None:
     assert runtime.failed_servers == 1
     assert runtime.healthy is False
 
+
 def test_dns_plugin_check_all_checks_enabled_servers_queries() -> None:
     config = DNSConfig(
         servers=[
@@ -402,6 +409,7 @@ def test_dns_plugin_check_all_ignores_disabled_servers() -> None:
     assert plugin.servers[0].runtime.total_checks == 1
     assert plugin.servers[1].runtime.total_checks == 0
 
+
 def test_dns_plugin_check_all_uses_each_server_address() -> None:
     config = DNSConfig(
         servers=[
@@ -444,6 +452,7 @@ def test_dns_plugin_check_all_uses_each_server_address() -> None:
     assert runtime.healthy_servers == 2
     assert runtime.failed_servers == 0
     assert runtime.healthy is True
+
 
 def test_dns_plugin_execute_returns_observer_result() -> None:
     dns_check = FakeDNSCheck(

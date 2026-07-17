@@ -14,9 +14,9 @@ class DispatcherLike(Protocol):
     """Minimal dispatcher contract required by the scheduler."""
 
     def execute(
-    self,
-    command: str,
-    arguments: dict[str, object] | None = None,
+        self,
+        command: str,
+        arguments: dict[str, object] | None = None,
     ) -> object:
         """Execute a command."""
 

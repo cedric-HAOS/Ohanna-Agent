@@ -83,8 +83,9 @@ def test_node_runtime_can_get_service_runtime_by_type() -> None:
     node = Node(name="INFRA-01", services=[service])
     runtime = NodeRuntime.from_node(node)
 
-    assert runtime.get_service_runtime_by_type(ServiceType.DNS) is (
-        runtime.service_runtimes[0]
+    assert (
+        runtime.get_service_runtime_by_type(ServiceType.DNS)
+        is (runtime.service_runtimes[0])
     )
 
 

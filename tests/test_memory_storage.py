@@ -188,6 +188,8 @@ def test_save_multiple_persistent_entries(tmp_path) -> None:
         ("a", 1),
         ("b", 2),
     ]
+
+
 def test_storage_uses_injected_serializer(tmp_path) -> None:
     serializer = MemorySerializer()
     storage = MemoryStorage(

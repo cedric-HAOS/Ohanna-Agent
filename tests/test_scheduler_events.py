@@ -26,6 +26,7 @@ class FakeEventBus:
         """Store published events."""
         self.published_events.append(event)
 
+
 def test_scheduler_event_has_id_and_timestamp() -> None:
     event = SchedulerEvent()
 
@@ -90,6 +91,7 @@ def test_scheduled_task_failed_contains_error() -> None:
     assert event.arguments == {"target": "nas"}
     assert event.error == "disk unavailable"
 
+
 def test_scheduler_publishes_started_event() -> None:
     event_bus = FakeEventBus()
     scheduler = Scheduler(event_bus=event_bus)
@@ -121,6 +123,7 @@ def test_scheduler_publishes_ticked_event() -> None:
     assert isinstance(event_bus.published_events[0], SchedulerStarted)
     assert isinstance(event_bus.published_events[1], SchedulerTicked)
 
+
 def test_scheduler_publishes_task_triggered_event() -> None:
     event_bus = FakeEventBus()
     now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
@@ -130,7 +133,7 @@ def test_scheduler_publishes_task_triggered_event() -> None:
         name="Backup",
         command="system.backup",
         arguments={"target": "nas"},
-        trigger=OneShotTrigger(now)
+        trigger=OneShotTrigger(now),
     )
 
     scheduler.add_task(task)
@@ -153,7 +156,7 @@ def test_scheduler_publishes_task_executed_event() -> None:
         name="Backup",
         command="system.backup",
         arguments={"target": "nas"},
-        trigger=OneShotTrigger(now)
+        trigger=OneShotTrigger(now),
     )
 
     scheduler.add_task(task)
@@ -162,8 +165,7 @@ def test_scheduler_publishes_task_executed_event() -> None:
     scheduler.tick()
 
     assert any(
-        isinstance(event, ScheduledTaskExecuted)
-        for event in event_bus.published_events
+        isinstance(event, ScheduledTaskExecuted) for event in event_bus.published_events
     )
 
 
@@ -189,6 +191,5 @@ def test_scheduler_publishes_task_failed_event() -> None:
     scheduler.tick()
 
     assert any(
-        isinstance(event, ScheduledTaskFailed)
-        for event in event_bus.published_events
+        isinstance(event, ScheduledTaskFailed) for event in event_bus.published_events
     )

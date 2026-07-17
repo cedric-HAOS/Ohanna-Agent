@@ -30,6 +30,7 @@ class SchedulerEventBus(Protocol):
     def publish(self, event: object) -> None:
         """Publish an event."""
 
+
 @dataclass
 class Scheduler:
     """Orchestrate scheduled tasks."""

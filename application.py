@@ -27,11 +27,7 @@ class Application:
         self.command_dispatcher = CommandDispatcher(
             self.event_bus,
         )
-        self.memory = (
-            memory
-            if memory is not None
-            else MemoryManager()
-        )
+        self.memory = memory if memory is not None else MemoryManager()
         self.scheduler = Scheduler(
             executor=DispatcherTaskExecutor(
                 self.command_dispatcher,

@@ -53,10 +53,7 @@ def test_status_topic_uses_base_topic() -> None:
 def test_availability_topic_uses_base_topic() -> None:
     service, _ = make_service()
 
-    assert (
-        service.availability_topic
-        == "ohanna/agent/shikamaru/availability"
-    )
+    assert service.availability_topic == "ohanna/agent/shikamaru/availability"
 
 
 def test_build_status_message() -> None:

@@ -26,17 +26,12 @@ class ProductionAgent:
     def __post_init__(self) -> None:
         """Validate runtime settings."""
         if self.tick_interval_seconds <= 0:
-            raise ValueError(
-                "tick_interval_seconds must be greater than zero."
-            )
+            raise ValueError("tick_interval_seconds must be greater than zero.")
 
     @property
     def running(self) -> bool:
         """Return whether the production agent is running."""
-        return (
-            self.scheduler.running
-            and not self._stop_event.is_set()
-        )
+        return self.scheduler.running and not self._stop_event.is_set()
 
     def start(self) -> None:
         """Start the scheduler."""
@@ -69,9 +64,7 @@ class ProductionAgent:
         self.start()
 
         try:
-            while not self._stop_event.wait(
-                self.tick_interval_seconds
-            ):
+            while not self._stop_event.wait(self.tick_interval_seconds):
                 self.tick()
         finally:
             self.stop()

@@ -1,5 +1,6 @@
 import dns.exception
 import dns.resolver
+
 from plugins.dns.dns_result import DNSResult
 
 

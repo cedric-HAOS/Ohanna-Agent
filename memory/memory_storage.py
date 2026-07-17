@@ -29,8 +29,7 @@ class MemoryStorage:
     def save(self, entries: list[MemoryEntry]) -> None:
         """Save persistent entries to disk."""
         persistent_entries = [
-            entry for entry in entries
-            if entry.scope is MemoryScope.PERSISTENT
+            entry for entry in entries if entry.scope is MemoryScope.PERSISTENT
         ]
 
         payload = {

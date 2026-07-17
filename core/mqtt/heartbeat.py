@@ -19,8 +19,7 @@ class MQTTHeartbeatPublisher(Protocol):
         *,
         qos: int = 0,
         retain: bool = False,
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 @dataclass(frozen=True)

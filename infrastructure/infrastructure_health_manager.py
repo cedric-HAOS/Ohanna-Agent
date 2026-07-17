@@ -15,9 +15,7 @@ class InfrastructureHealthManager:
 
     runtime: InfrastructureRuntime
 
-    observations: list[InfrastructureHealthUpdate] = field(
-        default_factory=list
-    )
+    observations: list[InfrastructureHealthUpdate] = field(default_factory=list)
 
     def record(
         self,
@@ -42,9 +40,7 @@ class InfrastructureHealthManager:
         except ValueError:
             return False
 
-        service_runtime = self.runtime.get_service_runtime_by_type(
-            service_type
-        )
+        service_runtime = self.runtime.get_service_runtime_by_type(service_type)
 
         if service_runtime is None:
             return False
@@ -57,9 +53,7 @@ class InfrastructureHealthManager:
         self,
         observation: InfrastructureHealthUpdate,
     ) -> bool:
-        node_runtime = self.runtime.get_node_runtime_by_name(
-            observation.target_name
-        )
+        node_runtime = self.runtime.get_node_runtime_by_name(observation.target_name)
 
         if node_runtime is None:
             return False

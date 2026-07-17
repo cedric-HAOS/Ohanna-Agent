@@ -23,6 +23,4 @@ class ObservationDefinition:
 
     retries: int = 0
 
-    runtime: ObservationRuntime = field(
-        default_factory=ObservationRuntime
-    )
+    runtime: ObservationRuntime = field(default_factory=ObservationRuntime)

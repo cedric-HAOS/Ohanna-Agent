@@ -49,59 +49,35 @@ from scheduler.clock import Clock, SystemClock
 
 def build_production_agent(
     *,
-    application_config_path: Path = Path(
-        "config/shikamaru.yaml"
-    ),
-    infrastructure_config_path: Path = Path(
-        "config/infrastructure.yaml"
-    ),
-    dns_config_path: Path = Path(
-        "config/plugins/dns.yaml"
-    ),
+    application_config_path: Path = Path("config/shikamaru.yaml"),
+    infrastructure_config_path: Path = Path("config/infrastructure.yaml"),
+    dns_config_path: Path = Path("config/plugins/dns.yaml"),
     vision_client: VisionClient | None = None,
     clock: Clock | None = None,
 ) -> ProductionAgent:
     """Build the complete production Ohanna-Agent runtime."""
-    configuration = ConfigurationLoader.load(
-        application_config_path
-    )
+    configuration = ConfigurationLoader.load(application_config_path)
 
-    infrastructure_config = InfrastructureLoader().load(
-        infrastructure_config_path
-    )
-    infrastructure = InfrastructureBuilder().build(
-        infrastructure_config
-    )
-    infrastructure_runtime = (
-        InfrastructureRuntime.from_infrastructure(
-            infrastructure
-        )
-    )
+    infrastructure_config = InfrastructureLoader().load(infrastructure_config_path)
+    infrastructure = InfrastructureBuilder().build(infrastructure_config)
+    infrastructure_runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
-    dns_plugin_config = DNSConfigLoader().load(
-        dns_config_path
-    )
+    dns_plugin_config = DNSConfigLoader().load(dns_config_path)
     dns_config = DNSConfigurationBuilder().build(
         infrastructure,
         dns_plugin_config,
     )
 
-    enabled_servers = [
-        server
-        for server in dns_config.servers
-        if server.enabled
-    ]
+    enabled_servers = [server for server in dns_config.servers if server.enabled]
 
     if len(enabled_servers) != 1:
         raise ValueError(
-            "The first production deployment requires exactly "
-            "one enabled DNS server."
+            "The first production deployment requires exactly one enabled DNS server."
         )
 
     if not dns_config.queries:
         raise ValueError(
-            "The production DNS configuration must declare "
-            "at least one query."
+            "The production DNS configuration must declare at least one query."
         )
 
     event_bus = EventBus()
@@ -111,17 +87,12 @@ def build_production_agent(
     if resolved_vision_client is None:
         if not configuration.vision.enabled:
             raise ValueError(
-                "Ohanna-Vision export must be enabled "
-                "for the production bootstrap."
+                "Ohanna-Vision export must be enabled for the production bootstrap."
             )
 
         resolved_vision_client = HttpVisionClient(
-            observation_url=str(
-                configuration.vision.observation_url
-            ),
-            timeout_seconds=(
-                configuration.vision.timeout_seconds
-            ),
+            observation_url=str(configuration.vision.observation_url),
+            timeout_seconds=(configuration.vision.timeout_seconds),
         )
 
     export_handler = ObservationExportHandler(
@@ -199,17 +170,10 @@ def build_production_agent(
     for hostname in dns_config.queries:
         scheduler.add_task(
             Task(
-                name=(
-                    f"Resolve {hostname} through "
-                    f"{dns_server.name}"
-                ),
+                name=(f"Resolve {hostname} through {dns_server.name}"),
                 command="dns.resolve",
                 trigger=IntervalTrigger(
-                    interval=timedelta(
-                        seconds=(
-                            dns_plugin_config.interval_seconds
-                        )
-                    ),
+                    interval=timedelta(seconds=(dns_plugin_config.interval_seconds)),
                     start_at=start_at,
                 ),
                 arguments={

@@ -107,6 +107,7 @@ def test_application_tick_calls_scheduler() -> None:
 
     assert app.tick() == []
 
+
 def test_application_creates_default_memory() -> None:
     app = Application()
 
@@ -119,6 +120,7 @@ def test_application_uses_injected_memory() -> None:
     app = Application(memory=memory)
 
     assert app.memory is memory
+
 
 def test_application_memory_can_store_values() -> None:
     app = Application()
@@ -143,6 +145,7 @@ def test_application_persistent_memory() -> None:
 
     assert app.memory.get("device", scope=MemoryScope.PERSISTENT) == "pool"
 
+
 def test_application_creates_default_event_bus() -> None:
     app = Application()
 
@@ -155,6 +158,7 @@ def test_application_uses_injected_event_bus() -> None:
     app = Application(event_bus=event_bus)
 
     assert app.event_bus is event_bus
+
 
 def test_application_start_publishes_started_event() -> None:
     event_bus = EventBus()
@@ -201,10 +205,12 @@ def test_application_tick_publishes_ticked_event() -> None:
     assert len(received) == 1
     assert received[0].result is result
 
+
 def test_application_injects_event_bus_into_scheduler() -> None:
     app = Application()
 
     assert app.scheduler.event_bus is app.event_bus
+
 
 def test_application_scheduler_publishes_events_on_start() -> None:
     app = Application()

@@ -54,10 +54,7 @@ def test_invalid_transition_raises_error() -> None:
     with pytest.raises(InvalidStateTransitionError) as exc:
         lifecycle.transition_to(AgentState.RUNNING)
 
-    assert (
-        str(exc.value)
-        == "Invalid state transition: CREATED -> RUNNING"
-    )
+    assert str(exc.value) == "Invalid state transition: CREATED -> RUNNING"
 
 
 def test_can_transition_to_returns_true_for_valid_transition() -> None:

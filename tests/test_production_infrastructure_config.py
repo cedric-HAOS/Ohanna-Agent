@@ -4,9 +4,7 @@ from loader import InfrastructureLoader
 
 
 def test_production_infrastructure_declares_infra_01() -> None:
-    config = InfrastructureLoader().load(
-        Path("config/infrastructure.yaml")
-    )
+    config = InfrastructureLoader().load(Path("config/infrastructure.yaml"))
 
     assert len(config.nodes) == 1
 
@@ -17,9 +15,7 @@ def test_production_infrastructure_declares_infra_01() -> None:
 
 
 def test_production_infrastructure_declares_primary_dns() -> None:
-    config = InfrastructureLoader().load(
-        Path("config/infrastructure.yaml")
-    )
+    config = InfrastructureLoader().load(Path("config/infrastructure.yaml"))
 
     assert len(config.services) == 1
 

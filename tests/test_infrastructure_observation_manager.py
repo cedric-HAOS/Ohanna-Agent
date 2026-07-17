@@ -41,9 +41,7 @@ def test_observation_manager_applies_observation_to_service_runtime() -> None:
     node = Node(name="INFRA-01", services=[service])
     infrastructure = Infrastructure(name="Ohanna", nodes=[node])
 
-    runtime = InfrastructureRuntime.from_infrastructure(
-        infrastructure
-    )
+    runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     manager = ObservationManager(runtime=runtime)
 
@@ -55,9 +53,7 @@ def test_observation_manager_applies_observation_to_service_runtime() -> None:
 
     result = manager.record(observation)
 
-    service_runtime = runtime.get_service_runtime_by_type(
-        ServiceType.DNS
-    )
+    service_runtime = runtime.get_service_runtime_by_type(ServiceType.DNS)
 
     assert result is True
     assert service_runtime is not None
@@ -72,9 +68,7 @@ def test_observation_manager_applies_observation_to_node_runtime() -> None:
         nodes=[node],
     )
 
-    runtime = InfrastructureRuntime.from_infrastructure(
-        infrastructure
-    )
+    runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     manager = ObservationManager(runtime=runtime)
 
@@ -97,9 +91,7 @@ def test_observation_manager_applies_observation_to_node_runtime() -> None:
 def test_observation_manager_returns_false_for_unknown_target() -> None:
     infrastructure = Infrastructure(name="Ohanna")
 
-    runtime = InfrastructureRuntime.from_infrastructure(
-        infrastructure
-    )
+    runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     manager = ObservationManager(runtime=runtime)
 

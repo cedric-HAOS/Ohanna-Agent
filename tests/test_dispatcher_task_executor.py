@@ -35,7 +35,8 @@ class FakePluginObservationExecutor:
                 source=command.source,
             )
         )
-    
+
+
 class FakeDispatcher:
     def __init__(self) -> None:
         self.executed: list[tuple[str, dict[str, object]]] = []
@@ -104,8 +105,8 @@ def test_dispatcher_task_executor_handles_dispatcher_failure() -> None:
     assert task.last_error == "dispatcher failed"
     assert task.execution_count == 1
 
-def test_dispatcher_task_executor_executes_plugin_observation_command(
-) -> None:
+
+def test_dispatcher_task_executor_executes_plugin_observation_command() -> None:
     now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
 
     plugin_executor = FakePluginObservationExecutor()

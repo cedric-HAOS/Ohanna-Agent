@@ -32,15 +32,10 @@ class DNSPluginConfig(Config):
         services: list[str],
     ) -> list[str]:
         """Normalize and validate service identifiers."""
-        normalized_services = [
-            service.strip()
-            for service in services
-        ]
+        normalized_services = [service.strip() for service in services]
 
         if any(not service for service in normalized_services):
-            raise ValueError(
-                "DNS service identifiers must not be empty."
-            )
+            raise ValueError("DNS service identifiers must not be empty.")
 
         return normalized_services
 
@@ -51,14 +46,9 @@ class DNSPluginConfig(Config):
         queries: list[str],
     ) -> list[str]:
         """Normalize and validate DNS queries."""
-        normalized_queries = [
-            query.strip()
-            for query in queries
-        ]
+        normalized_queries = [query.strip() for query in queries]
 
         if any(not query for query in normalized_queries):
-            raise ValueError(
-                "DNS queries must not be empty."
-            )
+            raise ValueError("DNS queries must not be empty.")
 
         return normalized_queries

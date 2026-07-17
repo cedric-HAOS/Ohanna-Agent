@@ -98,9 +98,7 @@ def test_serialize_datetime_payload() -> None:
 
     serialized = publisher.serialize({"created_at": value})
 
-    assert json.loads(serialized) == {
-        "created_at": "2026-07-08T10:30:00+00:00"
-    }
+    assert json.loads(serialized) == {"created_at": "2026-07-08T10:30:00+00:00"}
 
 
 def test_serialize_nested_payload() -> None:

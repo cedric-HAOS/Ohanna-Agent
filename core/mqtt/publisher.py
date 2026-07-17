@@ -15,8 +15,7 @@ class MQTTBackendPublisher(Protocol):
         *,
         qos: int,
         retain: bool,
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 class MQTTPublisher:
@@ -55,10 +54,7 @@ class MQTTPublisher:
             return payload.value
 
         if isinstance(payload, dict):
-            return {
-                str(key): self._normalize(value)
-                for key, value in payload.items()
-            }
+            return {str(key): self._normalize(value) for key, value in payload.items()}
 
         if isinstance(payload, list | tuple | set):
             return [self._normalize(value) for value in payload]

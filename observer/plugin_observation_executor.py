@@ -27,16 +27,14 @@ class PluginObservationExecutor:
         """Execute a plugin and publish its resulting observation."""
         plugin = self.plugin_manager.get(plugin_name)
 
-        result = plugin.execute(
-            **(arguments or {})
-        )
+        result = plugin.execute(**(arguments or {}))
 
         return self.observation_engine.process_result(
             result,
             target_name=target_name,
             source=source,
         )
-    
+
     def execute_command(
         self,
         command: PluginCommand,

@@ -65,7 +65,7 @@ def build_engine() -> tuple[
         event_publisher=event_publisher,
     )
     result_mapper = ObserverResultMapper()
-    
+
     engine = ObservationEngine(
         health_manager=health_manager,
         mapper=mapper,
@@ -165,6 +165,7 @@ def test_observation_engine_rejects_unapplicable_update() -> None:
         )
 
     assert event_publisher.events == []
+
 
 def test_observation_engine_processes_observer_result() -> None:
     engine, runtime, _ = build_engine()

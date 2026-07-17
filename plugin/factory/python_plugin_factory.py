@@ -29,9 +29,7 @@ class PythonPluginFactory:
         plugin = create_plugin()
 
         if not isinstance(plugin, Plugin):
-            raise PluginLoadError(
-                f"Factory did not return a Plugin: {descriptor.name}"
-            )
+            raise PluginLoadError(f"Factory did not return a Plugin: {descriptor.name}")
 
         return plugin
 

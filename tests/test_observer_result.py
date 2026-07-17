@@ -84,6 +84,7 @@ def test_observer_result_stores_metadata() -> None:
     assert result.metadata["hostname"] == "example.com"
     assert result.metadata["address"] == "93.184.216.34"
 
+
 def test_observer_result_check_defaults_to_none() -> None:
     result = ObserverResult(success=True, latency=1.0)
 

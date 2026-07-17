@@ -136,7 +136,7 @@ class MemoryManager:
             )
 
         self._statistics.loads += 1
-    
+
     def _select_memory(
         self,
         scope: MemoryScope,

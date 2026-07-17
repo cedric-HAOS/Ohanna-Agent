@@ -92,8 +92,9 @@ def test_infrastructure_runtime_can_get_service_runtime() -> None:
     infrastructure = Infrastructure(name="Ohanna", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
-    assert runtime.get_service_runtime(service) is (
-        runtime.node_runtimes[0].service_runtimes[0]
+    assert (
+        runtime.get_service_runtime(service)
+        is (runtime.node_runtimes[0].service_runtimes[0])
     )
 
 
@@ -113,8 +114,9 @@ def test_infrastructure_runtime_can_get_service_runtime_by_type() -> None:
     infrastructure = Infrastructure(name="Ohanna", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
-    assert runtime.get_service_runtime_by_type(ServiceType.DNS) is (
-        runtime.node_runtimes[0].service_runtimes[0]
+    assert (
+        runtime.get_service_runtime_by_type(ServiceType.DNS)
+        is (runtime.node_runtimes[0].service_runtimes[0])
     )
 
 
@@ -125,6 +127,7 @@ def test_infrastructure_runtime_returns_none_for_unknown_service_runtime_type() 
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     assert runtime.get_service_runtime_by_type(ServiceType.MQTT) is None
+
 
 def test_infrastructure_runtime_can_get_node_runtime_for_service() -> None:
     dns_service = Service(name="DNS", type=ServiceType.DNS)
@@ -169,23 +172,18 @@ def test_infrastructure_runtime_can_get_node_runtime_for_service_type() -> None:
     )
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
-    node_runtime = runtime.get_node_runtime_for_service_type(
-        ServiceType.MQTT
-    )
+    node_runtime = runtime.get_node_runtime_for_service_type(ServiceType.MQTT)
 
     assert node_runtime is runtime.node_runtimes[1]
     assert node_runtime.node is mqtt_node
 
 
-def test_infrastructure_runtime_returns_none_for_unknown_service_type_owner(
-) -> None:
+def test_infrastructure_runtime_returns_none_for_unknown_service_type_owner() -> None:
     service = Service(name="DNS", type=ServiceType.DNS)
     node = Node(name="INFRA-01", services=[service])
     infrastructure = Infrastructure(name="Ohanna", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
-    node_runtime = runtime.get_node_runtime_for_service_type(
-        ServiceType.MQTT
-    )
+    node_runtime = runtime.get_node_runtime_for_service_type(ServiceType.MQTT)
 
     assert node_runtime is None

@@ -44,7 +44,8 @@ class FakePlugin(Plugin):
             latency=0.0,
             check="test",
         )
-   
+
+
 class FakeDiscovery:
     def __init__(self, descriptors) -> None:
         self._descriptors = descriptors
@@ -167,6 +168,7 @@ def test_plugin_manager_start_runs_full_pipeline() -> None:
     assert plugins == (plugin,)
     assert manager.has("dns") is True
     assert manager.runtime.state("dns") == PluginState.REGISTERED
+
 
 def test_plugin_manager_registers_dns_plugin() -> None:
     event_bus = FakeEventBus()

@@ -31,7 +31,7 @@ class PluginRuntime:
 
     def get_state(self, plugin_name: str) -> PluginState | None:
         return self._states.get(plugin_name)
-    
+
     def state(self, plugin_name: str) -> PluginState | None:
         """Return the runtime state of a plugin.
 

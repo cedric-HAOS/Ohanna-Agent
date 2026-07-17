@@ -15,6 +15,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+from pydantic import ValidationError
+
 from configuration.enums import Environment, LogLevel
 from configuration.loader import ConfigurationLoader
 
@@ -38,3 +41,47 @@ def test_load_shikamaru_configuration() -> None:
         "http://127.0.0.1:8000/api/observations"
     )
     assert configuration.vision.timeout_seconds == 5.0
+
+
+def test_configuration_accepts_schema_version_one(
+    tmp_path: Path,
+) -> None:
+    """Accept the supported configuration schema version."""
+    config_path = tmp_path / "shikamaru.yaml"
+    config_path.write_text(
+        "version: 1\n",
+        encoding="utf-8",
+    )
+
+    configuration = ConfigurationLoader.load(config_path)
+
+    assert configuration.version == 1
+
+
+def test_configuration_rejects_unknown_schema_version(
+    tmp_path: Path,
+) -> None:
+    """Reject a configuration schema version not supported by the agent."""
+    config_path = tmp_path / "shikamaru.yaml"
+    config_path.write_text(
+        "version: 2\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValidationError, match="version"):
+        ConfigurationLoader.load(config_path)
+
+
+def test_configuration_uses_schema_version_one_by_default(
+    tmp_path: Path,
+) -> None:
+    """Use schema version one when the version field is omitted."""
+    config_path = tmp_path / "shikamaru.yaml"
+    config_path.write_text(
+        "{}\n",
+        encoding="utf-8",
+    )
+
+    configuration = ConfigurationLoader.load(config_path)
+
+    assert configuration.version == 1

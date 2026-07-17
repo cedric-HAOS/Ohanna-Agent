@@ -111,8 +111,7 @@ class HttpVisionClient:
     ) -> str:
         """Build a useful HTTP failure message."""
         message = (
-            "Ohanna-Vision rejected the observation with HTTP status "
-            f"{status_code}."
+            f"Ohanna-Vision rejected the observation with HTTP status {status_code}."
         )
 
         if response_body:

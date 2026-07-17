@@ -20,8 +20,7 @@ class MQTTReconnectPolicy:
 
         if self.initial_delay_seconds > self.max_delay_seconds:
             raise ValueError(
-                "initial_delay_seconds must be less than or equal to "
-                "max_delay_seconds."
+                "initial_delay_seconds must be less than or equal to max_delay_seconds."
             )
 
     def get_delay(self, attempt: int) -> int:

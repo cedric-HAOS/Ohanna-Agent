@@ -162,10 +162,11 @@ def test_dns_check_adds_metadata() -> None:
     result = check.execute()
 
     assert result.metadata == {
-       "hostname": "example.com",
+        "hostname": "example.com",
         "server": "192.168.1.54",
         "address": "93.184.216.34",
     }
+
 
 def test_dns_check_has_name() -> None:
     resolver = FakeDNSResolver(
@@ -207,6 +208,7 @@ def test_dns_check_has_description() -> None:
     )
 
     assert check.description == "Resolve example.com using 192.168.1.54"
+
 
 def test_dns_check_adds_check_name_to_result() -> None:
     resolver = FakeDNSResolver(

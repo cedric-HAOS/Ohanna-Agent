@@ -23,6 +23,7 @@ class FakePlugin(Plugin):
             check="test",
         )
 
+
 class FakeFactory:
     def __init__(self) -> None:
         self.created_descriptors = []

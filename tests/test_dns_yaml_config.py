@@ -12,9 +12,7 @@ def test_dns_yaml_exists() -> None:
 def test_dns_yaml_references_infrastructure_services() -> None:
     path = Path("config/plugins/dns.yaml")
 
-    data = yaml.safe_load(
-        path.read_text(encoding="utf-8")
-    )
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
 
     assert data["services"] == ["dns-primary"]
 
@@ -22,9 +20,7 @@ def test_dns_yaml_references_infrastructure_services() -> None:
 def test_dns_yaml_declares_queries_and_policy() -> None:
     path = Path("config/plugins/dns.yaml")
 
-    data = yaml.safe_load(
-        path.read_text(encoding="utf-8")
-    )
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
 
     assert data["queries"] == [
         "example.com",

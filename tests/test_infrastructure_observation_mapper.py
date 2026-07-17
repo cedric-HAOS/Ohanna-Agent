@@ -109,6 +109,7 @@ def test_mapper_copies_update_metadata() -> None:
 
     assert observation.metadata == {"server": "192.168.1.54"}
 
+
 def test_mapper_maps_service_update_from_runtime_context() -> None:
     service = Service(
         name="dns-primary",

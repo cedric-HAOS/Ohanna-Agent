@@ -6,9 +6,7 @@ import yaml
 def test_real_infrastructure_yaml_declares_dns_service() -> None:
     path = Path("config/infrastructure.yaml")
 
-    data = yaml.safe_load(
-        path.read_text(encoding="utf-8")
-    )
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
 
     node = data["nodes"][0]
     service = data["services"][0]

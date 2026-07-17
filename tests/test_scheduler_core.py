@@ -171,6 +171,7 @@ def test_scheduler_tick_executes_due_tasks_when_running() -> None:
     assert results[0].success is True
     assert task.execution_count == 1
 
+
 def test_scheduler_tick_executes_due_tasks_by_priority() -> None:
     now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
     scheduler = Scheduler(clock=FakeClock(now))
@@ -198,6 +199,7 @@ def test_scheduler_tick_executes_due_tasks_by_priority() -> None:
         "backup.run",
     ]
 
+
 def test_scheduler_tick_uses_configured_executor() -> None:
     now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
     scheduler = Scheduler(
@@ -216,6 +218,7 @@ def test_scheduler_tick_uses_configured_executor() -> None:
     assert results[0].success is False
     assert results[0].error == "boom"
     assert task.last_error == "boom"
+
 
 def test_scheduler_start_updates_runtime() -> None:
     now = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)

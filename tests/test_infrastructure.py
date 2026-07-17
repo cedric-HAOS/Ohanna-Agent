@@ -39,6 +39,7 @@ def test_infrastructure_returns_none_for_unknown_node() -> None:
 
     assert infrastructure.get_node("UNKNOWN") is None
 
+
 def test_infrastructure_can_find_service_by_type() -> None:
     infrastructure = Infrastructure(name="Ohanna")
     node = Node(name="INFRA-01")

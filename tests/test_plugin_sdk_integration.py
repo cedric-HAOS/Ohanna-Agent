@@ -26,7 +26,7 @@ def test_plugin_sdk_end_to_end(tmp_path) -> None:
     )
 
     (echo_dir / "plugin.py").write_text(
-        '''
+        """
 from plugin.plugin import Plugin
 from plugin.plugin_manifest import PluginManifest
 from observer.observer_result import ObserverResult
@@ -56,7 +56,7 @@ class EchoPlugin(Plugin):
 
 def create_plugin():
     return EchoPlugin()
-''',
+""",
         encoding="utf-8",
     )
 
@@ -72,11 +72,7 @@ def create_plugin():
         runtime=object(),
     )
 
-    discovery = PluginDiscovery(
-        (
-            LocalDirectoryProvider(plugins_dir),
-        )
-    )
+    discovery = PluginDiscovery((LocalDirectoryProvider(plugins_dir),))
 
     manager = PluginManager(
         context=context,
@@ -93,9 +89,7 @@ def create_plugin():
 
     assert manager.count == 1
 
-    assert manager.runtime.get_state(
-        "echo"
-    ) == PluginState.REGISTERED
+    assert manager.runtime.get_state("echo") == PluginState.REGISTERED
 
     assert manager.has("echo")
 

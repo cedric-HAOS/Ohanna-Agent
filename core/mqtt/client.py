@@ -20,11 +20,9 @@ class MQTTClientNotConnectedError(MQTTClientError):
 
 
 class MQTTTransport(Protocol):
-    async def connect(self) -> None:
-        ...
+    async def connect(self) -> None: ...
 
-    async def disconnect(self) -> None:
-        ...
+    async def disconnect(self) -> None: ...
 
 
 class MQTTPublisher(Protocol):
@@ -35,16 +33,13 @@ class MQTTPublisher(Protocol):
         *,
         qos: int,
         retain: bool,
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 class MQTTSubscriber(Protocol):
-    async def subscribe(self, topic: str) -> None:
-        ...
+    async def subscribe(self, topic: str) -> None: ...
 
-    async def unsubscribe(self, topic: str) -> None:
-        ...
+    async def unsubscribe(self, topic: str) -> None: ...
 
 
 class MQTTClient:

@@ -164,9 +164,7 @@ def test_disconnect_is_safe_when_already_disconnected() -> None:
 
 
 def test_publish_delegates_to_publisher() -> None:
-    client, _, publisher, _ = make_client(
-        DummyMQTTConfig(qos=1, retain=True)
-    )
+    client, _, publisher, _ = make_client(DummyMQTTConfig(qos=1, retain=True))
 
     asyncio.run(client.connect())
     asyncio.run(

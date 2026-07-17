@@ -33,6 +33,7 @@ class FakePluginObservationExecutor:
 
         return ObservationPublished(observation=observation)
 
+
 def test_dispatcher_dispatches_plugin_command() -> None:
     executor = FakePluginObservationExecutor()
     dispatcher = PluginObservationDispatcher(executor=executor)
@@ -67,6 +68,7 @@ def test_dispatcher_accepts_none_arguments() -> None:
     dispatcher.execute("dns.resolve")
 
     assert executor.commands[0].arguments == {}
+
 
 @pytest.mark.parametrize(
     "command",

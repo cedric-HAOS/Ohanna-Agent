@@ -29,11 +29,9 @@ class MQTTLastWill:
 
 
 class MQTTNetworkBackend(Protocol):
-    async def connect(self) -> None:
-        ...
+    async def connect(self) -> None: ...
 
-    async def disconnect(self) -> None:
-        ...
+    async def disconnect(self) -> None: ...
 
     async def publish(
         self,
@@ -42,14 +40,11 @@ class MQTTNetworkBackend(Protocol):
         *,
         qos: int,
         retain: bool,
-    ) -> None:
-        ...
+    ) -> None: ...
 
-    async def subscribe(self, topic: str) -> None:
-        ...
+    async def subscribe(self, topic: str) -> None: ...
 
-    async def unsubscribe(self, topic: str) -> None:
-        ...
+    async def unsubscribe(self, topic: str) -> None: ...
 
 
 class MQTTTransport:
@@ -123,6 +118,4 @@ class MQTTTransport:
 
     def _ensure_connected(self) -> None:
         if not self.is_connected:
-            raise MQTTTransportNotConnectedError(
-                "MQTT transport is not connected."
-            )
+            raise MQTTTransportNotConnectedError("MQTT transport is not connected.")

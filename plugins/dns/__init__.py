@@ -31,5 +31,5 @@ __all__ = [
     "DNSServer",
     "DNSCapabilityRuntime",
     "DNSServerRuntime",
-    "ConfiguredDNSCheck"
+    "ConfiguredDNSCheck",
 ]

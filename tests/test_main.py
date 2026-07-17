@@ -2,12 +2,14 @@ import logging
 import signal
 import sys
 from dataclasses import dataclass
+from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 
 import pytest
 
 from main import (
     configure_logging,
+    get_application_version,
     install_signal_handlers,
     parse_arguments,
 )
@@ -22,6 +24,7 @@ class FakeProductionAgent:
     def request_stop(self) -> None:
         self.stop_requested = True
 
+
 def test_parse_arguments_uses_default_configuration_paths(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -33,15 +36,9 @@ def test_parse_arguments_uses_default_configuration_paths(
 
     arguments = parse_arguments()
 
-    assert arguments.config == Path(
-        "config/shikamaru.yaml"
-    )
-    assert arguments.infrastructure == Path(
-        "config/infrastructure.yaml"
-    )
-    assert arguments.dns_config == Path(
-        "config/plugins/dns.yaml"
-    )
+    assert arguments.config == Path("config/shikamaru.yaml")
+    assert arguments.infrastructure == Path("config/infrastructure.yaml")
+    assert arguments.dns_config == Path("config/plugins/dns.yaml")
     assert arguments.log_level == "INFO"
 
 
@@ -66,16 +63,11 @@ def test_parse_arguments_accepts_custom_paths(
 
     arguments = parse_arguments()
 
-    assert arguments.config == Path(
-        "custom/application.yaml"
-    )
-    assert arguments.infrastructure == Path(
-        "custom/infrastructure.yaml"
-    )
-    assert arguments.dns_config == Path(
-        "custom/dns.yaml"
-    )
+    assert arguments.config == Path("custom/application.yaml")
+    assert arguments.infrastructure == Path("custom/infrastructure.yaml")
+    assert arguments.dns_config == Path("custom/dns.yaml")
     assert arguments.log_level == "DEBUG"
+
 
 @pytest.mark.parametrize(
     "level",
@@ -97,10 +89,12 @@ def test_configure_logging_accepts_known_level(
         level,
     )
 
+
 def test_configure_logging_accepts_lowercase_level() -> None:
     configure_logging("debug")
 
     assert logging.getLogger().level == logging.DEBUG
+
 
 def test_configure_logging_rejects_unknown_level() -> None:
     with pytest.raises(
@@ -108,6 +102,7 @@ def test_configure_logging_rejects_unknown_level() -> None:
         match="Unsupported logging level",
     ):
         configure_logging("TRACE")
+
 
 def test_parse_arguments_rejects_invalid_log_level(
     monkeypatch: pytest.MonkeyPatch,
@@ -124,6 +119,7 @@ def test_parse_arguments_rejects_invalid_log_level(
 
     with pytest.raises(SystemExit):
         parse_arguments()
+
 
 def test_install_signal_handlers_registers_sigint_and_sigterm(
     monkeypatch: pytest.MonkeyPatch,
@@ -151,6 +147,7 @@ def test_install_signal_handlers_registers_sigint_and_sigterm(
 
     assert signal.SIGINT in registered_handlers
     assert signal.SIGTERM in registered_handlers
+
 
 def test_signal_handler_requests_agent_stop(
     monkeypatch: pytest.MonkeyPatch,
@@ -186,3 +183,155 @@ def test_signal_handler_requests_agent_stop(
     )
 
     assert agent.stop_requested is True
+
+
+def test_main_builds_and_runs_production_agent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[object] = []
+
+    class FakeAgent:
+        def run(self) -> None:
+            calls.append("run")
+
+        def request_stop(self) -> None:
+            pass
+
+    fake_agent = FakeAgent()
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "ohanna-agent",
+            "--config",
+            "custom/application.yaml",
+            "--infrastructure",
+            "custom/infrastructure.yaml",
+            "--dns-config",
+            "custom/dns.yaml",
+            "--log-level",
+            "DEBUG",
+        ],
+    )
+
+    def fake_configure_logging(level: str) -> None:
+        calls.append(
+            (
+                "configure_logging",
+                level,
+            )
+        )
+
+    def fake_build_production_agent(
+        *,
+        application_config_path: Path,
+        infrastructure_config_path: Path,
+        dns_config_path: Path,
+    ) -> FakeAgent:
+        calls.append(
+            (
+                "build_production_agent",
+                application_config_path,
+                infrastructure_config_path,
+                dns_config_path,
+            )
+        )
+        return fake_agent
+
+    def fake_install_signal_handlers(
+        agent: object,
+    ) -> None:
+        calls.append(
+            (
+                "install_signal_handlers",
+                agent,
+            )
+        )
+
+    monkeypatch.setattr(
+        "main.configure_logging",
+        fake_configure_logging,
+    )
+    monkeypatch.setattr(
+        "main.build_production_agent",
+        fake_build_production_agent,
+    )
+    monkeypatch.setattr(
+        "main.install_signal_handlers",
+        fake_install_signal_handlers,
+    )
+
+    from main import main
+
+    result = main()
+
+    assert result == 0
+    assert calls == [
+        (
+            "configure_logging",
+            "DEBUG",
+        ),
+        (
+            "build_production_agent",
+            Path("custom/application.yaml"),
+            Path("custom/infrastructure.yaml"),
+            Path("custom/dns.yaml"),
+        ),
+        (
+            "install_signal_handlers",
+            fake_agent,
+        ),
+        "run",
+    ]
+
+
+def test_get_application_version_returns_installed_version(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "main.package_version",
+        lambda package_name: "0.14.0",
+    )
+
+    assert get_application_version() == "0.14.0"
+
+
+def test_get_application_version_returns_unknown_when_package_is_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def raise_package_not_found(
+        package_name: str,
+    ) -> str:
+        raise PackageNotFoundError(package_name)
+
+    monkeypatch.setattr(
+        "main.package_version",
+        raise_package_not_found,
+    )
+
+    assert get_application_version() == "unknown"
+
+
+def test_parse_arguments_displays_version(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr(
+        "main.get_application_version",
+        lambda: "0.14.0",
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "ohanna-agent",
+            "--version",
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc_info:
+        parse_arguments()
+
+    assert exc_info.value.code == 0
+    assert capsys.readouterr().out.strip() == ("ohanna-agent 0.14.0")

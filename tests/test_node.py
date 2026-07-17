@@ -34,6 +34,7 @@ def test_node_can_add_service() -> None:
 
     assert node.services == [service]
 
+
 def test_node_can_get_endpoint_by_type() -> None:
     node = Node(name="INFRA-01")
     endpoint = Endpoint(type=EndpointType.IP, address="192.168.1.10")

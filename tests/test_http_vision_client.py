@@ -103,15 +103,11 @@ def build_payload() -> dict[str, Any]:
 
 def test_http_client_can_be_created() -> None:
     client = HttpVisionClient(
-        observation_url=(
-            "http://127.0.0.1:8000/api/observations"
-        ),
+        observation_url=("http://127.0.0.1:8000/api/observations"),
         timeout_seconds=3.0,
     )
 
-    assert client.observation_url == (
-        "http://127.0.0.1:8000/api/observations"
-    )
+    assert client.observation_url == ("http://127.0.0.1:8000/api/observations")
     assert client.timeout_seconds == 3.0
 
 
@@ -129,9 +125,7 @@ def test_http_client_rejects_invalid_timeout() -> None:
         match="timeout_seconds must be greater than zero",
     ):
         HttpVisionClient(
-            observation_url=(
-                "http://127.0.0.1:8000/api/observations"
-            ),
+            observation_url=("http://127.0.0.1:8000/api/observations"),
             timeout_seconds=0,
         )
 
@@ -139,9 +133,7 @@ def test_http_client_rejects_invalid_timeout() -> None:
 def test_http_client_posts_json_observation() -> None:
     with run_test_server() as server_url:
         client = HttpVisionClient(
-            observation_url=(
-                f"{server_url}/api/observations"
-            ),
+            observation_url=(f"{server_url}/api/observations"),
         )
 
         client.send_observation(build_payload())
@@ -151,9 +143,7 @@ def test_http_client_posts_json_observation() -> None:
     request = VisionRequestHandler.requests[0]
 
     assert request["path"] == "/api/observations"
-    assert request["headers"]["Content-Type"] == (
-        "application/json"
-    )
+    assert request["headers"]["Content-Type"] == ("application/json")
     assert request["headers"]["Accept"] == "application/json"
     assert json.loads(request["body"]) == build_payload()
 
@@ -161,9 +151,7 @@ def test_http_client_posts_json_observation() -> None:
 def test_http_client_accepts_202_response() -> None:
     with run_test_server(response_status=202) as server_url:
         client = HttpVisionClient(
-            observation_url=(
-                f"{server_url}/api/observations"
-            ),
+            observation_url=(f"{server_url}/api/observations"),
         )
 
         result = client.send_observation(build_payload())
@@ -177,9 +165,7 @@ def test_http_client_reports_http_error() -> None:
         response_body=b'{"detail":"Invalid observation"}',
     ) as server_url:
         client = HttpVisionClient(
-            observation_url=(
-                f"{server_url}/api/observations"
-            ),
+            observation_url=(f"{server_url}/api/observations"),
         )
 
         with pytest.raises(
@@ -194,9 +180,7 @@ def test_http_client_reports_http_error() -> None:
 def test_http_client_rejects_unexpected_success_status() -> None:
     with run_test_server(response_status=200) as server_url:
         client = HttpVisionClient(
-            observation_url=(
-                f"{server_url}/api/observations"
-            ),
+            observation_url=(f"{server_url}/api/observations"),
         )
 
         with pytest.raises(
@@ -208,9 +192,7 @@ def test_http_client_rejects_unexpected_success_status() -> None:
 
 def test_http_client_reports_unavailable_server() -> None:
     client = HttpVisionClient(
-        observation_url=(
-            "http://127.0.0.1:1/api/observations"
-        ),
+        observation_url=("http://127.0.0.1:1/api/observations"),
         timeout_seconds=0.2,
     )
 
@@ -223,9 +205,7 @@ def test_http_client_reports_unavailable_server() -> None:
 
 def test_http_client_rejects_non_json_payload() -> None:
     client = HttpVisionClient(
-        observation_url=(
-            "http://127.0.0.1:8000/api/observations"
-        ),
+        observation_url=("http://127.0.0.1:8000/api/observations"),
     )
     payload = build_payload()
     payload["metadata"] = {
@@ -238,11 +218,10 @@ def test_http_client_rejects_non_json_payload() -> None:
     ):
         client.send_observation(payload)
 
+
 def test_http_client_implements_vision_client_protocol() -> None:
     client = HttpVisionClient(
-        observation_url=(
-            "http://127.0.0.1:8000/api/observations"
-        ),
+        observation_url=("http://127.0.0.1:8000/api/observations"),
     )
 
     assert isinstance(client, VisionClient)

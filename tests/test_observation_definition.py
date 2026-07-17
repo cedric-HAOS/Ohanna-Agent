@@ -35,6 +35,7 @@ def test_observation_stores_check() -> None:
 
     assert observation.check is check
 
+
 def test_observation_default_enabled() -> None:
     observation = ObservationDefinition(
         id="dns-google",
@@ -44,6 +45,7 @@ def test_observation_default_enabled() -> None:
 
     assert observation.enabled is True
 
+
 def test_observation_default_retries() -> None:
     observation = ObservationDefinition(
         id="dns-google",
@@ -52,6 +54,7 @@ def test_observation_default_retries() -> None:
     )
 
     assert observation.retries == 0
+
 
 def test_observation_default_runtime() -> None:
     observation = ObservationDefinition(

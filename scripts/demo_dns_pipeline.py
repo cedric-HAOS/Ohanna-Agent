@@ -78,35 +78,24 @@ class DemoVisionClient:
 def parse_arguments() -> argparse.Namespace:
     """Parse demonstration command-line arguments."""
     parser = argparse.ArgumentParser(
-        description=(
-            "Execute a real DNS query using Ohanna-Agent YAML configuration."
-        )
+        description=("Execute a real DNS query using Ohanna-Agent YAML configuration.")
     )
 
     parser.add_argument(
         "--infrastructure",
         type=Path,
         default=Path("config/infrastructure.yaml"),
-        help=(
-            "Infrastructure YAML file. "
-            "Default: config/infrastructure.yaml"
-        ),
+        help=("Infrastructure YAML file. Default: config/infrastructure.yaml"),
     )
     parser.add_argument(
         "--dns-config",
         type=Path,
         default=Path("config/plugins/dns.yaml"),
-        help=(
-            "DNS plugin YAML file. "
-            "Default: config/plugins/dns.yaml"
-        ),
+        help=("DNS plugin YAML file. Default: config/plugins/dns.yaml"),
     )
     parser.add_argument(
         "--hostname",
-        help=(
-            "Hostname to resolve. "
-            "Defaults to the first query declared in dns.yaml."
-        ),
+        help=("Hostname to resolve. Defaults to the first query declared in dns.yaml."),
     )
 
     return parser.parse_args()
@@ -144,30 +133,18 @@ def main() -> int:
     print("=" * 72)
 
     # Load the infrastructure source of truth.
-    infrastructure_config = InfrastructureLoader().load(
-        arguments.infrastructure
-    )
-    infrastructure = InfrastructureBuilder().build(
-        infrastructure_config
-    )
-    infrastructure_runtime = InfrastructureRuntime.from_infrastructure(
-        infrastructure
-    )
+    infrastructure_config = InfrastructureLoader().load(arguments.infrastructure)
+    infrastructure = InfrastructureBuilder().build(infrastructure_config)
+    infrastructure_runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     # Load the DNS plugin policy and resolve its infrastructure services.
-    dns_plugin_config = DNSConfigLoader().load(
-        arguments.dns_config
-    )
+    dns_plugin_config = DNSConfigLoader().load(arguments.dns_config)
     dns_config = DNSConfigurationBuilder().build(
         infrastructure,
         dns_plugin_config,
     )
 
-    enabled_servers = [
-        server
-        for server in dns_config.servers
-        if server.enabled
-    ]
+    enabled_servers = [server for server in dns_config.servers if server.enabled]
 
     if not enabled_servers:
         print("ERROR: no enabled DNS server was resolved from configuration.")
@@ -302,10 +279,8 @@ def main() -> int:
     if payload["metadata"]["error"]:
         print(f"Error      : {payload['metadata']['error']}")
 
-    service_runtime = (
-        infrastructure_runtime.get_service_runtime_by_type(
-            ServiceType.DNS
-        )
+    service_runtime = infrastructure_runtime.get_service_runtime_by_type(
+        ServiceType.DNS
     )
 
     if service_runtime is None:

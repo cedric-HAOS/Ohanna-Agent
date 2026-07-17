@@ -105,6 +105,7 @@ def test_task_can_be_disabled_and_enabled() -> None:
     assert task.enabled is True
     assert task.state == TaskState.IDLE
 
+
 def test_task_has_default_priority() -> None:
     trigger = IntervalTrigger(timedelta(seconds=30))
     task = Task(command="health.check", trigger=trigger)

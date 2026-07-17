@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import logging
 import signal
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
 from pathlib import Path
 from types import FrameType
 
@@ -12,10 +14,23 @@ from bootstrap import build_production_agent
 from production_agent import ProductionAgent
 
 
+def get_application_version() -> str:
+    """Return the installed Ohanna-Agent package version."""
+    try:
+        return package_version("ohanna-agent")
+    except PackageNotFoundError:
+        return "unknown"
+
+
 def parse_arguments() -> argparse.Namespace:
     """Parse Ohanna-Agent command-line arguments."""
     parser = argparse.ArgumentParser(
         description="Run Ohanna-Agent.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {get_application_version()}",
     )
     parser.add_argument(
         "--config",
@@ -62,20 +77,14 @@ def configure_logging(level: str) -> None:
         "ERROR",
         "CRITICAL",
     }:
-        raise ValueError(
-            f"Unsupported logging level: {level!r}."
-        )
+        raise ValueError(f"Unsupported logging level: {level!r}.")
 
     logging.basicConfig(
         level=getattr(
             logging,
             normalized_level,
         ),
-        format=(
-            "%(asctime)s "
-            "%(levelname)s "
-            "%(name)s — %(message)s"
-        ),
+        format=("%(asctime)s %(levelname)s %(name)s — %(message)s"),
         force=True,
     )
 
@@ -102,11 +111,10 @@ def install_signal_handlers(
     )
 
 
-
 def main() -> int:
     """Build and run Ohanna-Agent."""
     arguments = parse_arguments()
-    
+
     configure_logging(arguments.log_level)
 
     agent = build_production_agent(

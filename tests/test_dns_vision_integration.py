@@ -74,9 +74,9 @@ def test_dns_observation_is_exported_to_vision_client() -> None:
     vision_client = FakeVisionClient()
 
     vision_exporter = VisionObservationExporter(
-    client=vision_client,
-    mapper=VisionObservationMapper(),
-)
+        client=vision_client,
+        mapper=VisionObservationMapper(),
+    )
     export_pipeline = ObservationExportPipeline(
         exporters=[vision_exporter],
     )
@@ -101,9 +101,7 @@ def test_dns_observation_is_exported_to_vision_client() -> None:
         name="Ohanna",
         nodes=[node],
     )
-    runtime = InfrastructureRuntime.from_infrastructure(
-        infrastructure
-    )
+    runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     observation_engine = ObservationEngine(
         health_manager=InfrastructureHealthManager(
@@ -153,9 +151,7 @@ def test_dns_observation_is_exported_to_vision_client() -> None:
     assert payload["service_id"] == "dns-primary"
     assert payload["capability_id"] == "dns.resolve"
     assert payload["status"] == "healthy"
-    assert payload["observed_at"] == (
-        event.observation.timestamp.isoformat()
-    )
+    assert payload["observed_at"] == (event.observation.timestamp.isoformat())
     assert payload["latency_ms"] == event.observation.latency_ms
 
     assert payload["metadata"] == {
@@ -167,8 +163,6 @@ def test_dns_observation_is_exported_to_vision_client() -> None:
             "id": str(event.observation.id),
             "source": "dns.resolve",
             "success": True,
-            "message": (
-                "DNS resolution succeeded for example.com."
-            ),
+            "message": ("DNS resolution succeeded for example.com."),
         },
     }

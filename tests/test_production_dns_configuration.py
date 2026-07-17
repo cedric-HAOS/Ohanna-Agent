@@ -11,12 +11,8 @@ def test_production_dns_service_resolves_to_infra_01() -> None:
     infrastructure_config = InfrastructureLoader().load(
         Path("config/infrastructure.yaml")
     )
-    infrastructure = InfrastructureBuilder().build(
-        infrastructure_config
-    )
-    plugin_config = DNSConfigLoader().load(
-        Path("config/plugins/dns.yaml")
-    )
+    infrastructure = InfrastructureBuilder().build(infrastructure_config)
+    plugin_config = DNSConfigLoader().load(Path("config/plugins/dns.yaml"))
 
     dns_config = DNSConfigurationBuilder().build(
         infrastructure,
@@ -33,9 +29,7 @@ def test_production_dns_service_resolves_to_infra_01() -> None:
 
 
 def test_production_dns_configuration_has_one_query() -> None:
-    plugin_config = DNSConfigLoader().load(
-        Path("config/plugins/dns.yaml")
-    )
+    plugin_config = DNSConfigLoader().load(Path("config/plugins/dns.yaml"))
 
     assert plugin_config.services == ["dns-primary"]
     assert plugin_config.queries == ["example.com"]

@@ -51,10 +51,7 @@ class RuntimeMemory:
 
     def items(self) -> list[tuple[str, Any]]:
         """Return (key, value) pairs."""
-        return [
-            (entry.key, entry.value)
-            for entry in self._entries.values()
-        ]
+        return [(entry.key, entry.value) for entry in self._entries.values()]
 
     def __contains__(self, key: object) -> bool:
         """Support 'in' operator."""

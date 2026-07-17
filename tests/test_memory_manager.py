@@ -143,6 +143,7 @@ def test_manager_preserves_runtime_scope() -> None:
 
     assert entry.scope is MemoryScope.RUNTIME
 
+
 def test_manager_set_session_value() -> None:
     manager = MemoryManager()
 
@@ -206,10 +207,12 @@ def test_manager_preserves_session_scope() -> None:
     manager.set("a", 1, scope=MemoryScope.SESSION)
 
     session_entries = [
-        entry for entry in manager._session_memory  # noqa: SLF001
+        entry
+        for entry in manager._session_memory  # noqa: SLF001
     ]
 
     assert session_entries[0].scope is MemoryScope.SESSION
+
 
 def test_manager_set_persistent_value() -> None:
     manager = MemoryManager()
@@ -278,10 +281,12 @@ def test_manager_preserves_persistent_scope() -> None:
     manager.set("a", 1, scope=MemoryScope.PERSISTENT)
 
     persistent_entries = [
-        entry for entry in manager._persistent_memory  # noqa: SLF001
+        entry
+        for entry in manager._persistent_memory  # noqa: SLF001
     ]
 
     assert persistent_entries[0].scope is MemoryScope.PERSISTENT
+
 
 def test_save_persistent_without_storage_does_not_fail() -> None:
     manager = MemoryManager()
@@ -390,6 +395,7 @@ def test_load_persistent_does_not_touch_runtime_or_session(tmp_path) -> None:
     assert manager.get("session", scope=MemoryScope.SESSION) == 2
     assert manager.get("persistent", scope=MemoryScope.PERSISTENT) == 3
 
+
 def test_manager_routes_all_supported_scopes() -> None:
     manager = MemoryManager()
 
@@ -401,10 +407,12 @@ def test_manager_routes_all_supported_scopes() -> None:
     assert manager.get("session", scope=MemoryScope.SESSION) == 2
     assert manager.get("persistent", scope=MemoryScope.PERSISTENT) == 3
 
+
 def test_manager_exposes_statistics() -> None:
     manager = MemoryManager()
 
     assert manager.statistics.sets == 0
+
 
 def test_manager_statistics_count_sets() -> None:
     manager = MemoryManager()
@@ -414,6 +422,7 @@ def test_manager_statistics_count_sets() -> None:
 
     assert manager.statistics.sets == 2
 
+
 def test_manager_statistics_count_hits() -> None:
     manager = MemoryManager()
 
@@ -422,12 +431,14 @@ def test_manager_statistics_count_hits() -> None:
 
     assert manager.statistics.hits == 1
 
+
 def test_manager_statistics_count_misses() -> None:
     manager = MemoryManager()
 
     manager.get("missing")
 
     assert manager.statistics.misses == 1
+
 
 def test_manager_statistics_count_deletes() -> None:
     manager = MemoryManager()
@@ -436,12 +447,14 @@ def test_manager_statistics_count_deletes() -> None:
 
     assert manager.statistics.deletes == 1
 
+
 def test_manager_statistics_count_clears() -> None:
     manager = MemoryManager()
 
     manager.clear()
 
     assert manager.statistics.clears == 1
+
 
 def test_manager_statistics_count_saves(tmp_path) -> None:
     storage = MemoryStorage(tmp_path / "memory.json")
@@ -451,12 +464,14 @@ def test_manager_statistics_count_saves(tmp_path) -> None:
 
     assert manager.statistics.saves == 1
 
+
 def test_manager_statistics_does_not_count_save_without_storage() -> None:
     manager = MemoryManager()
 
     manager.save_persistent()
 
     assert manager.statistics.saves == 0
+
 
 def test_manager_statistics_count_loads(tmp_path) -> None:
     storage = MemoryStorage(tmp_path / "memory.json")
@@ -465,6 +480,7 @@ def test_manager_statistics_count_loads(tmp_path) -> None:
     manager.load_persistent()
 
     assert manager.statistics.loads == 1
+
 
 def test_manager_statistics_does_not_count_load_without_storage() -> None:
     manager = MemoryManager()

@@ -47,9 +47,7 @@ def test_dns_plugin_manifest() -> None:
 
     assert manifest.name == "dns"
     assert manifest.version == "0.1.0"
-    assert manifest.description == (
-        "DNS capability plugin for Ohanna-Agent."
-    )
+    assert manifest.description == ("DNS capability plugin for Ohanna-Agent.")
 
 
 def test_dns_plugin_register_sets_registered_state() -> None:

@@ -21,11 +21,7 @@ class ObserverResultMapper:
         if not target_name:
             raise ValueError("target_name must not be empty.")
 
-        health = (
-            HealthStatus.HEALTHY
-            if result.success
-            else HealthStatus.UNHEALTHY
-        )
+        health = HealthStatus.HEALTHY if result.success else HealthStatus.UNHEALTHY
 
         resolved_source = source or result.check
 

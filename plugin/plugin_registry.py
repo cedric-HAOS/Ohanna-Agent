@@ -34,25 +34,19 @@ class PluginRegistry:
         name = plugin.manifest.name
 
         if name in self:
-            raise PluginAlreadyLoadedError(
-                f"Plugin already loaded: {name}"
-            )
+            raise PluginAlreadyLoadedError(f"Plugin already loaded: {name}")
 
         self._plugins[name] = plugin
 
     def remove(self, name: str) -> None:
         if name not in self:
-            raise PluginNotFoundError(
-                f"Plugin not found: {name}"
-            )
+            raise PluginNotFoundError(f"Plugin not found: {name}")
 
         del self._plugins[name]
 
     def get(self, name: str) -> Plugin:
         if name not in self:
-            raise PluginNotFoundError(
-                f"Plugin not found: {name}"
-            )
+            raise PluginNotFoundError(f"Plugin not found: {name}")
 
         return self._plugins[name]
 

@@ -36,8 +36,8 @@ class EchoPlugin(Plugin):
 def create_plugin():
     return EchoPlugin()
 """,
-    encoding="utf-8",
-)
+        encoding="utf-8",
+    )
 
     factory = PythonPluginFactory()
     descriptor = PluginDescriptor(name="echo", path=plugin_dir)

@@ -112,9 +112,7 @@ class PluginManager:
     def unregister(self, name: str) -> None:
         """Unregister a plugin."""
         if not self._registry.has(name):
-            raise PluginNotFoundError(
-                f"Plugin not found: {name}"
-            )
+            raise PluginNotFoundError(f"Plugin not found: {name}")
 
         self._registry.remove(name)
 

@@ -32,10 +32,7 @@ class MemorySerializer:
         entries: list[MemoryEntry],
     ) -> dict[str, dict[str, Any]]:
         """Serialize memory entries indexed by key."""
-        return {
-            entry.key: self.serialize_entry(entry)
-            for entry in entries
-        }
+        return {entry.key: self.serialize_entry(entry) for entry in entries}
 
     def deserialize_entries(
         self,
@@ -43,6 +40,5 @@ class MemorySerializer:
     ) -> list[MemoryEntry]:
         """Deserialize memory entries."""
         return [
-            self.deserialize_entry(entry_payload)
-            for entry_payload in payload.values()
+            self.deserialize_entry(entry_payload) for entry_payload in payload.values()
         ]

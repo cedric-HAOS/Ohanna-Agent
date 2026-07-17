@@ -19,6 +19,7 @@ class FakeDNSCheck:
         self.server = server
         return self.result
 
+
 def test_dns_server_exposes_config_values() -> None:
     server = DNSServer(
         DNSServerConfig(
@@ -45,6 +46,7 @@ def test_dns_server_can_be_disabled_from_config() -> None:
     assert server.address == "192.168.1.55"
     assert server.enabled is False
 
+
 def test_dns_server_has_runtime() -> None:
     server = DNSServer(
         DNSServerConfig(
@@ -68,6 +70,7 @@ def test_dns_server_accepts_injected_runtime() -> None:
     )
 
     assert server.runtime is runtime
+
 
 def test_dns_server_check_records_success() -> None:
     dns_check = FakeDNSCheck(
@@ -127,6 +130,7 @@ def test_dns_server_check_records_failure() -> None:
     assert server.runtime.last_address is None
     assert server.runtime.last_error == "timeout"
     assert server.runtime.healthy is False
+
 
 def test_dns_server_check_uses_server_address() -> None:
     dns_check = FakeDNSCheck(

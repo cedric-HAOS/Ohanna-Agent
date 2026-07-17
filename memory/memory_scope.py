@@ -11,4 +11,3 @@ class MemoryScope(Enum):
     RUNTIME = auto()
     SESSION = auto()
     PERSISTENT = auto()
-    

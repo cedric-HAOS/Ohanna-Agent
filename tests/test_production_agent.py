@@ -48,8 +48,6 @@ def test_production_agent_rejects_invalid_tick_interval() -> None:
             tick_interval_seconds=0,
         )
     except ValueError as error:
-        assert str(error) == (
-            "tick_interval_seconds must be greater than zero."
-        )
+        assert str(error) == ("tick_interval_seconds must be greater than zero.")
     else:
         raise AssertionError("ValueError was not raised.")

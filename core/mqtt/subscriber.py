@@ -6,16 +6,13 @@ from typing import Any, Protocol
 
 
 class MQTTBackendSubscriber(Protocol):
-    async def subscribe(self, topic: str) -> None:
-        ...
+    async def subscribe(self, topic: str) -> None: ...
 
-    async def unsubscribe(self, topic: str) -> None:
-        ...
+    async def unsubscribe(self, topic: str) -> None: ...
 
 
 class MQTTDispatcher(Protocol):
-    async def dispatch(self, event: object) -> None:
-        ...
+    async def dispatch(self, event: object) -> None: ...
 
 
 @dataclass(frozen=True)

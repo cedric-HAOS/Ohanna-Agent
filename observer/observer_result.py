@@ -9,9 +9,7 @@ class ObserverResult:
 
     success: bool
     latency: float
-    timestamp: datetime = field(
-        default_factory=lambda: datetime.now(UTC)
-    )
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     message: str | None = None
     check: str | None = None
     description: str | None = None

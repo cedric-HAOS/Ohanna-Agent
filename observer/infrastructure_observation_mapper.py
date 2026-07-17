@@ -56,26 +56,21 @@ class InfrastructureObservationMapper:
             service_type = ServiceType(update.target_name)
         except ValueError as error:
             raise ValueError(
-                f"Unknown infrastructure service target: "
-                f"{update.target_name!r}."
+                f"Unknown infrastructure service target: {update.target_name!r}."
             ) from error
 
         service_runtime = runtime.get_service_runtime_by_type(service_type)
 
         if service_runtime is None:
             raise LookupError(
-                f"No runtime found for service type "
-                f"{service_type.value!r}."
+                f"No runtime found for service type {service_type.value!r}."
             )
 
-        node_runtime = runtime.get_node_runtime_for_service(
-            service_runtime.service
-        )
+        node_runtime = runtime.get_node_runtime_for_service(service_runtime.service)
 
         if node_runtime is None:
             raise LookupError(
-                f"No node runtime found for service "
-                f"{service_runtime.service.name!r}."
+                f"No node runtime found for service {service_runtime.service.name!r}."
             )
 
         return self.map(

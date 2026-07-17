@@ -13,7 +13,9 @@ Author:
 
 from __future__ import annotations
 
-from pydantic import Field, PositiveInt
+from typing import Literal
+
+from pydantic import Field
 
 from configuration.agent import AgentConfig
 from configuration.base import Config
@@ -27,7 +29,7 @@ from configuration.vision import VisionConfig
 class Configuration(Config):
     """Root configuration model."""
 
-    version: PositiveInt = 1
+    version: Literal[1] = 1
 
     agent: AgentConfig = Field(default_factory=AgentConfig)
     mqtt: MQTTConfig = Field(default_factory=MQTTConfig)

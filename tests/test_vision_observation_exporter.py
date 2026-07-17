@@ -100,9 +100,7 @@ def test_vision_exporter_adds_agent_traceability() -> None:
 
     exporter.export(observation)
 
-    agent_metadata = client.payloads[0]["metadata"][
-        "agent_observation"
-    ]
+    agent_metadata = client.payloads[0]["metadata"]["agent_observation"]
 
     assert agent_metadata == {
         "id": str(observation.id),

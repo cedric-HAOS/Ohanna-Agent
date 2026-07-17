@@ -32,9 +32,7 @@ class DNSConfigurationBuilder:
             timeout=config.timeout,
             retries=config.retries,
             policy=DNSPolicyConfig(
-                minimum_healthy_servers=(
-                    config.policy.minimum_healthy_servers
-                ),
+                minimum_healthy_servers=(config.policy.minimum_healthy_servers),
             ),
         )
 
@@ -50,28 +48,20 @@ class DNSConfigurationBuilder:
         )
 
         if service is None:
-            raise LookupError(
-                f"Infrastructure service not found: {service_id!r}."
-            )
+            raise LookupError(f"Infrastructure service not found: {service_id!r}.")
 
         if service.type is not ServiceType.DNS:
             raise ValueError(
-                f"Infrastructure service {service_id!r} "
-                f"is not a DNS service."
+                f"Infrastructure service {service_id!r} is not a DNS service."
             )
 
         if service.endpoint is None:
-            raise LookupError(
-                f"DNS service {service_id!r} has no endpoint."
-            )
+            raise LookupError(f"DNS service {service_id!r} has no endpoint.")
 
         return DNSServerConfig(
             name=service.name,
             address=service.endpoint.address,
-            enabled=(
-                service.enabled
-                and service.endpoint.enabled
-            ),
+            enabled=(service.enabled and service.endpoint.enabled),
         )
 
     @staticmethod

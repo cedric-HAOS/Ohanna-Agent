@@ -118,7 +118,6 @@ class PluginManager:
         self._plugins: dict[str, RegisteredPlugin] = {}
         self._capability_manager = capability_manager
 
-
     def register_plugin_capabilities(self, plugin: Any) -> list[BaseCapability]:
         """Register capabilities exposed by a plugin."""
         if self._capability_manager is None:
@@ -140,8 +139,8 @@ class PluginManager:
         """Register a plugin."""
         if plugin.name in self._plugins:
             raise PluginAlreadyRegisteredError(
-            f"Plugin already registered: {plugin.name}"
-        )
+                f"Plugin already registered: {plugin.name}"
+            )
 
         self._plugins[plugin.name] = RegisteredPlugin(
             plugin=plugin,

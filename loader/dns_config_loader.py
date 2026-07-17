@@ -17,8 +17,6 @@ class DNSConfigLoader:
         """Load and validate a DNS plugin configuration."""
         file_path = Path(path)
 
-        data = yaml.safe_load(
-            file_path.read_text(encoding="utf-8")
-        ) or {}
+        data = yaml.safe_load(file_path.read_text(encoding="utf-8")) or {}
 
         return DNSPluginConfig.model_validate(data)

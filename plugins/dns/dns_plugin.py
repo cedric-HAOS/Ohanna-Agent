@@ -19,6 +19,7 @@ from plugins.dns.dns_statistics import DNSStatistics
 if TYPE_CHECKING:
     from observer.observer_result import ObserverResult
 
+
 class DNSPlugin(Plugin):
     """Plugin responsible for DNS capability checks."""
 
@@ -37,8 +38,7 @@ class DNSPlugin(Plugin):
         self.config = config or DNSConfig()
         self.capability_runtime = capability_runtime or DNSCapabilityRuntime()
         self.servers = [
-            DNSServer(config=server_config)
-            for server_config in self.config.servers
+            DNSServer(config=server_config) for server_config in self.config.servers
         ]
 
     @property
@@ -85,9 +85,7 @@ class DNSPlugin(Plugin):
         if result.healthy:
             message = f"DNS resolution succeeded for {result.hostname}."
         else:
-            message = result.error or (
-                f"DNS resolution failed for {result.hostname}."
-            )
+            message = result.error or (f"DNS resolution failed for {result.hostname}.")
 
         return ObserverResult(
             success=result.healthy,
@@ -102,7 +100,7 @@ class DNSPlugin(Plugin):
                 "error": result.error,
             },
         )
-    
+
     def check(self, hostname: str) -> DNSCheckResult:
         self._publish(DNSCheckStarted(hostname=hostname))
 
@@ -136,10 +134,10 @@ class DNSPlugin(Plugin):
     def _publish(self, event: object) -> None:
         if self._event_bus is not None:
             self._event_bus.publish(event)
-    
+
     def statistics(self) -> DNSStatistics:
         return DNSStatistics.from_runtime(self.runtime)
-    
+
     def update_capability_runtime(self) -> DNSCapabilityRuntime:
         healthy_servers = sum(
             1 for server in self.servers if server.runtime.healthy is True
@@ -148,13 +146,11 @@ class DNSPlugin(Plugin):
         self.capability_runtime.update(
             total_servers=len(self.servers),
             healthy_servers=healthy_servers,
-            minimum_healthy_servers=(
-                self.config.policy.minimum_healthy_servers
-            ),
+            minimum_healthy_servers=(self.config.policy.minimum_healthy_servers),
         )
 
         return self.capability_runtime
-    
+
     def check_all(self) -> DNSCapabilityRuntime:
         for server in self.servers:
             if not server.enabled:

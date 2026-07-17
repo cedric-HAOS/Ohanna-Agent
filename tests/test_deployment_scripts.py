@@ -33,11 +33,7 @@ def test_install_script_uses_reference_linux_paths() -> None:
     assert 'INSTALL_ROOT="/opt/ohanna-agent"' in script
     assert 'VENV_PATH="${INSTALL_ROOT}/venv"' in script
     assert 'CONFIG_ROOT="/etc/ohanna-agent"' in script
-    assert (
-        'SYSTEMD_UNIT="/etc/systemd/system/'
-        '${SERVICE_NAME}.service"'
-        in script
-    )
+    assert 'SYSTEMD_UNIT="/etc/systemd/system/${SERVICE_NAME}.service"' in script
 
 
 def test_install_script_requires_prepared_system_resources() -> None:
@@ -81,7 +77,7 @@ def test_update_script_updates_package_and_systemd_unit() -> None:
     assert "-m pip install" in script
     assert "--upgrade" in script
     assert '"${PACKAGE_SOURCE}"' in script
-    assert 'systemctl daemon-reload' in script
+    assert "systemctl daemon-reload" in script
 
 
 def test_update_script_preserves_configuration_and_service_state() -> None:
@@ -94,5 +90,5 @@ def test_update_script_preserves_configuration_and_service_state() -> None:
     assert "dns.yaml" not in script
 
     assert "systemctl is-active --quiet" in script
-    assert 'SERVICE_WAS_ACTIVE=false' in script
+    assert "SERVICE_WAS_ACTIVE=false" in script
     assert 'if [[ "${SERVICE_WAS_ACTIVE}" == true ]]' in script

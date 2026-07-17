@@ -1,0 +1,35 @@
+[Unit]
+Description=Ohanna-Agent infrastructure observation service
+Documentation=https://github.com/cedric-HAOS/Ohanna-Agent
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+
+User=ohanna-agent
+Group=ohanna-agent
+
+ExecStart=/opt/ohanna-agent/venv/bin/ohanna-agent \
+    --config /etc/ohanna-agent/shikamaru.yaml \
+    --infrastructure /etc/ohanna-agent/infrastructure.yaml \
+    --dns-config /etc/ohanna-agent/plugins/dns.yaml \
+    --log-level INFO
+
+Restart=on-failure
+RestartSec=5s
+
+TimeoutStopSec=30s
+KillSignal=SIGTERM
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ohanna-agent
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

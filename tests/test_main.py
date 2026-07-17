@@ -335,3 +335,34 @@ def test_parse_arguments_displays_version(
 
     assert exc_info.value.code == 0
     assert capsys.readouterr().out.strip() == ("ohanna-agent 0.14.0")
+
+
+def test_parse_arguments_accepts_linux_configuration_paths(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Accept the absolute paths used by the systemd service."""
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "ohanna-agent",
+            "--config",
+            "/etc/ohanna-agent/shikamaru.yaml",
+            "--infrastructure",
+            "/etc/ohanna-agent/infrastructure.yaml",
+            "--dns-config",
+            "/etc/ohanna-agent/plugins/dns.yaml",
+        ],
+    )
+
+    arguments = parse_arguments()
+
+    assert arguments.config == Path(
+        "/etc/ohanna-agent/shikamaru.yaml",
+    )
+    assert arguments.infrastructure == Path(
+        "/etc/ohanna-agent/infrastructure.yaml",
+    )
+    assert arguments.dns_config == Path(
+        "/etc/ohanna-agent/plugins/dns.yaml",
+    )

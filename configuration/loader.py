@@ -24,7 +24,7 @@ class ConfigurationLoader:
     """Loads the application configuration."""
 
     @staticmethod
-    def load(path: Path) -> Configuration:
+    def load(path: str | Path) -> Configuration:
         """
         Load a configuration from a YAML file.
 
@@ -34,7 +34,9 @@ class ConfigurationLoader:
         Returns:
             A validated Configuration instance.
         """
-        with path.open("r", encoding="utf-8") as config_file:
+        file_path = Path(path)
+
+        with file_path.open("r", encoding="utf-8") as config_file:
             data = yaml.safe_load(config_file) or {}
 
         return Configuration.model_validate(data)

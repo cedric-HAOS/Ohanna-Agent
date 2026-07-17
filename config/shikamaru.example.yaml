@@ -1,13 +1,35 @@
-# =============================================================================
-# Ohanna-Vision
-# =============================================================================
+# -----------------------------------------------------------------------------
+# Ohanna-Agent
+# Example application configuration
+# -----------------------------------------------------------------------------
+
+version: 1
+
+agent:
+  name: Shikamaru
+  environment: production
+
+mqtt:
+  host: localhost
+  port: 1883
+  client_id: ohanna-agent
+  keepalive_seconds: 60
+  authentication:
+    username: null
+    password: null
+
+logging:
+  level: INFO
+
+health:
+  enabled: true
+  interval_seconds: 30
+
+plugins:
+  enabled: true
+  directory: plugins
 
 vision:
-  # Enable observation export to Ohanna-Vision.
   enabled: true
-
-  # Complete REST ingestion endpoint.
   observation_url: http://127.0.0.1:8000/api/observations
-
-  # Maximum duration of one HTTP request.
   timeout_seconds: 5.0

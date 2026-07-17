@@ -1,0 +1,39 @@
+"""Tests for the example configuration files."""
+
+from configuration.loader import ConfigurationLoader
+from loader.dns_config_loader import DNSConfigLoader
+from loader.infrastructure_loader import InfrastructureLoader
+
+
+def test_shikamaru_example_configuration_is_valid() -> None:
+    """Load the complete example application configuration."""
+    configuration = ConfigurationLoader.load(
+        "config/shikamaru.example.yaml",
+    )
+
+    assert configuration.version == 1
+    assert configuration.agent.name == "Shikamaru"
+    assert configuration.mqtt.host == "localhost"
+    assert configuration.vision.enabled is True
+
+
+def test_infrastructure_example_configuration_is_valid() -> None:
+    """Load the example infrastructure configuration."""
+    configuration = InfrastructureLoader().load(
+        "config/infrastructure.example.yaml",
+    )
+
+    assert configuration.infrastructure.id == "ohanna-house"
+    assert configuration.nodes
+    assert configuration.services
+
+
+def test_dns_example_configuration_is_valid() -> None:
+    """Load the example DNS plugin configuration."""
+    configuration = DNSConfigLoader().load(
+        "config/plugins/dns.example.yaml",
+    )
+
+    assert configuration.services == ["dns-primary"]
+    assert configuration.queries == ["example.com"]
+    assert configuration.policy.minimum_healthy_servers == 1

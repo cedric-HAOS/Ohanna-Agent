@@ -1,0 +1,25 @@
+# -----------------------------------------------------------------------------
+# Ohanna-Agent
+# Example DNS plugin configuration
+# -----------------------------------------------------------------------------
+
+# Infrastructure service identifiers handled by the DNS plugin.
+services:
+  - dns-primary
+
+# Domain names resolved during each observation cycle.
+queries:
+  - example.com
+
+# Maximum duration of one DNS resolution attempt.
+timeout: 2.0
+
+# Number of retries after the first failed attempt.
+retries: 1
+
+# Delay between two observation cycles.
+interval_seconds: 60
+
+policy:
+  # Minimum number of healthy DNS servers required by the capability.
+  minimum_healthy_servers: 1

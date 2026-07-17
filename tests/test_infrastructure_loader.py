@@ -1,5 +1,9 @@
 from pathlib import Path
 
+import pytest
+import yaml
+from pydantic import ValidationError
+
 from loader import InfrastructureLoader
 
 
@@ -45,3 +49,55 @@ def test_loader_accepts_path_object() -> None:
     config = loader.load(Path("config/infrastructure.example.yaml"))
 
     assert config.infrastructure.name == "Ohanna House"
+
+
+def test_infrastructure_loader_raises_for_missing_file(
+    tmp_path: Path,
+) -> None:
+    """Preserve FileNotFoundError for a missing infrastructure file."""
+    missing_path = tmp_path / "missing.yaml"
+
+    with pytest.raises(FileNotFoundError):
+        InfrastructureLoader().load(missing_path)
+
+
+def test_infrastructure_loader_raises_for_invalid_yaml(
+    tmp_path: Path,
+) -> None:
+    """Preserve the YAML parsing error for malformed infrastructure."""
+    config_path = tmp_path / "infrastructure.yaml"
+    config_path.write_text(
+        "infrastructure: [\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(yaml.YAMLError):
+        InfrastructureLoader().load(config_path)
+
+
+def test_infrastructure_loader_rejects_empty_document(
+    tmp_path: Path,
+) -> None:
+    """Reject an empty infrastructure document."""
+    config_path = tmp_path / "infrastructure.yaml"
+    config_path.write_text(
+        "",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValidationError, match="infrastructure"):
+        InfrastructureLoader().load(config_path)
+
+
+def test_infrastructure_loader_rejects_non_mapping_yaml(
+    tmp_path: Path,
+) -> None:
+    """Reject an infrastructure document that is not an object."""
+    config_path = tmp_path / "infrastructure.yaml"
+    config_path.write_text(
+        "- infra-01\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValidationError):
+        InfrastructureLoader().load(config_path)

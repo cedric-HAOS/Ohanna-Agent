@@ -16,6 +16,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+import yaml
 from pydantic import ValidationError
 
 from configuration.enums import Environment, LogLevel
@@ -85,3 +86,48 @@ def test_configuration_uses_schema_version_one_by_default(
     configuration = ConfigurationLoader.load(config_path)
 
     assert configuration.version == 1
+
+
+def test_configuration_loader_accepts_string_path() -> None:
+    """Accept a string configuration path."""
+    configuration = ConfigurationLoader.load("config/shikamaru.yaml")
+
+    assert configuration.version == 1
+
+
+def test_configuration_loader_raises_for_missing_file(
+    tmp_path: Path,
+) -> None:
+    """Preserve FileNotFoundError for a missing configuration file."""
+    missing_path = tmp_path / "missing.yaml"
+
+    with pytest.raises(FileNotFoundError):
+        ConfigurationLoader.load(missing_path)
+
+
+def test_configuration_loader_raises_for_invalid_yaml(
+    tmp_path: Path,
+) -> None:
+    """Preserve the YAML parsing error for malformed configuration."""
+    config_path = tmp_path / "shikamaru.yaml"
+    config_path.write_text(
+        "version: [\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(yaml.YAMLError):
+        ConfigurationLoader.load(config_path)
+
+
+def test_configuration_loader_rejects_non_mapping_yaml(
+    tmp_path: Path,
+) -> None:
+    """Reject a YAML document that is not an object."""
+    config_path = tmp_path / "shikamaru.yaml"
+    config_path.write_text(
+        "- version\n- agent\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValidationError):
+        ConfigurationLoader.load(config_path)

@@ -15,7 +15,7 @@ nodes:
     description: Serveur infrastructure principal
     endpoint:
       type: ip
-      address: 192.168.1.54
+      address: 192.168.1.10
 
   - id: ha-01
     name: HA-01

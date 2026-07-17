@@ -41,7 +41,7 @@ def test_infrastructure_example_yaml_declares_nodes() -> None:
 
     assert len(nodes) == 2
     assert nodes[0]["endpoint"]["type"] == "ip"
-    assert nodes[0]["endpoint"]["address"] == "192.168.1.54"
+    assert nodes[0]["endpoint"]["address"] == "192.168.1.10"
 
 
 def test_infrastructure_example_yaml_declares_services() -> None:

@@ -32,7 +32,7 @@ def test_builder_builds_node_endpoints() -> None:
 
     assert len(node.endpoints) == 1
     assert node.endpoints[0].type == EndpointType.IP
-    assert node.endpoints[0].address == "192.168.1.54"
+    assert node.endpoints[0].address == "192.168.1.10"
 
 
 def test_builder_builds_services() -> None:
@@ -52,5 +52,5 @@ def test_builder_builds_service_endpoint() -> None:
 
     assert service.endpoint is not None
     assert service.endpoint.type == EndpointType.IP
-    assert service.endpoint.address == "192.168.1.54"
+    assert service.endpoint.address == "192.168.1.10"
     assert service.endpoint.port == 53

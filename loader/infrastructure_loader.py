@@ -13,6 +13,6 @@ class InfrastructureLoader:
 
         file_path = Path(path)
 
-        data = yaml.safe_load(file_path.read_text(encoding="utf-8"))
+        data = yaml.safe_load(file_path.read_text(encoding="utf-8")) or {}
 
         return InfrastructureConfig.model_validate(data)

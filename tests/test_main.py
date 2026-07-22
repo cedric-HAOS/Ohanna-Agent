@@ -291,10 +291,10 @@ def test_get_application_version_returns_installed_version(
 ) -> None:
     monkeypatch.setattr(
         "main.package_version",
-        lambda package_name: "0.14.0",
+        lambda package_name: "1.0.0",
     )
 
-    assert get_application_version() == "0.14.0"
+    assert get_application_version() == "1.0.0"
 
 
 def test_get_application_version_returns_unknown_when_package_is_missing(
@@ -319,7 +319,7 @@ def test_parse_arguments_displays_version(
 ) -> None:
     monkeypatch.setattr(
         "main.get_application_version",
-        lambda: "0.14.0",
+        lambda: "1.0.0",
     )
     monkeypatch.setattr(
         sys,
@@ -334,7 +334,7 @@ def test_parse_arguments_displays_version(
         parse_arguments()
 
     assert exc_info.value.code == 0
-    assert capsys.readouterr().out.strip() == ("ohanna-agent 0.14.0")
+    assert capsys.readouterr().out.strip() == ("ohanna-agent 1.0.0")
 
 
 def test_parse_arguments_accepts_linux_configuration_paths(

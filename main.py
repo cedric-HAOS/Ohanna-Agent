@@ -25,12 +25,13 @@ def get_application_version() -> str:
 def parse_arguments() -> argparse.Namespace:
     """Parse Ohanna-Agent command-line arguments."""
     parser = argparse.ArgumentParser(
+        prog="ohanna-agent",
         description="Run Ohanna-Agent.",
     )
     parser.add_argument(
         "--version",
         action="version",
-        version=f"%(prog)s {get_application_version()}",
+        version=f"ohanna-agent {get_application_version()}",
     )
     parser.add_argument(
         "--config",

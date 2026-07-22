@@ -27,4 +27,5 @@ plugins:
 vision:
   enabled: true
   observation_url: http://127.0.0.1:8000/api/observations
+  infrastructure_url: http://127.0.0.1:8000/api/infrastructure
   timeout_seconds: 5.0

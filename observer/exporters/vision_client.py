@@ -12,3 +12,9 @@ class VisionClient(Protocol):
         payload: dict[str, Any],
     ) -> None:
         """Send a serialized observation to Ohanna-Vision."""
+
+    def send_infrastructure(
+        self,
+        payload: dict[str, Any],
+    ) -> None:
+        """Send an infrastructure snapshot to Ohanna-Vision."""

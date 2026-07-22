@@ -12,12 +12,16 @@ from observer.exporters.vision_observation_exporter import (
 from observer.exporters.vision_observation_mapper import (
     VisionObservationMapper,
 )
+from observer.exporters.vision_infrastructure_mapper import (
+    VisionInfrastructureMapper,
+)
 
 __all__ = [
     "HttpVisionClient",
     "InMemoryObservationExporter",
     "VisionClient",
     "VisionClientError",
+    "VisionInfrastructureMapper",
     "VisionObservationExporter",
     "VisionObservationMapper",
 ]

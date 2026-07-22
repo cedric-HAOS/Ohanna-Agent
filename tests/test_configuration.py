@@ -41,6 +41,11 @@ def test_load_shikamaru_configuration() -> None:
     assert str(configuration.vision.observation_url) == (
         "http://127.0.0.1:8000/api/observations"
     )
+    assert str(
+        configuration.vision.infrastructure_url
+    ) == (
+        "http://127.0.0.1:8000/api/infrastructure"
+    )
     assert configuration.vision.timeout_seconds == 5.0
 
 

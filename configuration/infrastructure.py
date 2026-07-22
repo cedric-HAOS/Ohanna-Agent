@@ -1,6 +1,12 @@
 from pydantic import Field
 
 from configuration.base import Config
+from configuration.enums import (
+    TopologyDeviceKind,
+    TopologyLayoutKind,
+    TopologyLinkDirection,
+    TopologyLinkKind,
+)
 
 
 class InfrastructureIdentityConfig(Config):
@@ -34,6 +40,56 @@ class ServiceConfig(Config):
     port: int | None = None
 
 
+class TopologyDeviceConfig(Config):
+    id: str
+    label: str
+    kind: TopologyDeviceKind
+    node: str | None = None
+    address: str | None = None
+    metadata: dict[str, object] = Field(default_factory=dict)
+
+
+class TopologyLinkConfig(Config):
+    id: str
+    source: str
+    target: str
+    kind: TopologyLinkKind
+    direction: TopologyLinkDirection = (
+        TopologyLinkDirection.BIDIRECTIONAL
+    )
+    label: str | None = None
+    bandwidth_mbps: float | None = Field(
+        default=None,
+        gt=0,
+        allow_inf_nan=False,
+    )
+    metadata: dict[str, object] = Field(default_factory=dict)
+
+
+class TopologyGridPositionConfig(Config):
+    """Logical position of one device in a Vision layout grid."""
+
+    column: int = Field(ge=0)
+    row: int = Field(ge=0)
+
+
+class TopologyLayoutConfig(Config):
+    id: str
+    label: str
+    kind: TopologyLayoutKind
+    positions: dict[str, TopologyGridPositionConfig] = Field(
+        default_factory=dict
+    )
+    metadata: dict[str, object] = Field(default_factory=dict)
+
+
+class TopologyConfig(Config):
+    devices: list[TopologyDeviceConfig] = Field(default_factory=list)
+    links: list[TopologyLinkConfig] = Field(default_factory=list)
+    layouts: list[TopologyLayoutConfig] = Field(default_factory=list)
+    metadata: dict[str, object] = Field(default_factory=dict)
+
+
 class InfrastructureConfig(Config):
     infrastructure: InfrastructureIdentityConfig
     metadata: InfrastructureMetadataConfig = Field(
@@ -41,3 +97,4 @@ class InfrastructureConfig(Config):
     )
     nodes: list[NodeConfig] = Field(default_factory=list)
     services: list[ServiceConfig] = Field(default_factory=list)
+    topology: TopologyConfig | None = None

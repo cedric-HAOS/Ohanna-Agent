@@ -14,12 +14,18 @@ class InfrastructureValidator:
 
     def validate(self, config: InfrastructureConfig) -> None:
         """Validate an infrastructure configuration."""
-
         self._validate_node_ids_are_unique(config)
         self._validate_service_ids_are_unique(config)
         self._validate_node_addresses(config)
         self._validate_service_nodes_exist(config)
         self._validate_service_ports(config)
+        self._validate_topology_device_ids_are_unique(config)
+        self._validate_topology_device_nodes_exist(config)
+        self._validate_topology_node_references_are_unique(config)
+        self._validate_topology_link_ids_are_unique(config)
+        self._validate_topology_link_devices_exist(config)
+        self._validate_topology_layout_ids_are_unique(config)
+        self._validate_topology_layout_positions(config)
 
     def _validate_node_ids_are_unique(
         self,
@@ -28,7 +34,9 @@ class InfrastructureValidator:
         node_ids = [node.id for node in config.nodes]
 
         if len(node_ids) != len(set(node_ids)):
-            raise InfrastructureValidationError("Node identifiers must be unique.")
+            raise InfrastructureValidationError(
+                "Node identifiers must be unique."
+            )
 
     def _validate_service_ids_are_unique(
         self,
@@ -37,7 +45,9 @@ class InfrastructureValidator:
         service_ids = [service.id for service in config.services]
 
         if len(service_ids) != len(set(service_ids)):
-            raise InfrastructureValidationError("Service identifiers must be unique.")
+            raise InfrastructureValidationError(
+                "Service identifiers must be unique."
+            )
 
     def _validate_node_addresses(
         self,
@@ -65,7 +75,8 @@ class InfrastructureValidator:
         for service in config.services:
             if service.node not in node_ids:
                 raise InfrastructureValidationError(
-                    f"Service '{service.id}' references unknown node '{service.node}'."
+                    f"Service '{service.id}' references unknown "
+                    f"node '{service.node}'."
                 )
 
     def _validate_service_ports(
@@ -78,5 +89,164 @@ class InfrastructureValidator:
 
             if service.port < 1 or service.port > 65535:
                 raise InfrastructureValidationError(
-                    f"Invalid port '{service.port}' for service '{service.id}'."
+                    f"Invalid port '{service.port}' for service "
+                    f"'{service.id}'."
+                )
+
+    def _validate_topology_device_ids_are_unique(
+        self,
+        config: InfrastructureConfig,
+    ) -> None:
+        if config.topology is None:
+            return
+
+        device_ids = [
+            device.id
+            for device in config.topology.devices
+        ]
+
+        if len(device_ids) != len(set(device_ids)):
+            raise InfrastructureValidationError(
+                "Topology device identifiers must be unique."
+            )
+
+    def _validate_topology_device_nodes_exist(
+        self,
+        config: InfrastructureConfig,
+    ) -> None:
+        if config.topology is None:
+            return
+
+        node_ids = {node.id for node in config.nodes}
+
+        for device in config.topology.devices:
+            if device.node is None:
+                continue
+
+            if device.node not in node_ids:
+                raise InfrastructureValidationError(
+                    f"Topology device '{device.id}' references "
+                    f"unknown node '{device.node}'."
+                )
+
+    def _validate_topology_node_references_are_unique(
+        self,
+        config: InfrastructureConfig,
+    ) -> None:
+        if config.topology is None:
+            return
+
+        node_ids = [
+            device.node
+            for device in config.topology.devices
+            if device.node is not None
+        ]
+
+        if len(node_ids) != len(set(node_ids)):
+            raise InfrastructureValidationError(
+                "Topology node references must be unique."
+            )
+
+    def _validate_topology_link_ids_are_unique(
+        self,
+        config: InfrastructureConfig,
+    ) -> None:
+        if config.topology is None:
+            return
+
+        link_ids = [
+            link.id
+            for link in config.topology.links
+        ]
+
+        if len(link_ids) != len(set(link_ids)):
+            raise InfrastructureValidationError(
+                "Topology link identifiers must be unique."
+            )
+
+    def _validate_topology_link_devices_exist(
+        self,
+        config: InfrastructureConfig,
+    ) -> None:
+        if config.topology is None:
+            return
+
+        device_ids = {
+            device.id
+            for device in config.topology.devices
+        }
+
+        for link in config.topology.links:
+            if link.source == link.target:
+                raise InfrastructureValidationError(
+                    f"Topology link '{link.id}' must connect "
+                    "two different devices."
+                )
+
+            unknown_device_ids = [
+                device_id
+                for device_id in (
+                    link.source,
+                    link.target,
+                )
+                if device_id not in device_ids
+            ]
+
+            if unknown_device_ids:
+                unknown = ", ".join(unknown_device_ids)
+                raise InfrastructureValidationError(
+                    f"Topology link '{link.id}' references "
+                    f"unknown devices: {unknown}."
+                )
+
+    def _validate_topology_layout_ids_are_unique(
+        self,
+        config: InfrastructureConfig,
+    ) -> None:
+        if config.topology is None:
+            return
+
+        layout_ids = [
+            layout.id
+            for layout in config.topology.layouts
+        ]
+
+        if len(layout_ids) != len(set(layout_ids)):
+            raise InfrastructureValidationError(
+                "Topology layout identifiers must be unique."
+            )
+
+    def _validate_topology_layout_positions(
+        self,
+        config: InfrastructureConfig,
+    ) -> None:
+        if config.topology is None:
+            return
+
+        device_ids = {
+            device.id
+            for device in config.topology.devices
+        }
+
+        for layout in config.topology.layouts:
+            unknown_device_ids = sorted(
+                set(layout.positions) - device_ids
+            )
+
+            if unknown_device_ids:
+                unknown = ", ".join(unknown_device_ids)
+                raise InfrastructureValidationError(
+                    f"Topology layout '{layout.id}' references "
+                    f"unknown devices: {unknown}."
+                )
+
+            grid_cells = [
+                (position.column, position.row)
+                for position in layout.positions.values()
+            ]
+
+            if len(grid_cells) != len(set(grid_cells)):
+                raise InfrastructureValidationError(
+                    f"Topology layout '{layout.id}' contains "
+                    "duplicate grid positions."
                 )

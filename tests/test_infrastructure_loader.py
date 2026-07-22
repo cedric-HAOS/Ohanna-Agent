@@ -101,3 +101,15 @@ def test_infrastructure_loader_rejects_non_mapping_yaml(
 
     with pytest.raises(ValidationError):
         InfrastructureLoader().load(config_path)
+
+
+def test_loader_loads_complete_topology() -> None:
+    config = InfrastructureLoader().load(
+        "config/infrastructure.example.yaml"
+    )
+
+    assert config.topology is not None
+    assert len(config.topology.devices) == 4
+    assert len(config.topology.links) == 3
+    assert len(config.topology.layouts) == 1
+    assert config.topology.layouts[0].positions["infra-01"].column == 2

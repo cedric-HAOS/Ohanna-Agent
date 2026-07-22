@@ -4,7 +4,7 @@ infrastructure:
   environment: production
 
 metadata:
-  version: "1.0"
+  version: "1.1"
   tags:
     - production
     - home
@@ -36,3 +36,73 @@ services:
     type: mqtt
     node: ha-01
     port: 1883
+
+topology:
+  metadata:
+    description: Exemple de topologie physique complète.
+    version: 1
+
+  devices:
+    - id: internet
+      label: Internet
+      kind: internet
+
+    - id: router-01
+      label: Routeur principal
+      kind: router
+
+    - id: infra-01
+      label: INFRA-01
+      kind: raspberry_pi
+      node: infra-01
+      metadata:
+        role: infrastructure_server
+
+    - id: ha-01
+      label: HA-01
+      kind: home_assistant
+      node: ha-01
+      metadata:
+        role: home_automation_controller
+
+  links:
+    - id: internet-router-01
+      source: internet
+      target: router-01
+      kind: ethernet
+      direction: bidirectional
+      label: WAN
+
+    - id: router-01-infra-01
+      source: router-01
+      target: infra-01
+      kind: ethernet
+      direction: bidirectional
+      label: Ethernet 1 Gb
+      bandwidth_mbps: 1000
+
+    - id: router-01-ha-01
+      source: router-01
+      target: ha-01
+      kind: ethernet
+      direction: bidirectional
+      label: Ethernet 1 Gb
+      bandwidth_mbps: 1000
+
+  layouts:
+    - id: physical
+      label: Topologie physique
+      kind: physical
+      positions:
+        internet:
+          column: 0
+          row: 1
+        router-01:
+          column: 1
+          row: 1
+        infra-01:
+          column: 2
+          row: 0
+        ha-01:
+          column: 2
+          row: 2

@@ -20,6 +20,7 @@ def test_infrastructure_example_yaml_has_expected_root_sections() -> None:
     assert "metadata" in data
     assert "nodes" in data
     assert "services" in data
+    assert "topology" in data
 
 
 def test_infrastructure_example_yaml_declares_infrastructure_identity() -> None:
@@ -65,3 +66,14 @@ def test_infrastructure_example_yaml_declares_service_endpoints() -> None:
     dns_service = data["services"][0]
 
     assert dns_service["port"] == 53
+
+
+def test_infrastructure_example_yaml_declares_topology() -> None:
+    path = Path("config/infrastructure.example.yaml")
+
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    topology = data["topology"]
+
+    assert topology["devices"]
+    assert topology["links"]
+    assert topology["layouts"]

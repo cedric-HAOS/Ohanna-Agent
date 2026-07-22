@@ -9,6 +9,9 @@ from builder import (
     DNSConfigurationBuilder,
     InfrastructureBuilder,
 )
+from configuration.infrastructure_validator import (
+    InfrastructureValidator,
+)
 from configuration.loader import ConfigurationLoader
 from core.events import EventBus
 from infrastructure import InfrastructureRuntime
@@ -59,6 +62,7 @@ def build_production_agent(
     configuration = ConfigurationLoader.load(application_config_path)
 
     infrastructure_config = InfrastructureLoader().load(infrastructure_config_path)
+    InfrastructureValidator().validate(infrastructure_config)
     infrastructure = InfrastructureBuilder().build(infrastructure_config)
     infrastructure_runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 

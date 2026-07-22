@@ -1,11 +1,21 @@
 import pytest
 
+from configuration.enums import (
+    TopologyDeviceKind,
+    TopologyLayoutKind,
+    TopologyLinkKind,
+)
 from configuration.infrastructure import (
     InfrastructureConfig,
     InfrastructureIdentityConfig,
     NodeConfig,
     NodeEndpointConfig,
     ServiceConfig,
+    TopologyConfig,
+    TopologyDeviceConfig,
+    TopologyGridPositionConfig,
+    TopologyLayoutConfig,
+    TopologyLinkConfig,
 )
 from configuration.infrastructure_validator import (
     InfrastructureValidationError,
@@ -186,4 +196,193 @@ def test_validator_rejects_port_above_range() -> None:
     )
 
     with pytest.raises(InfrastructureValidationError):
+        InfrastructureValidator().validate(config)
+
+
+def build_valid_topology_config() -> InfrastructureConfig:
+    config = build_valid_config()
+
+    return config.model_copy(
+        update={
+            "topology": TopologyConfig(
+                devices=[
+                    TopologyDeviceConfig(
+                        id="router",
+                        label="Router",
+                        kind=TopologyDeviceKind.ROUTER,
+                    ),
+                    TopologyDeviceConfig(
+                        id="infra",
+                        label="INFRA-01",
+                        kind=TopologyDeviceKind.RASPBERRY_PI,
+                        node="infra-01",
+                    ),
+                ],
+                links=[
+                    TopologyLinkConfig(
+                        id="router-infra",
+                        source="router",
+                        target="infra",
+                        kind=TopologyLinkKind.ETHERNET,
+                    ),
+                ],
+                layouts=[
+                    TopologyLayoutConfig(
+                        id="physical",
+                        label="Physical",
+                        kind=TopologyLayoutKind.PHYSICAL,
+                        positions={
+                            "router": TopologyGridPositionConfig(
+                                column=0,
+                                row=0,
+                            ),
+                            "infra": TopologyGridPositionConfig(
+                                column=1,
+                                row=0,
+                            ),
+                        },
+                    ),
+                ],
+            ),
+        }
+    )
+
+
+def test_validator_accepts_valid_topology() -> None:
+    InfrastructureValidator().validate(
+        build_valid_topology_config()
+    )
+
+
+def test_validator_rejects_duplicate_topology_device_ids() -> None:
+    config = build_valid_topology_config()
+    assert config.topology is not None
+    config.topology.devices.append(
+        TopologyDeviceConfig(
+            id="router",
+            label="Duplicate",
+            kind=TopologyDeviceKind.ROUTER,
+        )
+    )
+
+    with pytest.raises(
+        InfrastructureValidationError,
+        match="Topology device identifiers must be unique",
+    ):
+        InfrastructureValidator().validate(config)
+
+
+def test_validator_rejects_unknown_topology_node() -> None:
+    config = build_valid_topology_config()
+    assert config.topology is not None
+    config.topology.devices.append(
+        TopologyDeviceConfig(
+            id="missing",
+            label="Missing",
+            kind=TopologyDeviceKind.SERVER,
+            node="missing-node",
+        )
+    )
+
+    with pytest.raises(
+        InfrastructureValidationError,
+        match="references unknown node 'missing-node'",
+    ):
+        InfrastructureValidator().validate(config)
+
+
+def test_validator_rejects_duplicate_topology_node_reference() -> None:
+    config = build_valid_topology_config()
+    assert config.topology is not None
+    config.topology.devices.append(
+        TopologyDeviceConfig(
+            id="duplicate-node",
+            label="Duplicate node",
+            kind=TopologyDeviceKind.SERVER,
+            node="infra-01",
+        )
+    )
+
+    with pytest.raises(
+        InfrastructureValidationError,
+        match="Topology node references must be unique",
+    ):
+        InfrastructureValidator().validate(config)
+
+
+def test_validator_rejects_unknown_link_device() -> None:
+    config = build_valid_topology_config()
+    assert config.topology is not None
+    config.topology.links.append(
+        TopologyLinkConfig(
+            id="missing-link",
+            source="router",
+            target="missing",
+            kind=TopologyLinkKind.ETHERNET,
+        )
+    )
+
+    with pytest.raises(
+        InfrastructureValidationError,
+        match="references unknown devices: missing",
+    ):
+        InfrastructureValidator().validate(config)
+
+
+def test_validator_rejects_self_referencing_link() -> None:
+    config = build_valid_topology_config()
+    assert config.topology is not None
+    config.topology.links.append(
+        TopologyLinkConfig(
+            id="self-link",
+            source="router",
+            target="router",
+            kind=TopologyLinkKind.ETHERNET,
+        )
+    )
+
+    with pytest.raises(
+        InfrastructureValidationError,
+        match="must connect two different devices",
+    ):
+        InfrastructureValidator().validate(config)
+
+
+def test_validator_rejects_unknown_layout_device() -> None:
+    config = build_valid_topology_config()
+    assert config.topology is not None
+    config.topology.layouts.append(
+        TopologyLayoutConfig(
+            id="invalid",
+            label="Invalid",
+            kind=TopologyLayoutKind.PHYSICAL,
+            positions={
+                "missing": TopologyGridPositionConfig(
+                    column=0,
+                    row=0,
+                ),
+            },
+        )
+    )
+
+    with pytest.raises(
+        InfrastructureValidationError,
+        match="references unknown devices: missing",
+    ):
+        InfrastructureValidator().validate(config)
+
+def test_validator_rejects_duplicate_grid_position() -> None:
+    config = build_valid_topology_config()
+    assert config.topology is not None
+
+    layout = config.topology.layouts[0]
+    layout.positions["infra"] = TopologyGridPositionConfig(
+        column=0,
+        row=0,
+    )
+
+    with pytest.raises(
+        InfrastructureValidationError,
+        match="contains duplicate grid positions",
+    ):
         InfrastructureValidator().validate(config)

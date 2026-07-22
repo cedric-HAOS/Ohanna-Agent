@@ -1,0 +1,365 @@
+diff --git a/config/infrastructure.example.yaml b/config/infrastructure.example.yaml
+index 2c42c25..60c5b1f 100644
+--- a/config/infrastructure.example.yaml
++++ b/config/infrastructure.example.yaml
+@@ -93,26 +93,16 @@ topology:
+     - id: physical
+       label: Topologie physique
+       kind: physical
+-      canvas_width: 1200
+-      canvas_height: 700
+       positions:
+         internet:
+-          x: 150
+-          y: 350
+-          layer: 0
+-          pinned: true
++          column: 0
++          row: 1
+         router-01:
+-          x: 450
+-          y: 350
+-          layer: 1
+-          pinned: true
++          column: 1
++          row: 1
+         infra-01:
+-          x: 750
+-          y: 200
+-          layer: 2
+-          pinned: true
++          column: 2
++          row: 0
+         ha-01:
+-          x: 750
+-          y: 500
+-          layer: 2
+-          pinned: true
++          column: 2
++          row: 2
+diff --git a/config/infrastructure.yaml b/config/infrastructure.yaml
+index 007f82e..5a8a6c4 100644
+--- a/config/infrastructure.yaml
++++ b/config/infrastructure.yaml
+@@ -172,53 +172,33 @@ topology:
+     - id: ohanna-house-physical
+       label: Carte physique Ohanna-House
+       kind: physical
+-      canvas_width: 1800
+-      canvas_height: 820
+       metadata:
+         description: Carte physique principale de l'infrastructure.
+       positions:
+         internet:
+-          x: 150
+-          y: 410
+-          layer: 0
+-          pinned: true
++          column: 0
++          row: 1
+         freebox:
+-          x: 450
+-          y: 410
+-          layer: 1
+-          pinned: true
++          column: 1
++          row: 1
+         sw-01:
+-          x: 750
+-          y: 410
+-          layer: 2
+-          pinned: true
++          column: 2
++          row: 1
+         ap-01:
+-          x: 1050
+-          y: 150
+-          layer: 3
+-          pinned: true
++          column: 3
++          row: 0
+         sw-02:
+-          x: 1050
+-          y: 410
+-          layer: 3
+-          pinned: true
++          column: 3
++          row: 1
+         rpi-link:
+-          x: 1350
+-          y: 150
+-          layer: 4
+-          pinned: true
++          column: 4
++          row: 0
+         sw-03:
+-          x: 1350
+-          y: 410
+-          layer: 4
+-          pinned: true
++          column: 4
++          row: 1
+         ha-green:
+-          x: 1650
+-          y: 410
+-          layer: 5
+-          pinned: true
++          column: 5
++          row: 1
+         rpi-zwave:
+-          x: 1650
+-          y: 670
+-          layer: 5
+-          pinned: true
++          column: 5
++          row: 2
+diff --git a/configuration/enums.py b/configuration/enums.py
+index cb712d2..dea73f3 100644
+--- a/configuration/enums.py
++++ b/configuration/enums.py
+@@ -34,6 +34,7 @@ class LogLevel(StrEnum):
+     ERROR = "ERROR"
+     CRITICAL = "CRITICAL"
+ 
++
+ class TopologyDeviceKind(StrEnum):
+     """Kinds of devices supported by the Vision topology contract."""
+ 
+diff --git a/configuration/infrastructure.py b/configuration/infrastructure.py
+index c4ab507..4c931ae 100644
+--- a/configuration/infrastructure.py
++++ b/configuration/infrastructure.py
+@@ -66,28 +66,18 @@ class TopologyLinkConfig(Config):
+     metadata: dict[str, object] = Field(default_factory=dict)
+ 
+ 
+-class TopologyPositionConfig(Config):
+-    x: float = Field(allow_inf_nan=False)
+-    y: float = Field(allow_inf_nan=False)
+-    layer: int = 0
+-    pinned: bool = False
++class TopologyGridPositionConfig(Config):
++    """Logical position of one device in a Vision layout grid."""
++
++    column: int = Field(ge=0)
++    row: int = Field(ge=0)
+ 
+ 
+ class TopologyLayoutConfig(Config):
+     id: str
+     label: str
+     kind: TopologyLayoutKind
+-    canvas_width: float = Field(
+-        default=1600,
+-        gt=0,
+-        allow_inf_nan=False,
+-    )
+-    canvas_height: float = Field(
+-        default=900,
+-        gt=0,
+-        allow_inf_nan=False,
+-    )
+-    positions: dict[str, TopologyPositionConfig] = Field(
++    positions: dict[str, TopologyGridPositionConfig] = Field(
+         default_factory=dict
+     )
+     metadata: dict[str, object] = Field(default_factory=dict)
+diff --git a/configuration/infrastructure_validator.py b/configuration/infrastructure_validator.py
+index 7740a56..2f1af10 100644
+--- a/configuration/infrastructure_validator.py
++++ b/configuration/infrastructure_validator.py
+@@ -239,3 +239,14 @@ class InfrastructureValidator:
+                     f"Topology layout '{layout.id}' references "
+                     f"unknown devices: {unknown}."
+                 )
++
++            grid_cells = [
++                (position.column, position.row)
++                for position in layout.positions.values()
++            ]
++
++            if len(grid_cells) != len(set(grid_cells)):
++                raise InfrastructureValidationError(
++                    f"Topology layout '{layout.id}' contains "
++                    "duplicate grid positions."
++                )
+diff --git a/observer/exporters/vision_infrastructure_mapper.py b/observer/exporters/vision_infrastructure_mapper.py
+index bf845ec..b6347e9 100644
+--- a/observer/exporters/vision_infrastructure_mapper.py
++++ b/observer/exporters/vision_infrastructure_mapper.py
+@@ -99,14 +99,10 @@ class VisionInfrastructureMapper:
+                     "layout_id": layout.id,
+                     "label": layout.label,
+                     "kind": layout.kind.value,
+-                    "canvas_width": layout.canvas_width,
+-                    "canvas_height": layout.canvas_height,
+                     "positions": {
+                         device_id: {
+-                            "x": position.x,
+-                            "y": position.y,
+-                            "layer": position.layer,
+-                            "pinned": position.pinned,
++                            "column": position.column,
++                            "row": position.row,
+                         }
+                         for device_id, position
+                         in layout.positions.items()
+diff --git a/tests/test_infrastructure_loader.py b/tests/test_infrastructure_loader.py
+index 594acfa..4de60d5 100644
+--- a/tests/test_infrastructure_loader.py
++++ b/tests/test_infrastructure_loader.py
+@@ -112,4 +112,4 @@ def test_loader_loads_complete_topology() -> None:
+     assert len(config.topology.devices) == 4
+     assert len(config.topology.links) == 3
+     assert len(config.topology.layouts) == 1
+-    assert config.topology.layouts[0].positions["infra-01"].x == 750
++    assert config.topology.layouts[0].positions["infra-01"].column == 2
+diff --git a/tests/test_infrastructure_validator.py b/tests/test_infrastructure_validator.py
+index f0b9a5a..ebf04eb 100644
+--- a/tests/test_infrastructure_validator.py
++++ b/tests/test_infrastructure_validator.py
+@@ -10,7 +10,7 @@ from configuration.infrastructure import (
+     TopologyDeviceConfig,
+     TopologyLayoutConfig,
+     TopologyLinkConfig,
+-    TopologyPositionConfig,
++    TopologyGridPositionConfig,
+ )
+ from configuration.enums import (
+     TopologyDeviceKind,
+@@ -232,13 +232,13 @@ def build_valid_topology_config() -> InfrastructureConfig:
+                         label="Physical",
+                         kind=TopologyLayoutKind.PHYSICAL,
+                         positions={
+-                            "router": TopologyPositionConfig(
+-                                x=100,
+-                                y=100,
++                            "router": TopologyGridPositionConfig(
++                                column=0,
++                                row=0,
+                             ),
+-                            "infra": TopologyPositionConfig(
+-                                x=400,
+-                                y=100,
++                            "infra": TopologyGridPositionConfig(
++                                column=1,
++                                row=0,
+                             ),
+                         },
+                     ),
+@@ -357,9 +357,9 @@ def test_validator_rejects_unknown_layout_device() -> None:
+             label="Invalid",
+             kind=TopologyLayoutKind.PHYSICAL,
+             positions={
+-                "missing": TopologyPositionConfig(
+-                    x=0,
+-                    y=0,
++                "missing": TopologyGridPositionConfig(
++                    column=0,
++                    row=0,
+                 ),
+             },
+         )
+@@ -370,3 +370,20 @@ def test_validator_rejects_unknown_layout_device() -> None:
+         match="references unknown devices: missing",
+     ):
+         InfrastructureValidator().validate(config)
++
++
++def test_validator_rejects_duplicate_grid_position() -> None:
++    config = build_valid_topology_config()
++    assert config.topology is not None
++
++    layout = config.topology.layouts[0]
++    layout.positions["infra"] = TopologyGridPositionConfig(
++        column=0,
++        row=0,
++    )
++
++    with pytest.raises(
++        InfrastructureValidationError,
++        match="contains duplicate grid positions",
++    ):
++        InfrastructureValidator().validate(config)
+diff --git a/tests/test_infrastructure_yaml.py b/tests/test_infrastructure_yaml.py
+index 12fc8a8..ebd83bf 100644
+--- a/tests/test_infrastructure_yaml.py
++++ b/tests/test_infrastructure_yaml.py
+@@ -44,8 +44,8 @@ def test_real_infrastructure_yaml_declares_complete_topology() -> None:
+     layout = topology["layouts"][0]
+ 
+     assert layout["positions"]["rpi-link"] == {
+-        "x": 1350,
+-        "y": 150,
+-        "layer": 4,
+-        "pinned": True,
++        "column": 4,
++        "row": 0,
+     }
++    assert "canvas_width" not in layout
++    assert "canvas_height" not in layout
+diff --git a/tests/test_vision_infrastructure_mapper.py b/tests/test_vision_infrastructure_mapper.py
+index 0ecd48c..c8cc8d7 100644
+--- a/tests/test_vision_infrastructure_mapper.py
++++ b/tests/test_vision_infrastructure_mapper.py
+@@ -9,7 +9,7 @@ from configuration.infrastructure import (
+     TopologyDeviceConfig,
+     TopologyLayoutConfig,
+     TopologyLinkConfig,
+-    TopologyPositionConfig,
++    TopologyGridPositionConfig,
+ )
+ from configuration.enums import (
+     TopologyDeviceKind,
+@@ -267,20 +267,15 @@ def build_topology_config() -> InfrastructureConfig:
+                         id="physical",
+                         label="Topologie physique",
+                         kind=TopologyLayoutKind.PHYSICAL,
+-                        canvas_width=1200,
+-                        canvas_height=700,
+                         positions={
+-                            "internet": TopologyPositionConfig(
+-                                x=150,
+-                                y=350,
+-                                pinned=True,
++                            "internet": TopologyGridPositionConfig(
++                                column=0,
++                                row=1,
+                             ),
+                             "infra-01-device": (
+-                                TopologyPositionConfig(
+-                                    x=750,
+-                                    y=350,
+-                                    layer=1,
+-                                    pinned=True,
++                                TopologyGridPositionConfig(
++                                    column=2,
++                                    row=1,
+                                 )
+                             ),
+                         },
+@@ -337,20 +332,14 @@ def test_mapper_emits_complete_topology() -> None:
+                 "layout_id": "physical",
+                 "label": "Topologie physique",
+                 "kind": "physical",
+-                "canvas_width": 1200.0,
+-                "canvas_height": 700.0,
+                 "positions": {
+                     "internet": {
+-                        "x": 150.0,
+-                        "y": 350.0,
+-                        "layer": 0,
+-                        "pinned": True,
++                        "column": 0,
++                        "row": 1,
+                     },
+                     "infra-01-device": {
+-                        "x": 750.0,
+-                        "y": 350.0,
+-                        "layer": 1,
+-                        "pinned": True,
++                        "column": 2,
++                        "row": 1,
+                     },
+                 },
+                 "metadata": {},

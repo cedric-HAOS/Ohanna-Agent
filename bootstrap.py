@@ -33,6 +33,7 @@ from observer import (
 from observer.exporters import (
     HttpVisionClient,
     VisionClient,
+    VisionInfrastructureMapper,
     VisionObservationExporter,
     VisionObservationMapper,
 )
@@ -199,4 +200,16 @@ def build_production_agent(
 
     return ProductionAgent(
         scheduler=scheduler,
+        vision_client=resolved_vision_client,
+        infrastructure_payload=(
+            VisionInfrastructureMapper().to_payload(
+                infrastructure_config
+            )
+        ),
+        infrastructure_retry_seconds=(
+            configuration.vision.infrastructure_retry_seconds
+        ),
+        infrastructure_refresh_seconds=(
+            configuration.vision.infrastructure_refresh_seconds
+        ),
     )

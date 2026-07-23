@@ -6,6 +6,63 @@ Le projet suit les principes de **Semantic Versioning**.
 
 ---
 
+# [1.1.0] — Infrastructure et topologie synchronisées
+
+## Ajouté
+
+### Topologie déclarative
+
+- Ajout de la topologie complète dans `config/infrastructure.yaml`.
+- Déclaration des équipements, liens et layouts.
+- Positionnement logique par cellules `column` / `row`.
+- Conservation de la responsabilité du rendu et des coordonnées graphiques dans Ohanna-Vision.
+- Ajout des types d'équipements, de liens, de directions et de layouts alignés sur Vision.
+
+### Contrat d'infrastructure vers Vision
+
+- Ajout de `VisionInfrastructureMapper`.
+- Transmission des nœuds, services, équipements, liens et layouts.
+- Ajout de `HttpVisionClient.send_infrastructure()`.
+- Envoi du snapshot par `PUT /api/infrastructure`.
+- Versionnement explicite du contrat avec `schema_version`.
+
+### Synchronisation persistante
+
+- Première synchronisation obligatoire avant le démarrage des observations.
+- Nouvelle tentative toutes les 10 secondes tant que Vision ne répond pas.
+- Rafraîchissement du snapshot toutes les 5 minutes.
+- Suspension du scheduler lorsque Vision devient indisponible.
+- Reprise automatique après resynchronisation.
+- Attentes interruptibles permettant un arrêt systemd propre.
+
+### Validation
+
+- Validation de l'unicité des équipements, liens et layouts.
+- Validation des références entre nœuds, services et équipements.
+- Validation des extrémités de liens.
+- Validation des équipements positionnés.
+- Rejet de plusieurs équipements dans une même cellule de grille.
+- Activation du validateur d'infrastructure dans le bootstrap de production.
+
+## Modifié
+
+- Ohanna-Agent devient la source de vérité de la définition d'infrastructure et de topologie.
+- Les observations ne sont plus émises tant que Vision n'a pas accepté le snapshot courant.
+- La configuration Vision comprend désormais les URL d'infrastructure et d'observation ainsi que les temporisations de retry et de refresh.
+- Le bootstrap prépare le contrat de synchronisation sans effectuer d'appel réseau prématuré.
+
+## Qualité
+
+- 1000 tests unitaires et d'intégration.
+- Validation Ruff.
+- Validation réelle des quatre scénarios Agent ↔ Vision :
+  - Vision démarrée avant Agent ;
+  - Agent démarré avant Vision ;
+  - perte et reprise de Vision ;
+  - arrêt propre pendant la boucle de retry.
+
+---
+
 # [0.14.0] — Pipeline d'observation déclaratif
 
 ## Ajouté

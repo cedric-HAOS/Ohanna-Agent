@@ -2,181 +2,198 @@
 
 > Garantir les capacités de l'infrastructure, plutôt que surveiller des équipements.
 
----
+Ohanna-Agent est le moteur d'observation de l'écosystème Ohanna. Il charge une infrastructure déclarative, exécute les plugins de capacité, produit des observations normalisées et les transmet à Ohanna-Vision.
 
-# Vision
-
-Une infrastructure fiable n'est pas uniquement une infrastructure qui fonctionne.
-
-C'est une infrastructure dont les capacités restent garanties dans le temps.
-
-Les logiciels évoluent.
-
-Les configurations changent.
-
-Les machines peuvent tomber en panne.
-
-Pourtant, les services attendus par la maison doivent continuer à être disponibles.
-
-**Ohanna-Agent** est un moteur d'observation capable de vérifier ces capacités de manière continue, de produire des observations normalisées et de les transmettre à **Ohanna-Vision**.
-
-L'objectif n'est pas de superviser des machines.
-
-L'objectif est de superviser des **capacités**.
-
-Par exemple :
-
-* Résolution DNS
-* Service DHCP
-* Broker MQTT
-* Home Assistant
-* Internet
-* WireGuard
-* NTP
-* Sauvegardes
-* etc.
+La version 1.1.0 fait également de l'Agent la source de vérité de la topologie : nœuds, services, équipements, liens et positions logiques sur la grille sont définis dans `config/infrastructure.yaml`, puis synchronisés avec Vision.
 
 ---
 
-# Philosophie
+# Principes
 
-L'architecture repose sur trois principes.
+## Infrastructure déclarative
 
-## 1. Infrastructure déclarative
-
-L'infrastructure est décrite une seule fois.
-
-Exemple :
+L'infrastructure est décrite une seule fois dans :
 
 ```text
 config/infrastructure.yaml
 ```
 
-Chaque plugin référence des services de cette infrastructure.
+Ce fichier définit notamment :
 
-Il ne contient jamais d'adresse IP codée en dur.
+- l'identité de l'infrastructure ;
+- les nœuds et leurs endpoints ;
+- les services ;
+- les équipements de topologie ;
+- les liens ;
+- les positions logiques sur la grille.
 
----
+Les plugins référencent les services par identifiant et ne dupliquent pas les adresses IP.
 
-## 2. Plugins indépendants
+## Plugins indépendants
 
-Chaque capacité est implémentée dans un plugin indépendant.
+Chaque capacité est fournie par un plugin spécialisé. Le plugin DNS constitue l'implémentation de référence.
 
-Exemple :
-
-```
+```text
 plugins/
-    dns/
-    mqtt/
-    dhcp/
-    internet/
-    ntp/
+└── dns/
 ```
 
-Chaque plugin possède :
+Chaque plugin possède sa configuration, son runtime, ses statistiques et ses observations.
 
-* sa configuration
-* son runtime
-* ses statistiques
-* ses observations
+## Observations standardisées
 
----
+Tous les plugins produisent le même modèle d'observation :
 
-## 3. Observations standardisées
+- capacité ;
+- nœud ;
+- service ;
+- statut ;
+- latence ;
+- message ;
+- métadonnées techniques.
 
-Tous les plugins produisent exactement le même modèle d'observation.
-
-Une observation contient notamment :
-
-* la capacité observée
-* le nœud concerné
-* le service concerné
-* le statut
-* la latence
-* le message
-* les métadonnées techniques
-
-Les exporteurs peuvent ensuite envoyer ces observations vers différents systèmes.
+Le pipeline d'export envoie ensuite ces observations à Ohanna-Vision.
 
 ---
 
 # Architecture
 
-Le pipeline d'exécution est désormais entièrement unifié.
-
 ```text
+infrastructure.yaml
+        │
+        ├── définition des nœuds et services
+        └── définition de la topologie et de la grille
+        │
+        ▼
+InfrastructureLoader
+        │
+        ▼
+InfrastructureValidator
+        │
+        ├── VisionInfrastructureMapper
+        │         │
+        │         ▼
+        │   PUT /api/infrastructure
+        │
+        ▼
 Scheduler
-      │
-      ▼
+        │
+        ▼
 DispatcherTaskExecutor
-      │
-      ▼
+        │
+        ▼
 PluginObservationDispatcher
-      │
-      ▼
+        │
+        ▼
 PluginObservationExecutor
-      │
-      ▼
+        │
+        ▼
 Plugin.execute()
-      │
-      ▼
-ObserverResult
-      │
-      ▼
+        │
+        ▼
 ObservationEngine
-      │
-      ▼
-ObservationPublished
-      │
-      ▼
+        │
+        ▼
 ObservationExportPipeline
-      │
-      ▼
-VisionObservationExporter
-      │
-      ▼
-Ohanna-Vision
+        │
+        ▼
+POST /api/observations
 ```
 
 Chaque étape possède une responsabilité unique.
 
 ---
 
+# Synchronisation avec Ohanna-Vision
+
+Avant de démarrer les observations, l'Agent transmet un snapshot complet de l'infrastructure à Vision.
+
+Le snapshot contient :
+
+- les nœuds ;
+- les services ;
+- les équipements ;
+- les liens ;
+- les layouts ;
+- les positions `column` / `row` sur la grille.
+
+Vision reste responsable de la conversion de cette grille en coordonnées de rendu.
+
+Le comportement est le suivant :
+
+1. l'Agent tente d'envoyer le snapshot ;
+2. tant que Vision ne répond pas, le scheduler d'observation reste arrêté ;
+3. une nouvelle tentative est effectuée toutes les 10 secondes ;
+4. après acceptation du snapshot, les observations démarrent ;
+5. le snapshot est renvoyé toutes les 5 minutes ;
+6. si Vision devient indisponible, les observations sont suspendues jusqu'à la resynchronisation.
+
+Configuration :
+
+```yaml
+vision:
+  enabled: true
+  observation_url: http://127.0.0.1:8000/api/observations
+  infrastructure_url: http://127.0.0.1:8000/api/infrastructure
+  timeout_seconds: 5.0
+  infrastructure_retry_seconds: 10.0
+  infrastructure_refresh_seconds: 300.0
+```
+
+---
+
 # Configuration
 
-## Infrastructure
+## Application
 
-L'infrastructure est décrite dans :
+```text
+config/shikamaru.yaml
+```
+
+Ce fichier configure notamment :
+
+- l'environnement ;
+- la journalisation ;
+- MQTT ;
+- les plugins ;
+- l'export vers Vision ;
+- les temporisations de synchronisation.
+
+## Infrastructure
 
 ```text
 config/infrastructure.yaml
 ```
 
-Elle définit notamment :
-
-* les nœuds
-* les services
-* les endpoints
-* les ports
-
-Exemple :
+Exemple de service :
 
 ```yaml
 services:
   - id: dns-primary
     name: DNS principal
     type: dns
-    node: zwave-01
+    node: infra-01
     port: 53
 ```
 
----
+Exemple de position logique :
 
-## Plugins
+```yaml
+topology:
+  layouts:
+    - id: ohanna-house-physical
+      label: Carte physique Ohanna-House
+      kind: physical
+      positions:
+        internet:
+          column: 0
+          row: 1
+        freebox:
+          column: 1
+          row: 1
+```
 
-Chaque plugin possède son propre fichier déclaratif.
-
-Exemple :
+## Plugin DNS
 
 ```text
 config/plugins/dns.yaml
@@ -191,104 +208,89 @@ queries:
   - openai.com
 
 timeout: 2.0
-
 retries: 1
 ```
 
-Aucune adresse IP n'est dupliquée.
-
-Le plugin résout automatiquement les services à partir de l'infrastructure.
-
 ---
 
-# Démonstration
+# Installation de développement
 
-Une démonstration complète est fournie.
+Prérequis : Python 3.12 ou supérieur.
 
 ```bash
-python -m scripts.demo_dns_pipeline
+python -m venv .venv
 ```
 
-Le script :
+Sous Windows :
 
-* charge l'infrastructure ;
-* charge la configuration DNS ;
-* résout automatiquement le serveur DNS ;
-* exécute une vraie résolution DNS ;
-* met à jour le runtime ;
-* génère une observation ;
-* exporte cette observation vers un faux client Ohanna-Vision.
-
-Exemple de sortie :
-
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[development]"
 ```
-Resolved DNS server : 192.168.1.11
 
-Hostname            : example.com
+Sous Linux :
 
-Latency             : 3.86 ms
-
-Status              : healthy
-
-Observation exported to Vision
+```bash
+source .venv/bin/activate
+python -m pip install -e ".[development]"
 ```
 
 ---
 
-# Tests
+# Exécution
 
-Le projet est fortement orienté qualité.
+```bash
+ohanna-agent \
+  --config config/shikamaru.yaml \
+  --infrastructure config/infrastructure.yaml \
+  --dns-config config/plugins/dns.yaml
+```
 
-À ce jour :
+Version :
 
-* **851 tests unitaires et d'intégration**
-* Ruff
-* Typage Python
-* Architecture modulaire
-* Injection de dépendances
+```bash
+ohanna-agent --version
+```
 
-Lancer les tests :
+---
+
+# Tests et qualité
+
+La version 1.1.0 est validée par :
+
+- **1000 tests** ;
+- Ruff ;
+- tests d'intégration Agent ↔ Vision ;
+- démarrage dans les deux ordres ;
+- perte et reprise de Vision ;
+- arrêt propre pendant la boucle de synchronisation.
 
 ```bash
 ruff check .
-pytest
+pytest -q
 ```
 
 ---
 
 # État actuel
 
-Les composants actuellement disponibles sont notamment :
+La version 1.1.0 comprend notamment :
 
-* Infrastructure déclarative
-* Scheduler
-* Dispatcher
-* EventBus
-* Plugin SDK
-* Plugin Manager
-* DNS Plugin
-* Observation Engine
-* Observation Export Pipeline
-* Vision Exporter
-* Runtime Infrastructure
-* Observation Runtime
-* Pipeline d'exécution unifié
-
----
-
-# Roadmap
-
-Les prochaines étapes concernent notamment :
-
-* nouveaux plugins (DHCP, MQTT, Internet, NTP, WireGuard…) ;
-* enrichissement du modèle d'infrastructure ;
-* interface Web Ohanna-Vision ;
-* intégration native avec Home Assistant.
+- infrastructure déclarative ;
+- topologie déclarative sur grille ;
+- validation complète des références ;
+- Scheduler et Dispatcher ;
+- EventBus ;
+- Plugin SDK et Plugin Manager ;
+- plugin DNS ;
+- Observation Engine ;
+- Observation Export Pipeline ;
+- synchronisation persistante avec Ohanna-Vision ;
+- service systemd et scripts de déploiement ;
+- packaging wheel et sdist.
 
 ---
 
 # Licence
 
-Projet développé dans le cadre de l'écosystème **Ohanna**.
-
-© Cédric Harnois
+Projet distribué sous licence MIT.

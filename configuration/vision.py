@@ -23,3 +23,5 @@ class VisionConfig(Config):
     )
 
     timeout_seconds: PositiveFloat = 5.0
+    infrastructure_retry_seconds: PositiveFloat = 10.0
+    infrastructure_refresh_seconds: PositiveFloat = 300.0

@@ -10,6 +10,8 @@ def test_vision_config_has_production_defaults() -> None:
     assert config.enabled is True
     assert str(config.observation_url) == ("http://127.0.0.1:8000/api/observations")
     assert config.timeout_seconds == 5.0
+    assert config.infrastructure_retry_seconds == 10.0
+    assert config.infrastructure_refresh_seconds == 300.0
     assert str(config.infrastructure_url) == (
         "http://127.0.0.1:8000/api/infrastructure"
     )
@@ -25,10 +27,14 @@ def test_vision_config_accepts_custom_endpoint() -> None:
             "http://192.168.1.10:8000/api/infrastructure"
         ),
         timeout_seconds=3.0,
+        infrastructure_retry_seconds=7.0,
+        infrastructure_refresh_seconds=120.0,
     )
 
     assert str(config.observation_url) == ("http://192.168.1.10:8000/api/observations")
     assert config.timeout_seconds == 3.0
+    assert config.infrastructure_retry_seconds == 7.0
+    assert config.infrastructure_refresh_seconds == 120.0
     assert str(config.infrastructure_url) == (
         "http://192.168.1.10:8000/api/infrastructure"
     )
@@ -53,3 +59,16 @@ def test_vision_config_rejects_invalid_infrastructure_url(
         VisionConfig(
             infrastructure_url="not-a-url",
         )
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "infrastructure_retry_seconds",
+        "infrastructure_refresh_seconds",
+    ],
+)
+def test_vision_config_rejects_invalid_sync_interval(
+    field_name: str,
+) -> None:
+    with pytest.raises(ValidationError):
+        VisionConfig(**{field_name: 0})

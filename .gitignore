@@ -19,3 +19,12 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+
+# Patches de travail
+*.patch
+
+# Python packaging metadata
+*.egg-info/
+
+# Temporary topology exports
+/actual_topology.json

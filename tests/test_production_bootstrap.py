@@ -9,15 +9,23 @@ from scheduler.clock import FakeClock
 
 @dataclass
 class FakeVisionClient:
-    """Capture observations exported by the production bootstrap."""
+    """Capture data exported by the production bootstrap."""
 
-    payloads: list[dict[str, Any]] = field(default_factory=list)
+    operations: list[tuple[str, dict[str, Any]]] = field(
+        default_factory=list
+    )
 
     def send_observation(
         self,
         payload: dict[str, Any],
     ) -> None:
-        self.payloads.append(payload)
+        self.operations.append(("observation", payload))
+
+    def send_infrastructure(
+        self,
+        payload: dict[str, Any],
+    ) -> None:
+        self.operations.append(("infrastructure", payload))
 
 
 def test_production_bootstrap_builds_dns_task() -> None:
@@ -51,9 +59,14 @@ def test_production_bootstrap_builds_dns_task() -> None:
         "service_id": "dns-primary",
         "server": "192.168.1.10",
     }
+    assert agent.infrastructure_retry_seconds == 10.0
+    assert agent.infrastructure_refresh_seconds == 300.0
+    assert agent.infrastructure_payload is not None
+    assert len(agent.infrastructure_payload["topology"]["devices"]) == 9
+    assert len(agent.infrastructure_payload["topology"]["links"]) == 8
 
 
-def test_production_bootstrap_exports_real_dns_observation() -> None:
+def test_production_bootstrap_exports_infrastructure_before_observation() -> None:
     clock = FakeClock(
         current_time=datetime(
             2026,
@@ -75,16 +88,35 @@ def test_production_bootstrap_exports_real_dns_observation() -> None:
     agent.tick()
     agent.stop()
 
-    assert len(vision_client.payloads) == 1
+    assert [
+        operation
+        for operation, _payload in vision_client.operations
+    ] == [
+        "infrastructure",
+        "observation",
+    ]
 
-    payload = vision_client.payloads[0]
+    infrastructure_payload = vision_client.operations[0][1]
 
-    assert payload["node_id"] == "infra-01"
-    assert payload["service_id"] == "dns-primary"
-    assert payload["capability_id"] == "dns.resolve"
-    assert payload["status"] in {
+    assert infrastructure_payload["infrastructure_id"] == (
+        "ohanna-house"
+    )
+    assert len(infrastructure_payload["topology"]["devices"]) == 9
+    assert len(infrastructure_payload["topology"]["links"]) == 8
+    assert len(infrastructure_payload["topology"]["layouts"]) == 1
+
+    observation_payload = vision_client.operations[1][1]
+
+    assert observation_payload["node_id"] == "infra-01"
+    assert observation_payload["service_id"] == "dns-primary"
+    assert observation_payload["capability_id"] == "dns.resolve"
+    assert observation_payload["status"] in {
         "healthy",
         "unavailable",
     }
-    assert payload["metadata"]["hostname"] == "example.com"
-    assert payload["metadata"]["server"] == "192.168.1.10"
+    assert observation_payload["metadata"]["hostname"] == (
+        "example.com"
+    )
+    assert observation_payload["metadata"]["server"] == (
+        "192.168.1.10"
+    )

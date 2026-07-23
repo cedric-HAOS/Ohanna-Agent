@@ -2,157 +2,106 @@
 
 ## Pourquoi Ohanna-Agent existe
 
-Une infrastructure fiable n'est pas uniquement une infrastructure qui fonctionne.
+Une infrastructure fiable n'est pas uniquement une infrastructure qui fonctionne. C'est une infrastructure dont les capacités sont garanties dans le temps.
 
-C'est une infrastructure dont les capacités sont garanties dans le temps.
+Les logiciels évoluent, les machines tombent en panne, les configurations dérivent et les dépendances changent. Pourtant, les capacités attendues doivent rester disponibles.
 
-Les logiciels évoluent.
-Les machines tombent en panne.
-Les configurations dérivent.
-Les dépendances changent.
-
-Pourtant, les capacités attendues de la maison doivent rester disponibles.
-
-Ohanna-Agent est né de cette idée.
-
-Sa mission n'est pas de surveiller des équipements.
-
-Sa mission est de garantir les capacités définies par l'architecture de référence d'Ohanna-House.
+Ohanna-Agent observe ces capacités et fournit à l'écosystème Ohanna une définition fiable de l'infrastructure qui les porte.
 
 ---
 
-## Notre vision
-
-Nous considérons qu'une infrastructure ne doit pas être décrite uniquement par les logiciels qui la composent.
-
-Elle doit être décrite par les services qu'elle rend.
-
-DNS.
-
-DHCP.
-
-Home Assistant.
-
-MQTT.
-
-Sauvegardes.
-
-Supervision.
-
-Accès distant.
-
-Chaque capacité possède un niveau de disponibilité attendu.
-
-Ohanna-Agent observe en permanence ces capacités afin de garantir leur fonctionnement.
-
----
-
-## Ce que fait Ohanna-Agent
+## Mission
 
 Ohanna-Agent :
 
-- observe ;
-- comprend ;
-- évalue ;
-- décide ;
-- agit.
+- charge et valide l'infrastructure déclarative ;
+- décrit les nœuds, services, équipements et liens ;
+- observe les capacités réelles ;
+- normalise les résultats ;
+- synchronise l'infrastructure avec Ohanna-Vision ;
+- transmet les observations uniquement lorsque Vision possède la définition courante.
 
-Il ne surveille pas simplement des processus.
-
-Il vérifie que les capacités attendues sont réellement fournies.
-
----
-
-## Ce que ne fait pas Ohanna-Agent
-
-Ohanna-Agent n'est pas un logiciel de supervision classique.
-
-Il ne cherche pas uniquement à savoir si un service est démarré.
-
-Il cherche à savoir si la capacité attendue est réellement garantie.
-
-Par exemple :
-
-Un serveur DNS peut être démarré.
-
-Mais si aucune résolution n'est possible, la capacité DNS est indisponible.
-
-C'est cette différence qui fonde toute la philosophie du projet.
+Il ne se limite pas à vérifier qu'un processus est démarré. Il vérifie que la capacité attendue est réellement disponible.
 
 ---
 
-## Les principes fondateurs
+## Source de vérité
 
-Toutes les décisions d'architecture d'Ohanna-Agent reposent sur les principes suivants.
+La définition de référence réside dans :
+
+```text
+config/infrastructure.yaml
+```
+
+Elle contient :
+
+- les nœuds ;
+- les services ;
+- les endpoints ;
+- les équipements de topologie ;
+- les liens ;
+- les layouts ;
+- les positions logiques sur une grille.
+
+Ohanna-Vision ne conserve pas une seconde configuration métier. Il reçoit un snapshot normalisé, le valide, le projette et l'affiche.
+
+---
+
+## Relation avec Ohanna-Vision
+
+```text
+Ohanna-Agent
+    │
+    ├── PUT /api/infrastructure
+    │       nœuds, services, équipements,
+    │       liens et grille
+    │
+    └── POST /api/observations
+            états, latences et métadonnées
+```
+
+L'ordre est garanti :
+
+1. Vision accepte le snapshot d'infrastructure ;
+2. l'Agent démarre les observations ;
+3. l'Agent rafraîchit périodiquement le snapshot ;
+4. en cas de perte de Vision, les observations sont suspendues ;
+5. elles reprennent après resynchronisation.
+
+Cette règle évite qu'une observation soit reçue sans définition correspondante du nœud ou du service.
+
+---
+
+## Principes fondateurs
 
 ### Les capacités avant les implémentations
 
-Une capacité peut être assurée par plusieurs implémentations.
-
-L'agent garantit la capacité.
-
-Il ne dépend jamais d'une implémentation particulière.
-
----
+Une capacité peut être assurée par plusieurs implémentations. L'Agent garantit la capacité et ne dépend pas d'une technologie particulière.
 
 ### Les observations avant les hypothèses
 
-Toutes les décisions doivent être prises à partir d'observations réelles.
+Une configuration ne constitue pas une preuve de fonctionnement. Seule une observation réelle permet d'évaluer une capacité.
 
-Une configuration ne constitue jamais une preuve de fonctionnement.
+### Une seule source de vérité
 
-Seule l'observation permet de garantir une capacité.
+L'infrastructure et la topologie sont déclarées une seule fois dans l'Agent puis transmises à Vision par un contrat public versionné.
 
----
+### La structure avant le rendu
+
+L'Agent transmet une position logique `column` / `row`. Vision reste propriétaire des marges, espacements, dimensions de canvas et coordonnées graphiques.
 
 ### Les plugins avant le code spécifique
 
-Chaque capacité doit pouvoir être ajoutée, remplacée ou supprimée sans modifier le cœur du logiciel.
+Chaque capacité doit pouvoir être ajoutée sans modifier le cœur du logiciel.
 
-Le noyau reste indépendant des technologies qu'il pilote.
+### L'autonomie contrôlée
 
----
-
-### L'autonomie avant l'intervention humaine
-
-Lorsqu'une anomalie est détectée, l'agent privilégie toujours la solution la plus autonome possible.
-
-L'intervention humaine reste le dernier recours.
+L'Agent privilégie la reprise automatique, mais toute future action de remédiation devra être explicite, traçable et sûre.
 
 ---
 
-### Une architecture durable
+## Ambition
 
-L'architecture doit rester stable.
+Construire un agent simple, fiable, observable, extensible et résilient, capable de garantir durablement les capacités d'une infrastructure moderne.
 
-Les implémentations peuvent évoluer.
-
-Les plugins peuvent évoluer.
-
-Les protocoles peuvent évoluer.
-
-Les capacités, elles, constituent le contrat fondamental du système.
-
----
-
-## Notre ambition
-
-Construire un agent capable de garantir durablement les capacités d'une infrastructure domestique moderne.
-
-Simple.
-
-Fiable.
-
-Observable.
-
-Extensible.
-
-Résilient.
-
----
-
-## Une phrase
-
-Ohanna-Agent ne surveille pas des logiciels.
-
-Il garantit des capacités.
+> Ohanna-Agent ne surveille pas des logiciels. Il garantit des capacités.

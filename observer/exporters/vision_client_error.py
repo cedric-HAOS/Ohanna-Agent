@@ -2,4 +2,4 @@
 
 
 class VisionClientError(RuntimeError):
-    """Raised when an observation cannot be sent to Ohanna-Vision."""
+    """Raised when data cannot be sent to Ohanna-Vision."""

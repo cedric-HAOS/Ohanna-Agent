@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Tous les échanges d'informations d'Ohanna-Agent reposent sur un modèle de message unique.
+Tous les échanges d'informations d'Ohana-Agent reposent sur un modèle de message unique.
 
 Ce modèle constitue le langage commun utilisé par l'ensemble du système.
 
@@ -13,7 +13,7 @@ Il est indépendant :
 * de l'implémentation des plugins ;
 * des technologies externes.
 
-Chaque message échangé dans Ohanna-Agent respecte ce modèle.
+Chaque message échangé dans Ohana-Agent respecte ce modèle.
 
 ---
 
@@ -31,7 +31,7 @@ Le modèle de message poursuit plusieurs objectifs :
 
 # Principe
 
-Les concepts internes d'Ohanna-Agent sont transportés dans une enveloppe commune.
+Les concepts internes d'Ohana-Agent sont transportés dans une enveloppe commune.
 
 Cette enveloppe est identique quel que soit le canal de communication.
 

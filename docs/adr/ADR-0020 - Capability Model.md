@@ -2,14 +2,14 @@
 
 - **Statut** : Accepté
 - **Date** : 2026-07-08
-- **Décideurs** : Équipe Ohanna-Agent
+- **Décideurs** : Équipe Ohana-Agent
 - **Version cible** : v0.4.0
 
 ---
 
 # Contexte
 
-Depuis les premiers sprints, Ohanna-Agent s'est progressivement doté des services fondamentaux nécessaires à son fonctionnement :
+Depuis les premiers sprints, Ohana-Agent s'est progressivement doté des services fondamentaux nécessaires à son fonctionnement :
 
 - Lifecycle
 - Configuration
@@ -58,7 +58,7 @@ Le noyau doit donc manipuler ces services sans connaître leur implémentation.
 
 # Décision
 
-Ohanna-Agent adopte un modèle orienté **Capability**.
+Ohana-Agent adopte un modèle orienté **Capability**.
 
 Une **Capability** représente une fonctionnalité métier offerte par l'agent, indépendamment de son implémentation technique.
 
@@ -351,7 +351,7 @@ Les événements décrivent des échanges entre composants mais ne représentent
 
 Le noyau **Shikamaru** adopte une architecture orientée **Capability**.
 
-À partir de la version **v0.4.0**, les Capabilities deviennent l'unité fonctionnelle centrale d'Ohanna-Agent.
+À partir de la version **v0.4.0**, les Capabilities deviennent l'unité fonctionnelle centrale d'Ohana-Agent.
 
 Les plugins sont désormais considérés comme des fournisseurs de capacités, tandis que le noyau orchestre exclusivement ces dernières.
 

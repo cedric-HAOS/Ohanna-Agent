@@ -8,7 +8,7 @@ Proposé
 
 Shikamaru dispose désormais d’un noyau applicatif structuré autour de services internes, d’un dispatcher d’événements, d’un modèle de configuration, d’un système de health check et d’un cycle de vie applicatif clair.
 
-La prochaine étape consiste à connecter Shikamaru à l’écosystème Ohanna via MQTT.
+La prochaine étape consiste à connecter Shikamaru à l’écosystème Ohana via MQTT.
 
 MQTT doit permettre à Shikamaru de :
 
@@ -103,7 +103,7 @@ Exemple de publication :
 
 ```python
 await mqtt.publish(
-    topic="ohanna/agent/shikamaru/status",
+    topic="ohana/agent/shikamaru/status",
     payload=status_message,
 )
 ```
@@ -145,7 +145,7 @@ Les messages MQTT entrants seront convertis en événements internes.
 Exemple :
 
 ```text
-ohanna/agent/shikamaru/command
+ohana/agent/shikamaru/command
         │
         ▼
 CommandReceivedEvent
@@ -163,7 +163,7 @@ Shikamaru publiera régulièrement un heartbeat MQTT.
 Topic cible :
 
 ```text
-ohanna/agent/shikamaru/status
+ohana/agent/shikamaru/status
 ```
 
 Payload indicatif :
@@ -188,7 +188,7 @@ Lors de la connexion, Shikamaru publiera un message de naissance.
 Topic :
 
 ```text
-ohanna/agent/shikamaru/availability
+ohana/agent/shikamaru/availability
 ```
 
 Payload :
@@ -230,24 +230,24 @@ Après reconnexion, Shikamaru devra :
 
 ## Topics MQTT
 
-Les topics suivront la convention Ohanna existante.
+Les topics suivront la convention Ohana existante.
 
 Racine :
 
 ```text
-ohanna/agent/shikamaru/
+ohana/agent/shikamaru/
 ```
 
 Topics principaux :
 
 ```text
-ohanna/agent/shikamaru/status
-ohanna/agent/shikamaru/availability
-ohanna/agent/shikamaru/health
-ohanna/agent/shikamaru/events
-ohanna/agent/shikamaru/command
-ohanna/agent/shikamaru/logs
-ohanna/agent/shikamaru/metrics
+ohana/agent/shikamaru/status
+ohana/agent/shikamaru/availability
+ohana/agent/shikamaru/health
+ohana/agent/shikamaru/events
+ohana/agent/shikamaru/command
+ohana/agent/shikamaru/logs
+ohana/agent/shikamaru/metrics
 ```
 
 ## Configuration
@@ -262,7 +262,7 @@ mqtt:
   username: null
   password: null
   client_id: "shikamaru"
-  base_topic: "ohanna/agent/shikamaru"
+  base_topic: "ohana/agent/shikamaru"
   qos: 1
   retain: false
   heartbeat_interval_seconds: 30

@@ -7,7 +7,7 @@ class PluginContext:
     """Immutable context exposed to plugins.
 
     This object provides access to the public services of the
-    Ohanna-Agent core without exposing the Application itself.
+    Ohana-Agent core without exposing the Application itself.
     """
 
     event_bus: Any

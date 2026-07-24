@@ -1,6 +1,6 @@
 # CHANGELOG
 
-Toutes les évolutions importantes d'Ohanna-Agent sont documentées dans ce fichier.
+Toutes les évolutions importantes d'Ohana-Agent sont documentées dans ce fichier.
 
 Le projet suit les principes de **Semantic Versioning**.
 
@@ -15,7 +15,7 @@ Le projet suit les principes de **Semantic Versioning**.
 - Ajout de la topologie complète dans `config/infrastructure.yaml`.
 - Déclaration des équipements, liens et layouts.
 - Positionnement logique par cellules `column` / `row`.
-- Conservation de la responsabilité du rendu et des coordonnées graphiques dans Ohanna-Vision.
+- Conservation de la responsabilité du rendu et des coordonnées graphiques dans Ohana-Vision.
 - Ajout des types d'équipements, de liens, de directions et de layouts alignés sur Vision.
 
 ### Contrat d'infrastructure vers Vision
@@ -46,7 +46,7 @@ Le projet suit les principes de **Semantic Versioning**.
 
 ## Modifié
 
-- Ohanna-Agent devient la source de vérité de la définition d'infrastructure et de topologie.
+- Ohana-Agent devient la source de vérité de la définition d'infrastructure et de topologie.
 - Les observations ne sont plus émises tant que Vision n'a pas accepté le snapshot courant.
 - La configuration Vision comprend désormais les URL d'infrastructure et d'observation ainsi que les temporisations de retry et de refresh.
 - Le bootstrap prépare le contrat de synchronisation sans effectuer d'appel réseau prématuré.
@@ -120,7 +120,7 @@ ObservationExportPipeline
         │
 VisionObservationExporter
         │
-Ohanna-Vision
+Ohana-Vision
 ```
 
 ### Observation Engine
@@ -130,7 +130,7 @@ Ohanna-Vision
 * Mise à jour automatique du runtime infrastructure.
 * Export automatique des observations.
 
-### Export Ohanna-Vision
+### Export Ohana-Vision
 
 * Ajout de `VisionClient`.
 * Ajout de `VisionObservationExporter`.
@@ -170,9 +170,9 @@ Le script réalise une exécution réelle :
 * interrogation réelle du serveur DNS ;
 * mise à jour du runtime ;
 * génération d'une observation ;
-* export vers un faux client Ohanna-Vision.
+* export vers un faux client Ohana-Vision.
 
-Cette démonstration constitue le premier pipeline complet de bout en bout d'Ohanna-Agent.
+Cette démonstration constitue le premier pipeline complet de bout en bout d'Ohana-Agent.
 
 ---
 
@@ -222,7 +222,7 @@ Le Scheduler exécute désormais les plugins via le pipeline unifié d'observati
 * Infrastructure Runtime.
 * Observation Export Pipeline.
 * Plugin SDK unifié.
-* Premier connecteur Ohanna-Vision.
+* Premier connecteur Ohana-Vision.
 
 ## v0.12.0
 

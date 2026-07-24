@@ -10,7 +10,7 @@ Accepté
 
 ## Contexte
 
-Ohanna-Agent dispose désormais d’un socle stable :
+Ohana-Agent dispose désormais d’un socle stable :
 
 * cycle de vie applicatif maîtrisé ;
 * configuration centralisée ;
@@ -202,7 +202,7 @@ Ces sujets seront traités dans les ADR suivantes.
 
 ## Décision finale
 
-Ohanna-Agent adopte un `HealthMonitor` dédié.
+Ohana-Agent adopte un `HealthMonitor` dédié.
 
 Il sera le point central d’observation de la santé de Shikamaru.
 

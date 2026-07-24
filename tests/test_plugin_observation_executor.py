@@ -98,7 +98,7 @@ def build_executor(
         services=[service],
     )
     infrastructure = Infrastructure(
-        name="Ohanna",
+        name="Ohana",
         nodes=[node],
     )
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)

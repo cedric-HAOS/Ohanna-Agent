@@ -31,7 +31,7 @@ def test_parse_arguments_uses_default_configuration_paths(
     monkeypatch.setattr(
         sys,
         "argv",
-        ["ohanna-agent"],
+        ["ohana-agent"],
     )
 
     arguments = parse_arguments()
@@ -49,7 +49,7 @@ def test_parse_arguments_accepts_custom_paths(
         sys,
         "argv",
         [
-            "ohanna-agent",
+            "ohana-agent",
             "--config",
             "custom/application.yaml",
             "--infrastructure",
@@ -111,7 +111,7 @@ def test_parse_arguments_rejects_invalid_log_level(
         sys,
         "argv",
         [
-            "ohanna-agent",
+            "ohana-agent",
             "--log-level",
             "TRACE",
         ],
@@ -203,7 +203,7 @@ def test_main_builds_and_runs_production_agent(
         sys,
         "argv",
         [
-            "ohanna-agent",
+            "ohana-agent",
             "--config",
             "custom/application.yaml",
             "--infrastructure",
@@ -325,7 +325,7 @@ def test_parse_arguments_displays_version(
         sys,
         "argv",
         [
-            "ohanna-agent",
+            "ohana-agent",
             "--version",
         ],
     )
@@ -334,7 +334,7 @@ def test_parse_arguments_displays_version(
         parse_arguments()
 
     assert exc_info.value.code == 0
-    assert capsys.readouterr().out.strip() == ("ohanna-agent 1.0.0")
+    assert capsys.readouterr().out.strip() == ("ohana-agent 1.0.0")
 
 
 def test_parse_arguments_accepts_linux_configuration_paths(
@@ -345,24 +345,24 @@ def test_parse_arguments_accepts_linux_configuration_paths(
         sys,
         "argv",
         [
-            "ohanna-agent",
+            "ohana-agent",
             "--config",
-            "/etc/ohanna-agent/shikamaru.yaml",
+            "/etc/ohana-agent/shikamaru.yaml",
             "--infrastructure",
-            "/etc/ohanna-agent/infrastructure.yaml",
+            "/etc/ohana-agent/infrastructure.yaml",
             "--dns-config",
-            "/etc/ohanna-agent/plugins/dns.yaml",
+            "/etc/ohana-agent/plugins/dns.yaml",
         ],
     )
 
     arguments = parse_arguments()
 
     assert arguments.config == Path(
-        "/etc/ohanna-agent/shikamaru.yaml",
+        "/etc/ohana-agent/shikamaru.yaml",
     )
     assert arguments.infrastructure == Path(
-        "/etc/ohanna-agent/infrastructure.yaml",
+        "/etc/ohana-agent/infrastructure.yaml",
     )
     assert arguments.dns_config == Path(
-        "/etc/ohanna-agent/plugins/dns.yaml",
+        "/etc/ohana-agent/plugins/dns.yaml",
     )

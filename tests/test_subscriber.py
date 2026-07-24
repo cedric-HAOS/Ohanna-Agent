@@ -46,17 +46,17 @@ def make_subscriber() -> tuple[
 def test_subscribe_delegates_to_backend() -> None:
     subscriber, backend, _ = make_subscriber()
 
-    asyncio.run(subscriber.subscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(subscriber.subscribe("ohana/agent/shikamaru/command"))
 
-    assert backend.subscribed == ["ohanna/agent/shikamaru/command"]
+    assert backend.subscribed == ["ohana/agent/shikamaru/command"]
 
 
 def test_unsubscribe_delegates_to_backend() -> None:
     subscriber, backend, _ = make_subscriber()
 
-    asyncio.run(subscriber.unsubscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(subscriber.unsubscribe("ohana/agent/shikamaru/command"))
 
-    assert backend.unsubscribed == ["ohanna/agent/shikamaru/command"]
+    assert backend.unsubscribed == ["ohana/agent/shikamaru/command"]
 
 
 def test_deserialize_json_string_payload() -> None:
@@ -103,14 +103,14 @@ def test_handle_message_dispatches_event() -> None:
 
     asyncio.run(
         subscriber.handle_message(
-            "ohanna/agent/shikamaru/command",
+            "ohana/agent/shikamaru/command",
             '{"command": "status"}',
         )
     )
 
     assert dispatcher.events == [
         MQTTMessageReceivedEvent(
-            topic="ohanna/agent/shikamaru/command",
+            topic="ohana/agent/shikamaru/command",
             payload={"command": "status"},
         )
     ]
@@ -121,14 +121,14 @@ def test_handle_message_accepts_bytes_payload() -> None:
 
     asyncio.run(
         subscriber.handle_message(
-            "ohanna/agent/shikamaru/command",
+            "ohana/agent/shikamaru/command",
             b'{"command": "restart"}',
         )
     )
 
     assert dispatcher.events == [
         MQTTMessageReceivedEvent(
-            topic="ohanna/agent/shikamaru/command",
+            topic="ohana/agent/shikamaru/command",
             payload={"command": "restart"},
         )
     ]
@@ -140,7 +140,7 @@ def test_handle_message_does_not_dispatch_invalid_json() -> None:
     with pytest.raises(ValueError):
         asyncio.run(
             subscriber.handle_message(
-                "ohanna/agent/shikamaru/command",
+                "ohana/agent/shikamaru/command",
                 "not-json",
             )
         )

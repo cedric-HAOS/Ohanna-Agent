@@ -26,8 +26,8 @@ from configuration.infrastructure_validator import (
 def build_valid_config() -> InfrastructureConfig:
     return InfrastructureConfig(
         infrastructure=InfrastructureIdentityConfig(
-            id="ohanna-house",
-            name="Ohanna House",
+            id="ohana-house",
+            name="Ohana House",
         ),
         nodes=[
             NodeConfig(
@@ -58,8 +58,8 @@ def test_validator_accepts_valid_config() -> None:
 def test_validator_rejects_duplicate_node_ids() -> None:
     config = InfrastructureConfig(
         infrastructure=InfrastructureIdentityConfig(
-            id="ohanna-house",
-            name="Ohanna House",
+            id="ohana-house",
+            name="Ohana House",
         ),
         nodes=[
             NodeConfig(
@@ -98,8 +98,8 @@ def test_validator_rejects_duplicate_service_ids() -> None:
 def test_validator_rejects_invalid_node_endpoint_type() -> None:
     config = InfrastructureConfig(
         infrastructure=InfrastructureIdentityConfig(
-            id="ohanna-house",
-            name="Ohanna House",
+            id="ohana-house",
+            name="Ohana House",
         ),
         nodes=[
             NodeConfig(
@@ -120,8 +120,8 @@ def test_validator_rejects_invalid_node_endpoint_type() -> None:
 def test_validator_rejects_invalid_node_address() -> None:
     config = InfrastructureConfig(
         infrastructure=InfrastructureIdentityConfig(
-            id="ohanna-house",
-            name="Ohanna House",
+            id="ohana-house",
+            name="Ohana House",
         ),
         nodes=[
             NodeConfig(
@@ -142,8 +142,8 @@ def test_validator_rejects_invalid_node_address() -> None:
 def test_validator_rejects_service_referencing_unknown_node() -> None:
     config = InfrastructureConfig(
         infrastructure=InfrastructureIdentityConfig(
-            id="ohanna-house",
-            name="Ohanna House",
+            id="ohana-house",
+            name="Ohana House",
         ),
         nodes=[
             NodeConfig(

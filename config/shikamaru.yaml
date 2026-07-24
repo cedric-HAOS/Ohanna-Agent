@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Ohanna-Agent
+# Ohana-Agent
 # Production configuration for infra-01
 # -----------------------------------------------------------------------------
 
@@ -10,7 +10,7 @@ agent:
   environment: production
 
 mqtt:
-  host: ha-green.ohanna.lan
+  host: ha-green.ohana.lan
   port: 1883
 
 logging:

@@ -2,7 +2,7 @@
 
 ## Vision
 
-Ohanna-Agent garantit les capacités attendues d'une infrastructure déclarative. Il observe les services réels, normalise leurs états et fournit à Ohanna-Vision la définition de référence de l'infrastructure et de sa topologie.
+Ohana-Agent garantit les capacités attendues d'une infrastructure déclarative. Il observe les services réels, normalise leurs états et fournit à Ohana-Vision la définition de référence de l'infrastructure et de sa topologie.
 
 ---
 
@@ -20,7 +20,7 @@ Principaux acquis :
 - Plugin SDK et Plugin Manager ;
 - plugin DNS ;
 - moteur d'observation ;
-- export HTTP vers Ohanna-Vision ;
+- export HTTP vers Ohana-Vision ;
 - bootstrap de production ;
 - service systemd ;
 - scripts d'installation et de mise à jour ;
@@ -37,7 +37,7 @@ Objectifs réalisés :
 - topologie déclarative dans `infrastructure.yaml` ;
 - équipements, liens et layouts ;
 - positions logiques `column` / `row` ;
-- contrat public versionné vers Ohanna-Vision ;
+- contrat public versionné vers Ohana-Vision ;
 - transmission par `PUT /api/infrastructure` ;
 - validation des références et des cellules de grille ;
 - première synchronisation obligatoire avant les observations ;

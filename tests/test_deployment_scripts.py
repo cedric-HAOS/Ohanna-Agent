@@ -30,14 +30,14 @@ def test_install_script_uses_reference_linux_paths() -> None:
     """Install the application according to the Linux contract."""
     script = read_script(INSTALL_SCRIPT)
 
-    assert 'INSTALL_ROOT="/opt/ohanna-agent"' in script
+    assert 'INSTALL_ROOT="/opt/ohana-agent"' in script
     assert 'VENV_PATH="${INSTALL_ROOT}/venv"' in script
-    assert 'CONFIG_ROOT="/etc/ohanna-agent"' in script
+    assert 'CONFIG_ROOT="/etc/ohana-agent"' in script
     assert 'SYSTEMD_UNIT="/etc/systemd/system/${SERVICE_NAME}.service"' in script
 
 
 def test_install_script_requires_prepared_system_resources() -> None:
-    """Leave system preparation to Ohanna-Installer."""
+    """Leave system preparation to Ohana-Installer."""
     script = read_script(INSTALL_SCRIPT)
 
     assert 'id "${SERVICE_USER}"' in script
@@ -84,7 +84,7 @@ def test_update_script_preserves_configuration_and_service_state() -> None:
     """Leave configuration untouched and preserve stopped services."""
     script = read_script(UPDATE_SCRIPT)
 
-    assert "/etc/ohanna-agent" not in script
+    assert "/etc/ohana-agent" not in script
     assert "shikamaru.yaml" not in script
     assert "infrastructure.yaml" not in script
     assert "dns.yaml" not in script

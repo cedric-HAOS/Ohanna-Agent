@@ -10,7 +10,7 @@ Accepté
 
 ## Contexte
 
-Le Sprint 7 introduit la mémoire dans Ohanna-Agent.
+Le Sprint 7 introduit la mémoire dans Ohana-Agent.
 
 Certaines informations doivent rester uniquement en mémoire volatile, tandis que d’autres doivent survivre au redémarrage de l’application.
 
@@ -18,7 +18,7 @@ Il est donc nécessaire de définir une politique claire de persistance.
 
 ## Décision
 
-Ohanna-Agent introduit une politique de persistance explicite basée sur le scope mémoire.
+Ohana-Agent introduit une politique de persistance explicite basée sur le scope mémoire.
 
 Seules les entrées appartenant au scope suivant peuvent être persistées :
 
@@ -177,6 +177,6 @@ SQLite sera probablement pertinent plus tard, mais JSON est suffisant pour une p
 
 ## Décision finale
 
-Ohanna-Agent adopte une persistance explicite, limitée au scope `PERSISTENT`, avec un backend JSON local isolé derrière `MemoryStorage`.
+Ohana-Agent adopte une persistance explicite, limitée au scope `PERSISTENT`, avec un backend JSON local isolé derrière `MemoryStorage`.
 
 Cette décision garantit une mémoire durable simple, contrôlée et évolutive.

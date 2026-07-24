@@ -10,7 +10,7 @@ Accepté
 
 ## Contexte
 
-Ohanna-Agent dispose déjà d’un noyau stable : cycle de vie, services cœur, runtime MQTT, auto-réparation, capacités et scheduler.
+Ohana-Agent dispose déjà d’un noyau stable : cycle de vie, services cœur, runtime MQTT, auto-réparation, capacités et scheduler.
 
 Le Sprint 7 introduit une nouvelle brique fondamentale : la mémoire.
 
@@ -18,7 +18,7 @@ L’objectif n’est pas de créer une mémoire “intelligente” complexe dès
 
 ## Décision
 
-Ohanna-Agent introduit un composant dédié :
+Ohana-Agent introduit un composant dédié :
 
 ```text
 MemoryManager
@@ -161,6 +161,6 @@ La persistance doit rester une option de stockage, pas le modèle mémoire princ
 
 ## Décision finale
 
-Ohanna-Agent adopte un `MemoryManager` central, basé sur des entrées typées et des scopes explicites.
+Ohana-Agent adopte un `MemoryManager` central, basé sur des entrées typées et des scopes explicites.
 
 Cette approche devient la base officielle de la mémoire interne de l’agent à partir du Sprint 7.

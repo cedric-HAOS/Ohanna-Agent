@@ -1,5 +1,5 @@
 """
-Ohanna-Agent
+Ohana-Agent
 
 Component:
     MQTT configuration

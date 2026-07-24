@@ -33,7 +33,7 @@ Ce mécanisme repose sur deux notions :
 
 ## Décision
 
-Ohanna-Agent introduit un système de `Watchdog` et de `Heartbeat`.
+Ohana-Agent introduit un système de `Watchdog` et de `Heartbeat`.
 
 Chaque composant critique pourra signaler régulièrement son activité au `HealthMonitor`.
 
@@ -279,7 +279,7 @@ Ces sujets seront traités dans les ADR suivantes.
 
 ## Décision finale
 
-Ohanna-Agent adopte un mécanisme de `Heartbeat` et de `Watchdog`.
+Ohana-Agent adopte un mécanisme de `Heartbeat` et de `Watchdog`.
 
 Les composants critiques pourront signaler leur activité au `HealthMonitor`.
 

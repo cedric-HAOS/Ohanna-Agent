@@ -283,7 +283,7 @@ Ces sujets seront définis dans les ADR suivantes.
 
 ## Décision finale
 
-Ohanna-Agent adopte un `RecoveryEngine` dédié.
+Ohana-Agent adopte un `RecoveryEngine` dédié.
 
 Le `HealthMonitor` reste responsable de la détection des anomalies.
 

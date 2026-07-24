@@ -11,7 +11,7 @@ from core.capability.capability_state import CapabilityState
 
 @dataclass(slots=True)
 class Capability(BaseCapability):
-    """Default implementation for an Ohanna-Agent capability."""
+    """Default implementation for an Ohana-Agent capability."""
 
     capability_id: str
     name: str

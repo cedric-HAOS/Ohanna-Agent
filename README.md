@@ -1,8 +1,8 @@
-# Ohanna-Agent
+# Ohana-Agent
 
 > Garantir les capacités de l'infrastructure, plutôt que surveiller des équipements.
 
-Ohanna-Agent est le moteur d'observation de l'écosystème Ohanna. Il charge une infrastructure déclarative, exécute les plugins de capacité, produit des observations normalisées et les transmet à Ohanna-Vision.
+Ohana-Agent est le moteur d'observation de l'écosystème Ohana. Il charge une infrastructure déclarative, exécute les plugins de capacité, produit des observations normalisées et les transmet à Ohana-Vision.
 
 La version 1.1.0 fait également de l'Agent la source de vérité de la topologie : nœuds, services, équipements, liens et positions logiques sur la grille sont définis dans `config/infrastructure.yaml`, puis synchronisés avec Vision.
 
@@ -52,7 +52,7 @@ Tous les plugins produisent le même modèle d'observation :
 - message ;
 - métadonnées techniques.
 
-Le pipeline d'export envoie ensuite ces observations à Ohanna-Vision.
+Le pipeline d'export envoie ensuite ces observations à Ohana-Vision.
 
 ---
 
@@ -104,7 +104,7 @@ Chaque étape possède une responsabilité unique.
 
 ---
 
-# Synchronisation avec Ohanna-Vision
+# Synchronisation avec Ohana-Vision
 
 Avant de démarrer les observations, l'Agent transmet un snapshot complet de l'infrastructure à Vision.
 
@@ -181,8 +181,8 @@ Exemple de position logique :
 ```yaml
 topology:
   layouts:
-    - id: ohanna-house-physical
-      label: Carte physique Ohanna-House
+    - id: ohana-house-physical
+      label: Carte physique Ohana-House
       kind: physical
       positions:
         internet:
@@ -240,7 +240,7 @@ python -m pip install -e ".[development]"
 # Exécution
 
 ```bash
-ohanna-agent \
+ohana-agent \
   --config config/shikamaru.yaml \
   --infrastructure config/infrastructure.yaml \
   --dns-config config/plugins/dns.yaml
@@ -249,7 +249,7 @@ ohanna-agent \
 Version :
 
 ```bash
-ohanna-agent --version
+ohana-agent --version
 ```
 
 ---
@@ -285,7 +285,7 @@ La version 1.1.0 comprend notamment :
 - plugin DNS ;
 - Observation Engine ;
 - Observation Export Pipeline ;
-- synchronisation persistante avec Ohanna-Vision ;
+- synchronisation persistante avec Ohana-Vision ;
 - service systemd et scripts de déploiement ;
 - packaging wheel et sdist.
 

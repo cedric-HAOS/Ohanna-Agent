@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Ohanna-Agent est construit autour d'une séparation stricte des responsabilités.
+Ohana-Agent est construit autour d'une séparation stricte des responsabilités.
 
 Le logiciel ne doit jamais dépendre directement d'une technologie particulière.
 
@@ -22,10 +22,10 @@ L'architecture logicielle garantit que les implémentations peuvent évoluer san
 
 # Vue d'ensemble
 
-Ohanna-Agent est organisé autour de trois grands ensembles :
+Ohana-Agent est organisé autour de trois grands ensembles :
 
 ```text
-Ohanna-Agent
+Ohana-Agent
 │
 ├── Shikamaru
 │   Moteur de décision
@@ -41,7 +41,7 @@ Ohanna-Agent
 
 # Shikamaru
 
-Shikamaru est le moteur de décision d'Ohanna-Agent.
+Shikamaru est le moteur de décision d'Ohana-Agent.
 
 Il est responsable de :
 
@@ -85,7 +85,7 @@ Il reste spécialiste d'une technologie ou d'un domaine.
 
 # Interfaces
 
-Les interfaces permettent à Ohanna-Agent d'échanger avec l'extérieur.
+Les interfaces permettent à Ohana-Agent d'échanger avec l'extérieur.
 
 Exemples :
 
@@ -171,7 +171,7 @@ Ils ne portent aucune stratégie globale.
 
 ## Les interfaces exposent
 
-Les interfaces permettent de consulter, piloter ou intégrer Ohanna-Agent.
+Les interfaces permettent de consulter, piloter ou intégrer Ohana-Agent.
 
 Elles ne décident pas.
 
@@ -183,7 +183,7 @@ Elles ne modifient pas directement l'état des capacités.
 
 # État interne
 
-L'état interne d'Ohanna-Agent est construit à partir des observations.
+L'état interne d'Ohana-Agent est construit à partir des observations.
 
 Il ne doit jamais être déduit uniquement d'une configuration.
 
@@ -245,7 +245,7 @@ La configuration ne constitue jamais une preuve de fonctionnement.
 
 # Journalisation
 
-Ohanna-Agent doit être observable.
+Ohana-Agent doit être observable.
 
 Chaque décision importante doit pouvoir être expliquée.
 
@@ -276,7 +276,7 @@ La testabilité est une propriété fondamentale de l'architecture.
 
 # Résumé
 
-Ohanna-Agent repose sur une séparation simple :
+Ohana-Agent repose sur une séparation simple :
 
 ```text
 Shikamaru décide.

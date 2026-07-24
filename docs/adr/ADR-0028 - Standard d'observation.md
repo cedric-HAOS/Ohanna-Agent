@@ -4,11 +4,11 @@
 
 ## Contexte
 
-La mission d'Ohanna-Agent est d'observer l'état réel des capacités décrites par l'architecture de référence d'Ohanna-House.
+La mission d'Ohana-Agent est d'observer l'état réel des capacités décrites par l'architecture de référence d'Ohana-House.
 
 Chaque plugin (DNS, DHCP, MQTT, Internet, WireGuard, sauvegardes, etc.) exécute des vérifications spécifiques et produit des résultats qui lui sont propres.
 
-Sans modèle commun, chaque consommateur de ces résultats (historique, interface Web, MQTT, API, Ohanna-Vision...) devrait connaître le format spécifique de chaque plugin.
+Sans modèle commun, chaque consommateur de ces résultats (historique, interface Web, MQTT, API, Ohana-Vision...) devrait connaître le format spécifique de chaque plugin.
 
 Cette approche créerait un fort couplage entre les plugins et les composants consommateurs, rendant le système difficile à maintenir et à faire évoluer.
 
@@ -18,7 +18,7 @@ Il est donc nécessaire de définir un **format d'observation unique**, indépen
 
 # Décision
 
-Toutes les observations produites par Ohanna-Agent seront représentées par une classe unique nommée **Observation**.
+Toutes les observations produites par Ohana-Agent seront représentées par une classe unique nommée **Observation**.
 
 Une Observation représente un **fait observé** à un instant donné.
 
@@ -75,7 +75,7 @@ Elle contient notamment :
 
 Une Observation est immuable.
 
-Elle constitue le contrat officiel d'échange de l'écosystème Ohanna.
+Elle constitue le contrat officiel d'échange de l'écosystème Ohana.
 
 ---
 
@@ -114,7 +114,7 @@ ObservationManager
         ├── Export JSON
         ├── Publication MQTT
         ├── API HTTP
-        └── Ohanna-Vision
+        └── Ohana-Vision
 ```
 
 ---
@@ -152,7 +152,7 @@ Toutes les observations utiliseront le même ensemble de statuts.
 
 Ces statuts sont indépendants du plugin ayant produit l'observation.
 
-Ils permettent à Ohanna-Vision d'afficher l'état d'une capacité sans connaître son implémentation.
+Ils permettent à Ohana-Vision d'afficher l'état d'une capacité sans connaître son implémentation.
 
 ---
 
@@ -198,7 +198,7 @@ Par exemple :
 - export JSON ;
 - publication MQTT ;
 - API REST ;
-- Ohanna-Vision ;
+- Ohana-Vision ;
 - outils de diagnostic.
 
 Aucun de ces composants ne dépend du plugin ayant produit l'observation.
@@ -209,26 +209,26 @@ Tous manipulent exactement le même modèle.
 
 # Découplage de l'écosystème
 
-Le modèle Observation constitue le contrat d'échange entre les différents projets Ohanna.
+Le modèle Observation constitue le contrat d'échange entre les différents projets Ohana.
 
 ```text
-                Ohanna-House
+                Ohana-House
              (Architecture cible)
                      │
                      ▼
-               Ohanna-Agent
+               Ohana-Agent
           (Production d'observations)
                      │
              Observation
                      │
         ┌────────────┼────────────┐
         ▼            ▼            ▼
-   Historique     MQTT/API   Ohanna-Vision
+   Historique     MQTT/API   Ohana-Vision
 ```
 
-Ohanna-Agent ne connaît pas Ohanna-Vision.
+Ohana-Agent ne connaît pas Ohana-Vision.
 
-Ohanna-Vision ne connaît pas les plugins d'Ohanna-Agent.
+Ohana-Vision ne connaît pas les plugins d'Ohana-Agent.
 
 Les deux projets échangent uniquement des objets Observation.
 
@@ -242,9 +242,9 @@ Les deux projets échangent uniquement des objets Observation.
 - Séparation claire entre configuration et résultat.
 - Découplage complet entre les plugins et les consommateurs.
 - Simplification des futurs connecteurs.
-- Standard commun à l'ensemble de l'écosystème Ohanna.
+- Standard commun à l'ensemble de l'écosystème Ohana.
 - Évolutivité facilitée pour les futurs plugins.
-- Réutilisation du même modèle pour MQTT, HTTP, JSON et Ohanna-Vision.
+- Réutilisation du même modèle pour MQTT, HTTP, JSON et Ohana-Vision.
 
 ## Inconvénients
 
@@ -255,14 +255,14 @@ Les deux projets échangent uniquement des objets Observation.
 
 # Motivation architecturale
 
-L'architecture d'Ohanna repose sur une séparation stricte des responsabilités.
+L'architecture d'Ohana repose sur une séparation stricte des responsabilités.
 
-- **Ohanna-House** décrit l'infrastructure de référence.
-- **Ohanna-Agent** observe son état réel.
-- **Ohanna-Vision** présente ces observations à l'utilisateur.
+- **Ohana-House** décrit l'infrastructure de référence.
+- **Ohana-Agent** observe son état réel.
+- **Ohana-Vision** présente ces observations à l'utilisateur.
 
 L'Observation constitue le langage commun entre ces projets.
 
 Elle permet à chaque composant d'évoluer indépendamment tout en partageant un modèle d'information stable.
 
-Cette décision fait de l'Observation la pierre angulaire des échanges au sein de l'écosystème Ohanna.
+Cette décision fait de l'Observation la pierre angulaire des échanges au sein de l'écosystème Ohana.

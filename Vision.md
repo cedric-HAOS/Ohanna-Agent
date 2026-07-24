@@ -1,24 +1,24 @@
 # Vision
 
-## Pourquoi Ohanna-Agent existe
+## Pourquoi Ohana-Agent existe
 
 Une infrastructure fiable n'est pas uniquement une infrastructure qui fonctionne. C'est une infrastructure dont les capacités sont garanties dans le temps.
 
 Les logiciels évoluent, les machines tombent en panne, les configurations dérivent et les dépendances changent. Pourtant, les capacités attendues doivent rester disponibles.
 
-Ohanna-Agent observe ces capacités et fournit à l'écosystème Ohanna une définition fiable de l'infrastructure qui les porte.
+Ohana-Agent observe ces capacités et fournit à l'écosystème Ohana une définition fiable de l'infrastructure qui les porte.
 
 ---
 
 ## Mission
 
-Ohanna-Agent :
+Ohana-Agent :
 
 - charge et valide l'infrastructure déclarative ;
 - décrit les nœuds, services, équipements et liens ;
 - observe les capacités réelles ;
 - normalise les résultats ;
-- synchronise l'infrastructure avec Ohanna-Vision ;
+- synchronise l'infrastructure avec Ohana-Vision ;
 - transmet les observations uniquement lorsque Vision possède la définition courante.
 
 Il ne se limite pas à vérifier qu'un processus est démarré. Il vérifie que la capacité attendue est réellement disponible.
@@ -43,14 +43,14 @@ Elle contient :
 - les layouts ;
 - les positions logiques sur une grille.
 
-Ohanna-Vision ne conserve pas une seconde configuration métier. Il reçoit un snapshot normalisé, le valide, le projette et l'affiche.
+Ohana-Vision ne conserve pas une seconde configuration métier. Il reçoit un snapshot normalisé, le valide, le projette et l'affiche.
 
 ---
 
-## Relation avec Ohanna-Vision
+## Relation avec Ohana-Vision
 
 ```text
-Ohanna-Agent
+Ohana-Agent
     │
     ├── PUT /api/infrastructure
     │       nœuds, services, équipements,
@@ -104,4 +104,4 @@ L'Agent privilégie la reprise automatique, mais toute future action de remédia
 
 Construire un agent simple, fiable, observable, extensible et résilient, capable de garantir durablement les capacités d'une infrastructure moderne.
 
-> Ohanna-Agent ne surveille pas des logiciels. Il garantit des capacités.
+> Ohana-Agent ne surveille pas des logiciels. Il garantit des capacités.

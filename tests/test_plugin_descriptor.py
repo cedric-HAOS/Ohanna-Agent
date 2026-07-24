@@ -24,7 +24,7 @@ def test_plugin_descriptor_can_store_manifest() -> None:
     manifest = PluginManifest(
         name="dns",
         version="1.0.0",
-        author="Ohanna",
+        author="Ohana",
         description="DNS plugin",
     )
 

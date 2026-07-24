@@ -20,7 +20,7 @@ Afin de conserver une architecture extensible et prévisible, les règles de ré
 
 ## Décision
 
-Ohanna-Agent adopte un système de **Recovery Policies**.
+Ohana-Agent adopte un système de **Recovery Policies**.
 
 Une Recovery Policy définit le comportement complet à appliquer lorsqu'une anomalie est détectée.
 
@@ -341,7 +341,7 @@ Ces éléments seront définis dans les ADR et implémentations ultérieures.
 
 ## Décision finale
 
-Ohanna-Agent adopte un système de **Recovery Policies**.
+Ohana-Agent adopte un système de **Recovery Policies**.
 
 Les décisions de récupération ne sont pas codées dans le `RecoveryEngine`, mais déléguées à des politiques spécialisées.
 

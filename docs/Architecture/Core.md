@@ -1,8 +1,8 @@
-# CORE — Architecture d'Ohanna-Agent
+# CORE — Architecture d'Ohana-Agent
 
 ## Vision
 
-Ohanna-Agent est le moteur d'observation de l'écosystème Ohanna.
+Ohana-Agent est le moteur d'observation de l'écosystème Ohana.
 
 Sa mission n'est pas de superviser des équipements.
 
@@ -22,7 +22,7 @@ Une capacité représente un service rendu par l'infrastructure :
 
 Chaque capacité est observée de manière indépendante, puis transformée en une observation normalisée.
 
-Ces observations constituent le langage commun entre **Ohanna-Agent** et **Ohanna-Vision**.
+Ces observations constituent le langage commun entre **Ohana-Agent** et **Ohana-Vision**.
 
 ---
 
@@ -106,7 +106,7 @@ Tous les plugins implémentent le même contrat.
 
 Ils produisent tous un `ObserverResult`.
 
-Ils ne connaissent ni Ohanna-Vision, ni l'interface Web, ni Home Assistant.
+Ils ne connaissent ni Ohana-Vision, ni l'interface Web, ni Home Assistant.
 
 ---
 
@@ -227,10 +227,10 @@ ObservationExportPipeline
         │
 VisionObservationExporter
         │
-Ohanna-Vision
+Ohana-Vision
 ```
 
-Ce pipeline constitue désormais le chemin d'exécution officiel d'Ohanna-Agent.
+Ce pipeline constitue désormais le chemin d'exécution officiel d'Ohana-Agent.
 
 ---
 
@@ -269,7 +269,7 @@ L'architecture suit une séparation stricte.
 | Observation Engine | Transformer un résultat en observation |
 | Runtime            | Conserver l'état courant               |
 | Export Pipeline    | Diffuser les observations              |
-| Ohanna-Vision      | Présenter les observations             |
+| Ohana-Vision      | Présenter les observations             |
 
 Aucun composant ne remplit plusieurs rôles.
 
@@ -295,7 +295,7 @@ Ces principes permettent d'ajouter de nouveaux plugins sans modifier le cœur du
 
 # État actuel
 
-Le cœur d'Ohanna-Agent comprend désormais :
+Le cœur d'Ohana-Agent comprend désormais :
 
 * Infrastructure déclarative ;
 * InfrastructureBuilder ;
@@ -311,13 +311,13 @@ Le cœur d'Ohanna-Agent comprend désormais :
 * Observation Export Pipeline ;
 * VisionObservationExporter ;
 * démonstration complète de bout en bout ;
-* intégration prête pour Ohanna-Vision.
+* intégration prête pour Ohana-Vision.
 
 ---
 
 # Vision à long terme
 
-Ohanna-Agent a vocation à devenir un moteur générique d'observation des infrastructures.
+Ohana-Agent a vocation à devenir un moteur générique d'observation des infrastructures.
 
 Chaque nouveau plugin devra uniquement répondre à une question :
 
@@ -325,4 +325,4 @@ Chaque nouveau plugin devra uniquement répondre à une question :
 
 La manière dont cette réponse est produite importe peu.
 
-Une fois transformée en observation normalisée, elle pourra être exploitée de manière identique par Ohanna-Vision, Home Assistant ou tout autre système consommateur.
+Une fois transformée en observation normalisée, elle pourra être exploitée de manière identique par Ohana-Vision, Home Assistant ou tout autre système consommateur.

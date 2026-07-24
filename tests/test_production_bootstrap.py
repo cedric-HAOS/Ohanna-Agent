@@ -99,7 +99,7 @@ def test_production_bootstrap_exports_infrastructure_before_observation() -> Non
     infrastructure_payload = vision_client.operations[0][1]
 
     assert infrastructure_payload["infrastructure_id"] == (
-        "ohanna-house"
+        "ohana-house"
     )
     assert len(infrastructure_payload["topology"]["devices"]) == 9
     assert len(infrastructure_payload["topology"]["links"]) == 8

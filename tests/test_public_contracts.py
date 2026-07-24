@@ -1,4 +1,4 @@
-"""Tests for the supported public imports of Ohanna-Agent."""
+"""Tests for the supported public imports of Ohana-Agent."""
 
 from builder import DNSConfigurationBuilder, InfrastructureBuilder
 from core import Executor, Registry, Runtime, Statistics

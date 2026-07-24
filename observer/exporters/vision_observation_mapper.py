@@ -1,4 +1,4 @@
-"""Mapping of Ohanna-Agent observations to Ohanna-Vision payloads."""
+"""Mapping of Ohana-Agent observations to Ohana-Vision payloads."""
 
 from typing import Any
 
@@ -7,7 +7,7 @@ from observer.observation_status import ObservationStatus
 
 
 class VisionObservationMapper:
-    """Convert Agent observations to the Ohanna-Vision REST contract."""
+    """Convert Agent observations to the Ohana-Vision REST contract."""
 
     _STATUS_MAPPING = {
         ObservationStatus.HEALTHY: "healthy",
@@ -20,7 +20,7 @@ class VisionObservationMapper:
         self,
         observation: Observation,
     ) -> dict[str, Any]:
-        """Build the payload expected by Ohanna-Vision."""
+        """Build the payload expected by Ohana-Vision."""
         metadata = observation.metadata.copy()
 
         metadata["agent_observation"] = {

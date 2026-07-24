@@ -1,4 +1,4 @@
-"""Mapping of Ohanna-Agent infrastructure to Ohanna-Vision payloads."""
+"""Mapping of Ohana-Agent infrastructure to Ohana-Vision payloads."""
 
 from copy import deepcopy
 from typing import Any
@@ -19,7 +19,7 @@ class VisionInfrastructureMapper:
         self,
         config: InfrastructureConfig,
     ) -> dict[str, Any]:
-        """Build the infrastructure payload expected by Ohanna-Vision."""
+        """Build the infrastructure payload expected by Ohana-Vision."""
         payload: dict[str, Any] = {
             "schema_version": self.SCHEMA_VERSION,
             "infrastructure_id": config.infrastructure.id,

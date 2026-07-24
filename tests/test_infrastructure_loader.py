@@ -12,7 +12,7 @@ def test_loader_returns_infrastructure_config() -> None:
 
     config = loader.load(Path("config/infrastructure.example.yaml"))
 
-    assert config.infrastructure.id == "ohanna-house"
+    assert config.infrastructure.id == "ohana-house"
 
 
 def test_loader_loads_nodes() -> None:
@@ -48,7 +48,7 @@ def test_loader_accepts_path_object() -> None:
 
     config = loader.load(Path("config/infrastructure.example.yaml"))
 
-    assert config.infrastructure.name == "Ohanna House"
+    assert config.infrastructure.name == "Ohana House"
 
 
 def test_infrastructure_loader_raises_for_missing_file(

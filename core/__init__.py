@@ -1,4 +1,4 @@
-"""Core abstractions for Ohanna-Agent."""
+"""Core abstractions for Ohana-Agent."""
 
 from core.executor import Executor
 from core.registry import Registry

@@ -2,8 +2,8 @@
 
 set -Eeuo pipefail
 
-readonly SERVICE_NAME="ohanna-agent"
-readonly INSTALL_ROOT="/opt/ohanna-agent"
+readonly SERVICE_NAME="ohana-agent"
+readonly INSTALL_ROOT="/opt/ohana-agent"
 readonly VENV_PATH="${INSTALL_ROOT}/venv"
 readonly SYSTEMD_UNIT="/etc/systemd/system/${SERVICE_NAME}.service"
 
@@ -15,11 +15,11 @@ PACKAGE_SOURCE="${1:-${PROJECT_ROOT}}"
 SERVICE_WAS_ACTIVE=false
 
 log() {
-    printf '[ohanna-agent] %s\n' "$*"
+    printf '[ohana-agent] %s\n' "$*"
 }
 
 fail() {
-    printf '[ohanna-agent] ERROR: %s\n' "$*" >&2
+    printf '[ohana-agent] ERROR: %s\n' "$*" >&2
     exit 1
 }
 
@@ -35,10 +35,10 @@ require_command() {
 
 validate_environment() {
     [[ -x "${VENV_PATH}/bin/python" ]] \
-        || fail "Ohanna-Agent is not installed in ${VENV_PATH}."
+        || fail "Ohana-Agent is not installed in ${VENV_PATH}."
 
-    [[ -x "${VENV_PATH}/bin/ohanna-agent" ]] \
-        || fail "Ohanna-Agent executable not found."
+    [[ -x "${VENV_PATH}/bin/ohana-agent" ]] \
+        || fail "Ohana-Agent executable not found."
 
     [[ -e "${PACKAGE_SOURCE}" ]] \
         || fail "Package source not found: ${PACKAGE_SOURCE}"
@@ -64,14 +64,14 @@ stop_service_if_active() {
 }
 
 update_application() {
-    log "Updating Ohanna-Agent from ${PACKAGE_SOURCE}."
+    log "Updating Ohana-Agent from ${PACKAGE_SOURCE}."
 
     "${VENV_PATH}/bin/python" \
         -m pip install \
         --upgrade \
         "${PACKAGE_SOURCE}"
 
-    "${VENV_PATH}/bin/ohanna-agent" --version
+    "${VENV_PATH}/bin/ohana-agent" --version
 }
 
 update_service_unit() {

@@ -1,4 +1,4 @@
-"""Recovery policies for Ohanna-Agent."""
+"""Recovery policies for Ohana-Agent."""
 
 from __future__ import annotations
 

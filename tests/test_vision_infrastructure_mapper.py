@@ -24,8 +24,8 @@ def build_infrastructure_config() -> InfrastructureConfig:
     """Build a stable infrastructure configuration used by mapper tests."""
     return InfrastructureConfig(
         infrastructure=InfrastructureIdentityConfig(
-            id="ohanna-house",
-            name="Ohanna House",
+            id="ohana-house",
+            name="Ohana House",
             environment="production",
         ),
         metadata=InfrastructureMetadataConfig(
@@ -40,7 +40,7 @@ def build_infrastructure_config() -> InfrastructureConfig:
                 id="infra-01",
                 name="INFRA-01",
                 description=(
-                    "Serveur principal de l'infrastructure Ohanna"
+                    "Serveur principal de l'infrastructure Ohana"
                 ),
                 endpoint=NodeEndpointConfig(
                     type="ip",
@@ -85,8 +85,8 @@ def test_mapper_builds_vision_infrastructure_payload() -> None:
 
     assert payload == {
         "schema_version": 1,
-        "infrastructure_id": "ohanna-house",
-        "name": "Ohanna House",
+        "infrastructure_id": "ohana-house",
+        "name": "Ohana House",
         "environment": "production",
         "metadata": {
             "version": "1.0",
@@ -100,7 +100,7 @@ def test_mapper_builds_vision_infrastructure_payload() -> None:
                 "node_id": "infra-01",
                 "name": "INFRA-01",
                 "description": (
-                    "Serveur principal de l'infrastructure Ohanna"
+                    "Serveur principal de l'infrastructure Ohana"
                 ),
                 "endpoint": {
                     "type": "ip",
@@ -155,8 +155,8 @@ def test_mapper_supports_empty_infrastructure() -> None:
 def test_mapper_preserves_service_without_port() -> None:
     config = InfrastructureConfig(
         infrastructure=InfrastructureIdentityConfig(
-            id="ohanna-house",
-            name="Ohanna House",
+            id="ohana-house",
+            name="Ohana House",
         ),
         nodes=[
             NodeConfig(

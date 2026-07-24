@@ -8,21 +8,21 @@ from zipfile import ZipFile
 import pytest
 
 DIST_DIRECTORY = Path("dist")
-EXPECTED_CONSOLE_SCRIPT = "ohanna-agent"
+EXPECTED_CONSOLE_SCRIPT = "ohana-agent"
 EXPECTED_ENTRY_POINT = "main:main"
 
 
 @pytest.fixture(scope="session")
 def wheel_path() -> Path:
-    """Return the unique Ohanna-Agent wheel from dist."""
+    """Return the unique Ohana-Agent wheel from dist."""
     assert DIST_DIRECTORY.is_dir(), (
         "The dist directory does not exist. Run `python -m build` before pytest."
     )
 
-    wheels = list(DIST_DIRECTORY.glob("ohanna_agent-*.whl"))
+    wheels = list(DIST_DIRECTORY.glob("ohana_agent-*.whl"))
 
     assert len(wheels) == 1, (
-        "Exactly one Ohanna-Agent wheel must exist in dist/. "
+        "Exactly one Ohana-Agent wheel must exist in dist/. "
         "Clean dist/ and run `python -m build` again."
     )
 
@@ -88,16 +88,16 @@ def test_console_scripts_section_is_declared(
     assert entry_points_parser.has_section("console_scripts")
 
 
-def test_ohanna_agent_console_script_is_declared(
+def test_ohana_agent_console_script_is_declared(
     entry_points_parser: ConfigParser,
 ) -> None:
-    """Expose the public ohanna-agent executable."""
+    """Expose the public ohana-agent executable."""
     console_scripts = entry_points_parser["console_scripts"]
 
     assert EXPECTED_CONSOLE_SCRIPT in console_scripts
 
 
-def test_ohanna_agent_console_script_targets_main(
+def test_ohana_agent_console_script_targets_main(
     entry_points_parser: ConfigParser,
 ) -> None:
     """Route the public executable to the supported Python callable."""

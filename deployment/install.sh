@@ -2,13 +2,13 @@
 
 set -Eeuo pipefail
 
-readonly SERVICE_NAME="ohanna-agent"
-readonly SERVICE_USER="ohanna-agent"
-readonly SERVICE_GROUP="ohanna-agent"
+readonly SERVICE_NAME="ohana-agent"
+readonly SERVICE_USER="ohana-agent"
+readonly SERVICE_GROUP="ohana-agent"
 
-readonly INSTALL_ROOT="/opt/ohanna-agent"
+readonly INSTALL_ROOT="/opt/ohana-agent"
 readonly VENV_PATH="${INSTALL_ROOT}/venv"
-readonly CONFIG_ROOT="/etc/ohanna-agent"
+readonly CONFIG_ROOT="/etc/ohana-agent"
 readonly SYSTEMD_UNIT="/etc/systemd/system/${SERVICE_NAME}.service"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,11 +19,11 @@ PYTHON_BIN="${PYTHON_BIN:-python3.13}"
 PACKAGE_SOURCE="${1:-${PROJECT_ROOT}}"
 
 log() {
-    printf '[ohanna-agent] %s\n' "$*"
+    printf '[ohana-agent] %s\n' "$*"
 }
 
 fail() {
-    printf '[ohanna-agent] ERROR: %s\n' "$*" >&2
+    printf '[ohana-agent] ERROR: %s\n' "$*" >&2
     exit 1
 }
 
@@ -94,7 +94,7 @@ install_application() {
         -m pip install \
         "${PACKAGE_SOURCE}"
 
-    "${VENV_PATH}/bin/ohanna-agent" --version
+    "${VENV_PATH}/bin/ohana-agent" --version
 }
 
 install_service() {

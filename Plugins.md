@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Le noyau d'Ohanna-Agent ne connaît aucune technologie.
+Le noyau d'Ohana-Agent ne connaît aucune technologie.
 
 Il ne connaît ni DNS, ni MQTT, ni Home Assistant, ni WireGuard.
 

@@ -72,7 +72,7 @@ def test_transport_starts_disconnected() -> None:
 def test_transport_accepts_last_will() -> None:
     backend = FakeNetworkBackend()
     last_will = MQTTLastWill(
-        topic="ohanna/agent/shikamaru/availability",
+        topic="ohana/agent/shikamaru/availability",
         payload='{"status": "offline"}',
         qos=1,
         retain=True,
@@ -88,7 +88,7 @@ def test_transport_accepts_last_will() -> None:
 
 def test_last_will_defaults() -> None:
     last_will = MQTTLastWill(
-        topic="ohanna/agent/shikamaru/availability",
+        topic="ohana/agent/shikamaru/availability",
         payload='{"status": "offline"}',
     )
 
@@ -153,7 +153,7 @@ def test_publish_delegates_to_backend() -> None:
     asyncio.run(transport.connect())
     asyncio.run(
         transport.publish(
-            "ohanna/agent/shikamaru/status",
+            "ohana/agent/shikamaru/status",
             '{"state": "running"}',
             qos=1,
             retain=True,
@@ -162,7 +162,7 @@ def test_publish_delegates_to_backend() -> None:
 
     assert backend.published == [
         {
-            "topic": "ohanna/agent/shikamaru/status",
+            "topic": "ohana/agent/shikamaru/status",
             "payload": '{"state": "running"}',
             "qos": 1,
             "retain": True,
@@ -176,7 +176,7 @@ def test_publish_requires_connection() -> None:
     with pytest.raises(MQTTTransportNotConnectedError):
         asyncio.run(
             transport.publish(
-                "ohanna/agent/shikamaru/status",
+                "ohana/agent/shikamaru/status",
                 '{"state": "running"}',
                 qos=1,
                 retain=True,
@@ -188,29 +188,29 @@ def test_subscribe_delegates_to_backend() -> None:
     transport, backend = make_transport()
 
     asyncio.run(transport.connect())
-    asyncio.run(transport.subscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(transport.subscribe("ohana/agent/shikamaru/command"))
 
-    assert backend.subscribed == ["ohanna/agent/shikamaru/command"]
+    assert backend.subscribed == ["ohana/agent/shikamaru/command"]
 
 
 def test_subscribe_requires_connection() -> None:
     transport, _ = make_transport()
 
     with pytest.raises(MQTTTransportNotConnectedError):
-        asyncio.run(transport.subscribe("ohanna/agent/shikamaru/command"))
+        asyncio.run(transport.subscribe("ohana/agent/shikamaru/command"))
 
 
 def test_unsubscribe_delegates_to_backend() -> None:
     transport, backend = make_transport()
 
     asyncio.run(transport.connect())
-    asyncio.run(transport.unsubscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(transport.unsubscribe("ohana/agent/shikamaru/command"))
 
-    assert backend.unsubscribed == ["ohanna/agent/shikamaru/command"]
+    assert backend.unsubscribed == ["ohana/agent/shikamaru/command"]
 
 
 def test_unsubscribe_requires_connection() -> None:
     transport, _ = make_transport()
 
     with pytest.raises(MQTTTransportNotConnectedError):
-        asyncio.run(transport.unsubscribe("ohanna/agent/shikamaru/command"))
+        asyncio.run(transport.unsubscribe("ohana/agent/shikamaru/command"))

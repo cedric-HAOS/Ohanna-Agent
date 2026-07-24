@@ -1,6 +1,6 @@
 infrastructure:
-  id: ohanna-house
-  name: Ohanna House
+  id: ohana-house
+  name: Ohana House
   environment: production
 
 metadata:
@@ -12,7 +12,7 @@ metadata:
 nodes:
   - id: infra-01
     name: INFRA-01
-    description: Serveur principal de l'infrastructure Ohanna
+    description: Serveur principal de l'infrastructure Ohana
     endpoint:
       type: ip
       address: 192.168.1.10
@@ -26,7 +26,7 @@ services:
 
 topology:
   metadata:
-    description: Topologie physique de l'infrastructure Ohanna-House.
+    description: Topologie physique de l'infrastructure Ohana-House.
     version: 1
 
   devices:
@@ -169,8 +169,8 @@ topology:
       bandwidth_mbps: 1000
 
   layouts:
-    - id: ohanna-house-physical
-      label: Carte physique Ohanna-House
+    - id: ohana-house-physical
+      label: Carte physique Ohana-House
       kind: physical
       metadata:
         description: Carte physique principale de l'infrastructure.

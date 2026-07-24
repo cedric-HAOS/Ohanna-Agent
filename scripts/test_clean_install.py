@@ -1,4 +1,4 @@
-"""Validate an Ohanna-Agent installation in a clean virtual environment."""
+"""Validate an Ohana-Agent installation in a clean virtual environment."""
 
 from __future__ import annotations
 
@@ -11,16 +11,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST_DIRECTORY = ROOT / "dist"
-PACKAGE_NAME = "ohanna-agent"
+PACKAGE_NAME = "ohana-agent"
 
 
 def find_wheel() -> Path:
-    """Return the unique Ohanna-Agent wheel from dist."""
-    wheels = sorted(DIST_DIRECTORY.glob("ohanna_agent-*.whl"))
+    """Return the unique Ohana-Agent wheel from dist."""
+    wheels = sorted(DIST_DIRECTORY.glob("ohana_agent-*.whl"))
 
     if len(wheels) != 1:
         raise RuntimeError(
-            "Exactly one Ohanna-Agent wheel must exist in dist/. "
+            "Exactly one Ohana-Agent wheel must exist in dist/. "
             "Run `python scripts/build_release.py` first."
         )
 
@@ -36,11 +36,11 @@ def virtual_environment_python(environment: Path) -> Path:
 
 
 def virtual_environment_cli(environment: Path) -> Path:
-    """Return the installed Ohanna-Agent executable."""
+    """Return the installed Ohana-Agent executable."""
     if os.name == "nt":
-        return environment / "Scripts" / "ohanna-agent.exe"
+        return environment / "Scripts" / "ohana-agent.exe"
 
-    return environment / "bin" / "ohanna-agent"
+    return environment / "bin" / "ohana-agent"
 
 
 def run_command(
@@ -81,7 +81,7 @@ def main() -> int:
     print(f"Testing clean installation from {wheel.name}")
     print()
 
-    temporary_root = Path(tempfile.mkdtemp(prefix="ohanna-agent-install-"))
+    temporary_root = Path(tempfile.mkdtemp(prefix="ohana-agent-install-"))
     environment = temporary_root / "venv"
 
     try:
@@ -122,9 +122,9 @@ def main() -> int:
                 "-c",
                 (
                     "from importlib.metadata import metadata, version; "
-                    "data = metadata('ohanna-agent'); "
+                    "data = metadata('ohana-agent'); "
                     "print(data['Name']); "
-                    "print(version('ohanna-agent'))"
+                    "print(version('ohana-agent'))"
                 ),
             ]
         )

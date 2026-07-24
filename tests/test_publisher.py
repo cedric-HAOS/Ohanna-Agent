@@ -130,7 +130,7 @@ def test_publish_delegates_serialized_payload_to_backend() -> None:
 
     asyncio.run(
         publisher.publish(
-            "ohanna/agent/shikamaru/status",
+            "ohana/agent/shikamaru/status",
             {"state": "running"},
             qos=1,
             retain=True,
@@ -141,7 +141,7 @@ def test_publish_delegates_serialized_payload_to_backend() -> None:
 
     published = backend.published[0]
 
-    assert published["topic"] == "ohanna/agent/shikamaru/status"
+    assert published["topic"] == "ohana/agent/shikamaru/status"
     assert published["qos"] == 1
     assert published["retain"] is True
     assert json.loads(published["payload"]) == {"state": "running"}
@@ -153,7 +153,7 @@ def test_publish_uses_default_qos_and_retain() -> None:
 
     asyncio.run(
         publisher.publish(
-            "ohanna/agent/shikamaru/events",
+            "ohana/agent/shikamaru/events",
             {"event": "started"},
         )
     )

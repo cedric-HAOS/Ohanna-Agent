@@ -1,4 +1,4 @@
-"""Run a real DNS check from declarative Ohanna-Agent configuration."""
+"""Run a real DNS check from declarative Ohana-Agent configuration."""
 
 from __future__ import annotations
 
@@ -62,7 +62,7 @@ class ConfiguredDNSCheck:
 
 
 class DemoVisionClient:
-    """Store observations sent to the simulated Ohanna-Vision client."""
+    """Store observations sent to the simulated Ohana-Vision client."""
 
     def __init__(self) -> None:
         self.payloads: list[dict[str, Any]] = []
@@ -78,7 +78,7 @@ class DemoVisionClient:
 def parse_arguments() -> argparse.Namespace:
     """Parse demonstration command-line arguments."""
     parser = argparse.ArgumentParser(
-        description=("Execute a real DNS query using Ohanna-Agent YAML configuration.")
+        description=("Execute a real DNS query using Ohana-Agent YAML configuration.")
     )
 
     parser.add_argument(
@@ -129,7 +129,7 @@ def main() -> int:
     arguments = parse_arguments()
 
     print("=" * 72)
-    print("OHANNA-AGENT — DECLARATIVE REAL DNS DEMONSTRATION")
+    print("OHANA-AGENT — DECLARATIVE REAL DNS DEMONSTRATION")
     print("=" * 72)
 
     # Load the infrastructure source of truth.

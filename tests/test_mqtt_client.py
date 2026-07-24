@@ -126,10 +126,10 @@ def test_connect_does_nothing_when_mqtt_is_disabled() -> None:
 def test_connect_restores_existing_subscriptions() -> None:
     client, _, _, subscriber = make_client()
 
-    asyncio.run(client.subscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(client.subscribe("ohana/agent/shikamaru/command"))
     asyncio.run(client.connect())
 
-    assert subscriber.subscribed == ["ohanna/agent/shikamaru/command"]
+    assert subscriber.subscribed == ["ohana/agent/shikamaru/command"]
 
 
 def test_connect_resets_state_when_transport_fails() -> None:
@@ -169,14 +169,14 @@ def test_publish_delegates_to_publisher() -> None:
     asyncio.run(client.connect())
     asyncio.run(
         client.publish(
-            "ohanna/agent/shikamaru/status",
+            "ohana/agent/shikamaru/status",
             {"state": "running"},
         )
     )
 
     assert publisher.published == [
         {
-            "topic": "ohanna/agent/shikamaru/status",
+            "topic": "ohana/agent/shikamaru/status",
             "payload": {"state": "running"},
             "qos": 1,
             "retain": True,
@@ -190,7 +190,7 @@ def test_publish_requires_connection() -> None:
     with pytest.raises(MQTTClientNotConnectedError):
         asyncio.run(
             client.publish(
-                "ohanna/agent/shikamaru/status",
+                "ohana/agent/shikamaru/status",
                 {"state": "running"},
             )
         )
@@ -199,7 +199,7 @@ def test_publish_requires_connection() -> None:
 def test_subscribe_stores_topic_when_disconnected() -> None:
     client, _, _, subscriber = make_client()
 
-    asyncio.run(client.subscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(client.subscribe("ohana/agent/shikamaru/command"))
 
     assert subscriber.subscribed == []
 
@@ -208,16 +208,16 @@ def test_subscribe_delegates_when_connected() -> None:
     client, _, _, subscriber = make_client()
 
     asyncio.run(client.connect())
-    asyncio.run(client.subscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(client.subscribe("ohana/agent/shikamaru/command"))
 
-    assert subscriber.subscribed == ["ohanna/agent/shikamaru/command"]
+    assert subscriber.subscribed == ["ohana/agent/shikamaru/command"]
 
 
 def test_unsubscribe_removes_topic_and_delegates_when_connected() -> None:
     client, _, _, subscriber = make_client()
 
-    asyncio.run(client.subscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(client.subscribe("ohana/agent/shikamaru/command"))
     asyncio.run(client.connect())
-    asyncio.run(client.unsubscribe("ohanna/agent/shikamaru/command"))
+    asyncio.run(client.unsubscribe("ohana/agent/shikamaru/command"))
 
-    assert subscriber.unsubscribed == ["ohanna/agent/shikamaru/command"]
+    assert subscriber.unsubscribed == ["ohana/agent/shikamaru/command"]

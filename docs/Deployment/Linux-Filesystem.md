@@ -1,8 +1,8 @@
-# Arborescence Linux d’Ohanna-Agent
+# Arborescence Linux d’Ohana-Agent
 
 ## Objectif
 
-Ce document définit l’arborescence Linux de référence utilisée pour installer et exécuter Ohanna-Agent en tant que service système.
+Ce document définit l’arborescence Linux de référence utilisée pour installer et exécuter Ohana-Agent en tant que service système.
 
 Cette organisation sépare clairement :
 
@@ -12,7 +12,7 @@ Cette organisation sépare clairement :
 * les journaux ;
 * le service `systemd`.
 
-Elle constitue le contrat de déploiement d’Ohanna-Agent pour la version 1.0.0.
+Elle constitue le contrat de déploiement d’Ohana-Agent pour la version 1.0.0.
 
 ---
 
@@ -35,7 +35,7 @@ L’installation Linux respecte les principes suivants :
 ```text
 /
 ├── etc/
-│   ├── ohanna-agent/
+│   ├── ohana-agent/
 │   │   ├── shikamaru.yaml
 │   │   ├── infrastructure.yaml
 │   │   └── plugins/
@@ -43,19 +43,19 @@ L’installation Linux respecte les principes suivants :
 │   │
 │   └── systemd/
 │       └── system/
-│           └── ohanna-agent.service
+│           └── ohana-agent.service
 │
 ├── opt/
-│   └── ohanna-agent/
+│   └── ohana-agent/
 │       └── venv/
 │           ├── bin/
 │           │   ├── python
-│           │   └── ohanna-agent
+│           │   └── ohana-agent
 │           └── ...
 │
 └── var/
     └── lib/
-        └── ohanna-agent/
+        └── ohana-agent/
 ```
 
 ---
@@ -65,16 +65,16 @@ L’installation Linux respecte les principes suivants :
 Le logiciel est installé dans un environnement Python isolé :
 
 ```text
-/opt/ohanna-agent/venv/
+/opt/ohana-agent/venv/
 ```
 
 Le point d’entrée exécutable est :
 
 ```text
-/opt/ohanna-agent/venv/bin/ohanna-agent
+/opt/ohana-agent/venv/bin/ohana-agent
 ```
 
-Le répertoire `/opt/ohanna-agent` contient uniquement les éléments nécessaires à l’exécution du logiciel installé.
+Le répertoire `/opt/ohana-agent` contient uniquement les éléments nécessaires à l’exécution du logiciel installé.
 
 Il ne contient pas :
 
@@ -85,7 +85,7 @@ Il ne contient pas :
 * les journaux ;
 * les données persistantes.
 
-Les mises à jour remplacent ou mettent à niveau l’environnement Python sans écraser la configuration située dans `/etc/ohanna-agent`.
+Les mises à jour remplacent ou mettent à niveau l’environnement Python sans écraser la configuration située dans `/etc/ohana-agent`.
 
 ---
 
@@ -94,13 +94,13 @@ Les mises à jour remplacent ou mettent à niveau l’environnement Python sans 
 Les fichiers de configuration actifs sont placés dans :
 
 ```text
-/etc/ohanna-agent/
+/etc/ohana-agent/
 ```
 
 La structure retenue est :
 
 ```text
-/etc/ohanna-agent/
+/etc/ohana-agent/
 ├── shikamaru.yaml
 ├── infrastructure.yaml
 └── plugins/
@@ -110,7 +110,7 @@ La structure retenue est :
 ### Configuration principale
 
 ```text
-/etc/ohanna-agent/shikamaru.yaml
+/etc/ohana-agent/shikamaru.yaml
 ```
 
 Ce fichier contient la configuration générale de l’agent :
@@ -121,12 +121,12 @@ Ce fichier contient la configuration générale de l’agent :
 * journalisation ;
 * santé ;
 * plugins ;
-* connexion à Ohanna-Vision.
+* connexion à Ohana-Vision.
 
 ### Infrastructure
 
 ```text
-/etc/ohanna-agent/infrastructure.yaml
+/etc/ohana-agent/infrastructure.yaml
 ```
 
 Ce fichier décrit l’infrastructure observée :
@@ -139,7 +139,7 @@ Ce fichier décrit l’infrastructure observée :
 ### Plugin DNS
 
 ```text
-/etc/ohanna-agent/plugins/dns.yaml
+/etc/ohana-agent/plugins/dns.yaml
 ```
 
 Ce fichier contient la configuration propre au plugin DNS :
@@ -157,7 +157,7 @@ Les fichiers `.example.yaml` appartiennent au dépôt et à la documentation du 
 
 Ils ne sont pas utilisés directement par le service de production.
 
-Lors de l’installation initiale, l’installateur peut s’en servir pour créer les fichiers actifs dans `/etc/ohanna-agent`, mais il ne doit pas écraser une configuration déjà présente.
+Lors de l’installation initiale, l’installateur peut s’en servir pour créer les fichiers actifs dans `/etc/ohana-agent`, mais il ne doit pas écraser une configuration déjà présente.
 
 ---
 
@@ -166,10 +166,10 @@ Lors de l’installation initiale, l’installateur peut s’en servir pour cré
 Le répertoire réservé aux données persistantes est :
 
 ```text
-/var/lib/ohanna-agent/
+/var/lib/ohana-agent/
 ```
 
-Il appartient à l’utilisateur système exécutant Ohanna-Agent.
+Il appartient à l’utilisateur système exécutant Ohana-Agent.
 
 Dans la version actuelle, le bootstrap de production ne persiste encore aucune donnée dans ce répertoire. Celui-ci est réservé aux fonctionnalités futures qui nécessiteront réellement un stockage local, par exemple :
 
@@ -186,7 +186,7 @@ Le répertoire peut ne pas être créé tant qu’aucun composant de production 
 
 ## Journaux
 
-Ohanna-Agent écrit ses journaux sur la sortie standard et la sortie d’erreur.
+Ohana-Agent écrit ses journaux sur la sortie standard et la sortie d’erreur.
 
 En tant que service `systemd`, ces flux sont collectés par :
 
@@ -197,19 +197,19 @@ systemd-journald
 Aucun répertoire dédié n’est donc requis sous :
 
 ```text
-/var/log/ohanna-agent/
+/var/log/ohana-agent/
 ```
 
 Les journaux sont consultés avec :
 
 ```bash
-journalctl -u ohanna-agent
+journalctl -u ohana-agent
 ```
 
 Pour suivre l’exécution en direct :
 
 ```bash
-journalctl -u ohanna-agent -f
+journalctl -u ohana-agent -f
 ```
 
 Cette stratégie évite :
@@ -228,21 +228,21 @@ Si une sortie vers fichiers devient nécessaire ultérieurement, elle devra êtr
 Le fichier de service administré localement est placé dans :
 
 ```text
-/etc/systemd/system/ohanna-agent.service
+/etc/systemd/system/ohana-agent.service
 ```
 
 Il démarre l’exécutable :
 
 ```text
-/opt/ohanna-agent/venv/bin/ohanna-agent
+/opt/ohana-agent/venv/bin/ohana-agent
 ```
 
 avec les chemins de configuration explicites :
 
 ```text
---config /etc/ohanna-agent/shikamaru.yaml
---infrastructure /etc/ohanna-agent/infrastructure.yaml
---dns-config /etc/ohanna-agent/plugins/dns.yaml
+--config /etc/ohana-agent/shikamaru.yaml
+--infrastructure /etc/ohana-agent/infrastructure.yaml
+--dns-config /etc/ohana-agent/plugins/dns.yaml
 ```
 
 Le service ne doit pas dépendre du répertoire courant pour retrouver ses fichiers.
@@ -253,10 +253,10 @@ Le contenu précis de l’unité est défini dans l’étape consacrée au servi
 
 ## Utilisateur système
 
-Ohanna-Agent s’exécute avec un compte système dédié :
+Ohana-Agent s’exécute avec un compte système dédié :
 
 ```text
-ohanna-agent
+ohana-agent
 ```
 
 Ce compte :
@@ -264,14 +264,14 @@ Ce compte :
 * ne possède pas de shell interactif ;
 * ne possède pas de mot de passe ;
 * n’exécute pas l’application avec les droits `root` ;
-* peut lire `/etc/ohanna-agent` ;
-* peut exécuter l’environnement situé dans `/opt/ohanna-agent/venv` ;
-* peut écrire dans `/var/lib/ohanna-agent` seulement lorsque ce répertoire est utilisé.
+* peut lire `/etc/ohana-agent` ;
+* peut exécuter l’environnement situé dans `/opt/ohana-agent/venv` ;
+* peut écrire dans `/var/lib/ohana-agent` seulement lorsque ce répertoire est utilisé.
 
 Le groupe système associé porte également le nom :
 
 ```text
-ohanna-agent
+ohana-agent
 ```
 
 ---
@@ -281,7 +281,7 @@ ohanna-agent
 ### Logiciel
 
 ```text
-/opt/ohanna-agent
+/opt/ohana-agent
 ```
 
 Propriétaire recommandé :
@@ -296,18 +296,18 @@ Permissions recommandées pour les répertoires :
 0755
 ```
 
-Le compte `ohanna-agent` peut exécuter le logiciel, mais ne peut pas le modifier.
+Le compte `ohana-agent` peut exécuter le logiciel, mais ne peut pas le modifier.
 
 ### Configuration
 
 ```text
-/etc/ohanna-agent
+/etc/ohana-agent
 ```
 
 Propriétaire recommandé :
 
 ```text
-root:ohanna-agent
+root:ohana-agent
 ```
 
 Permissions recommandées pour les répertoires :
@@ -324,18 +324,18 @@ Permissions recommandées pour les fichiers ne contenant aucun secret :
 
 Le compte de service peut lire les fichiers, mais ne peut pas les modifier.
 
-Si une configuration contient ultérieurement des secrets, elle doit rester lisible uniquement par `root` et le groupe `ohanna-agent`.
+Si une configuration contient ultérieurement des secrets, elle doit rester lisible uniquement par `root` et le groupe `ohana-agent`.
 
 ### Données persistantes
 
 ```text
-/var/lib/ohanna-agent
+/var/lib/ohana-agent
 ```
 
 Propriétaire recommandé :
 
 ```text
-ohanna-agent:ohanna-agent
+ohana-agent:ohana-agent
 ```
 
 Permissions recommandées :
@@ -348,22 +348,22 @@ Permissions recommandées :
 
 ## Correspondance avec le CLI
 
-Le service Linux utilise les arguments déjà fournis par Ohanna-Agent :
+Le service Linux utilise les arguments déjà fournis par Ohana-Agent :
 
 | Argument           | Chemin Linux                            |
 | ------------------ | --------------------------------------- |
-| `--config`         | `/etc/ohanna-agent/shikamaru.yaml`      |
-| `--infrastructure` | `/etc/ohanna-agent/infrastructure.yaml` |
-| `--dns-config`     | `/etc/ohanna-agent/plugins/dns.yaml`    |
+| `--config`         | `/etc/ohana-agent/shikamaru.yaml`      |
+| `--infrastructure` | `/etc/ohana-agent/infrastructure.yaml` |
+| `--dns-config`     | `/etc/ohana-agent/plugins/dns.yaml`    |
 | `--log-level`      | niveau choisi par le service            |
 
 Commande de référence :
 
 ```bash
-/opt/ohanna-agent/venv/bin/ohanna-agent \
-  --config /etc/ohanna-agent/shikamaru.yaml \
-  --infrastructure /etc/ohanna-agent/infrastructure.yaml \
-  --dns-config /etc/ohanna-agent/plugins/dns.yaml \
+/opt/ohana-agent/venv/bin/ohana-agent \
+  --config /etc/ohana-agent/shikamaru.yaml \
+  --infrastructure /etc/ohana-agent/infrastructure.yaml \
+  --dns-config /etc/ohana-agent/plugins/dns.yaml \
   --log-level INFO
 ```
 
@@ -384,19 +384,19 @@ config/plugins/dns.yaml
 Ils permettent de lancer localement :
 
 ```bash
-ohanna-agent
+ohana-agent
 ```
 
-L’installation de production utilise en revanche les chemins absolus sous `/etc/ohanna-agent`.
+L’installation de production utilise en revanche les chemins absolus sous `/etc/ohana-agent`.
 
 Les deux modes ne doivent pas être confondus :
 
 | Contexte             | Configuration             |
 | -------------------- | ------------------------- |
 | développement        | `config/` dans le dépôt   |
-| production Linux     | `/etc/ohanna-agent/`      |
-| logiciel installé    | `/opt/ohanna-agent/venv/` |
-| données persistantes | `/var/lib/ohanna-agent/`  |
+| production Linux     | `/etc/ohana-agent/`      |
+| logiciel installé    | `/opt/ohana-agent/venv/` |
+| données persistantes | `/var/lib/ohana-agent/`  |
 | journaux             | `systemd-journald`        |
 
 ---
@@ -406,11 +406,11 @@ Les deux modes ne doivent pas être confondus :
 L’arborescence ne prévoit pas actuellement :
 
 ```text
-/var/log/ohanna-agent/
-/run/ohanna-agent/
-/var/cache/ohanna-agent/
-/usr/share/ohanna-agent/
-/opt/ohanna-agent/config/
+/var/log/ohana-agent/
+/run/ohana-agent/
+/var/cache/ohana-agent/
+/usr/share/ohana-agent/
+/opt/ohana-agent/config/
 ```
 
 Ces emplacements ne répondent à aucun besoin réel du bootstrap actuel.
@@ -421,17 +421,17 @@ Ils ne devront être ajoutés que lorsqu’un composant de production les utilis
 
 ## Contrat pour la version 1.0.0
 
-L’arborescence Linux de référence d’Ohanna-Agent 1.0.0 est :
+L’arborescence Linux de référence d’Ohana-Agent 1.0.0 est :
 
 ```text
-Logiciel       /opt/ohanna-agent/venv
-Exécutable     /opt/ohanna-agent/venv/bin/ohanna-agent
-Configuration  /etc/ohanna-agent
-Service        /etc/systemd/system/ohanna-agent.service
-Données        /var/lib/ohanna-agent
+Logiciel       /opt/ohana-agent/venv
+Exécutable     /opt/ohana-agent/venv/bin/ohana-agent
+Configuration  /etc/ohana-agent
+Service        /etc/systemd/system/ohana-agent.service
+Données        /var/lib/ohana-agent
 Journaux       systemd-journald
-Utilisateur    ohanna-agent
-Groupe         ohanna-agent
+Utilisateur    ohana-agent
+Groupe         ohana-agent
 ```
 
-Cette structure doit être utilisée par le service `systemd`, les procédures d’installation et le futur Ohanna-Installer.
+Cette structure doit être utilisée par le service `systemd`, les procédures d’installation et le futur Ohana-Installer.

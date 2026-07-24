@@ -2,14 +2,14 @@
 
 - **Statut** : Accepté
 - **Date** : 2026-07-08
-- **Décideurs** : Équipe Ohanna-Agent
+- **Décideurs** : Équipe Ohana-Agent
 - **Version cible** : v0.4.0
 
 ---
 
 # Contexte
 
-L'ADR-0020 introduit les **Capabilities** comme unité fonctionnelle centrale d'Ohanna-Agent.
+L'ADR-0020 introduit les **Capabilities** comme unité fonctionnelle centrale d'Ohana-Agent.
 
 L'ADR-0021 confie leur gestion au **CapabilityManager**.
 
@@ -30,7 +30,7 @@ Si chaque nouvelle Capability devait être enregistrée manuellement dans l'Appl
 - le couplage augmenterait rapidement ;
 - l'architecture perdrait son extensibilité.
 
-Cette approche est incompatible avec les objectifs d'Ohanna-Agent.
+Cette approche est incompatible avec les objectifs d'Ohana-Agent.
 
 ---
 
@@ -304,4 +304,4 @@ Le **PluginManager** est chargé de leur découverte et de leur chargement.
 
 Le **CapabilityManager** est chargé de l'enregistrement et de l'orchestration des fonctionnalités exposées.
 
-Cette architecture garantit qu'une nouvelle fonctionnalité peut être intégrée à Ohanna-Agent sans aucune modification du noyau, conformément aux principes de modularité et de découplage du projet.
+Cette architecture garantit qu'une nouvelle fonctionnalité peut être intégrée à Ohana-Agent sans aucune modification du noyau, conformément aux principes de modularité et de découplage du projet.

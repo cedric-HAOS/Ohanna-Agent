@@ -1,6 +1,6 @@
 infrastructure:
-  id: ohanna-house
-  name: Ohanna House
+  id: ohana-house
+  name: Ohana House
   environment: production
 
 metadata:

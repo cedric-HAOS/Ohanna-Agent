@@ -1,4 +1,4 @@
-"""Ohanna-Vision export configuration."""
+"""Ohana-Vision export configuration."""
 
 from pydantic import Field, HttpUrl, PositiveFloat
 
@@ -6,7 +6,7 @@ from configuration.base import Config
 
 
 class VisionConfig(Config):
-    """Configuration used to export data to Ohanna-Vision."""
+    """Configuration used to export data to Ohana-Vision."""
 
     enabled: bool = True
 

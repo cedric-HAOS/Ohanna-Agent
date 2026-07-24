@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Ce document définit les conventions d'utilisation de MQTT dans Ohanna-Agent.
+Ce document définit les conventions d'utilisation de MQTT dans Ohana-Agent.
 
 Le rôle de MQTT est exclusivement de transporter les messages définis dans **Message-Model.md**.
 
@@ -26,7 +26,7 @@ L'interface MQTT respecte les principes suivants :
 Tous les topics commencent par :
 
 ```text
-ohanna/
+ohana/
 ```
 
 ---
@@ -36,7 +36,7 @@ ohanna/
 Les topics reflètent directement les catégories du Message Model.
 
 ```text
-ohanna/
+ohana/
 
     observations/
     states/
@@ -52,15 +52,15 @@ ohanna/
 ## Observations
 
 ```text
-ohanna/observations/<capability>
+ohana/observations/<capability>
 ```
 
 Exemples :
 
 ```text
-ohanna/observations/dns
-ohanna/observations/dhcp
-ohanna/observations/network
+ohana/observations/dns
+ohana/observations/dhcp
+ohana/observations/network
 ```
 
 ---
@@ -68,7 +68,7 @@ ohanna/observations/network
 ## États
 
 ```text
-ohanna/states/<capability>
+ohana/states/<capability>
 ```
 
 ---
@@ -76,7 +76,7 @@ ohanna/states/<capability>
 ## Événements
 
 ```text
-ohanna/events/<type>
+ohana/events/<type>
 ```
 
 ---
@@ -84,7 +84,7 @@ ohanna/events/<type>
 ## Commandes
 
 ```text
-ohanna/commands/<target>
+ohana/commands/<target>
 ```
 
 ---
@@ -92,7 +92,7 @@ ohanna/commands/<target>
 ## Santé
 
 ```text
-ohanna/health
+ohana/health
 ```
 
 ---

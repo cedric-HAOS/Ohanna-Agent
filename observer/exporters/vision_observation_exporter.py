@@ -1,4 +1,4 @@
-"""Ohanna-Vision observation exporter."""
+"""Ohana-Vision observation exporter."""
 
 from dataclasses import dataclass
 
@@ -12,13 +12,13 @@ from observer.observation_exporter import ObservationExporter
 
 @dataclass(slots=True)
 class VisionObservationExporter(ObservationExporter):
-    """Export standard observations to Ohanna-Vision."""
+    """Export standard observations to Ohana-Vision."""
 
     client: VisionClient
     mapper: VisionObservationMapper
 
     def export(self, observation: Observation) -> None:
-        """Map and send an observation to Ohanna-Vision."""
+        """Map and send an observation to Ohana-Vision."""
         payload = self.mapper.to_payload(observation)
 
         self.client.send_observation(payload)

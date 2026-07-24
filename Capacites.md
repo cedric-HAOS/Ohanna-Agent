@@ -2,7 +2,7 @@
 
 ## Introduction
 
-La mission d'Ohanna-Agent est de garantir des capacités.
+La mission d'Ohana-Agent est de garantir des capacités.
 
 Une capacité représente un service attendu par l'infrastructure.
 
@@ -155,7 +155,7 @@ Connectivité réseau
 
 Une défaillance peut donc avoir des conséquences en cascade.
 
-Le rôle d'Ohanna-Agent est d'identifier la capacité réellement défaillante.
+Le rôle d'Ohana-Agent est d'identifier la capacité réellement défaillante.
 
 ---
 
@@ -193,4 +193,4 @@ Elle est indépendante :
 - des protocoles ;
 - des implémentations.
 
-Les capacités constituent le contrat fonctionnel d'Ohanna-Agent.
+Les capacités constituent le contrat fonctionnel d'Ohana-Agent.

@@ -1,5 +1,5 @@
 """
-Ohanna-Agent
+Ohana-Agent
 
 Component:
     Configuration tests
@@ -30,7 +30,7 @@ def test_load_shikamaru_configuration() -> None:
     assert configuration.version == 1
     assert configuration.agent.name == "Shikamaru"
     assert configuration.agent.environment == Environment.PRODUCTION
-    assert configuration.mqtt.host == "ha-green.ohanna.lan"
+    assert configuration.mqtt.host == "ha-green.ohana.lan"
     assert configuration.mqtt.port == 1883
     assert configuration.logging.level == LogLevel.INFO
     assert configuration.health.enabled is True

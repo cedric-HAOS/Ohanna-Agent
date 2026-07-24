@@ -120,7 +120,7 @@ def test_mapper_maps_service_update_from_runtime_context() -> None:
         services=[service],
     )
     infrastructure = Infrastructure(
-        name="Ohanna",
+        name="Ohana",
         nodes=[node],
     )
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
@@ -152,7 +152,7 @@ def test_mapper_maps_service_update_from_runtime_context() -> None:
 
 
 def test_mapper_rejects_unknown_service_target() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     update = InfrastructureHealthUpdate(
@@ -175,7 +175,7 @@ def test_mapper_rejects_unknown_service_target() -> None:
 
 
 def test_mapper_rejects_service_missing_from_runtime() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     update = InfrastructureHealthUpdate(

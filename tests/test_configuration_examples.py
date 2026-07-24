@@ -23,7 +23,7 @@ def test_infrastructure_example_configuration_is_valid() -> None:
         "config/infrastructure.example.yaml",
     )
 
-    assert configuration.infrastructure.id == "ohanna-house"
+    assert configuration.infrastructure.id == "ohana-house"
     assert configuration.nodes
     assert configuration.services
 

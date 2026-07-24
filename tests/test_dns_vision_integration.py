@@ -44,7 +44,7 @@ class FakeDNSCheck:
 
 
 class FakeVisionClient:
-    """Store observation payloads sent to Ohanna-Vision."""
+    """Store observation payloads sent to Ohana-Vision."""
 
     def __init__(self) -> None:
         self.payloads: list[dict[str, Any]] = []
@@ -98,7 +98,7 @@ def test_dns_observation_is_exported_to_vision_client() -> None:
         services=[service],
     )
     infrastructure = Infrastructure(
-        name="Ohanna",
+        name="Ohana",
         nodes=[node],
     )
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)

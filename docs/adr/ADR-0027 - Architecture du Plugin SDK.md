@@ -6,7 +6,7 @@
 
 ## Contexte
 
-L'objectif d'Ohanna-Agent est de garantir les capacités d'une infrastructure plutôt que de superviser des équipements.
+L'objectif d'Ohana-Agent est de garantir les capacités d'une infrastructure plutôt que de superviser des équipements.
 
 Afin de permettre l'ajout de nouvelles capacités sans modifier le noyau, le projet introduit un SDK de plugins.
 

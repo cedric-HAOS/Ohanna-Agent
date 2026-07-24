@@ -28,8 +28,8 @@ def test_infrastructure_example_yaml_declares_infrastructure_identity() -> None:
 
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
 
-    assert data["infrastructure"]["id"] == "ohanna-house"
-    assert data["infrastructure"]["name"] == "Ohanna House"
+    assert data["infrastructure"]["id"] == "ohana-house"
+    assert data["infrastructure"]["name"] == "Ohana House"
     assert data["infrastructure"]["environment"] == "production"
 
 

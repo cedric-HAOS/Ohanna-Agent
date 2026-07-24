@@ -8,7 +8,7 @@ from observer.observation_status import ObservationStatus
 
 @dataclass(slots=True, frozen=True)
 class Observation:
-    """Standard observation produced by Ohanna-Agent."""
+    """Standard observation produced by Ohana-Agent."""
 
     node: str
 

@@ -13,7 +13,7 @@ from observer.exporters import (
 
 @dataclass
 class FakeVisionClient:
-    """Fake Ohanna-Vision client used by tests."""
+    """Fake Ohana-Vision client used by tests."""
 
     payloads: list[dict[str, Any]] = field(default_factory=list)
 

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Ohanna-Agent n'est pas construit autour de technologies.
+Ohana-Agent n'est pas construit autour de technologies.
 
 Il est construit autour de principes.
 
@@ -26,7 +26,7 @@ Les matériels sont remplacés.
 
 Les capacités, elles, doivent rester garanties.
 
-Toute l'architecture d'Ohanna-Agent découle de cette idée.
+Toute l'architecture d'Ohana-Agent découle de cette idée.
 
 ---
 
@@ -188,7 +188,7 @@ Nous voulons construire un logiciel :
 
 # Notre engagement
 
-Chaque évolution d'Ohanna-Agent devra respecter cette philosophie.
+Chaque évolution d'Ohana-Agent devra respecter cette philosophie.
 
 Si une fonctionnalité apporte de la complexité sans renforcer les capacités garanties par le logiciel, elle devra être remise en question.
 

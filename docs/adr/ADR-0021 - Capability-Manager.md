@@ -2,14 +2,14 @@
 
 - **Statut** : Accepté
 - **Date** : 2026-07-08
-- **Décideurs** : Équipe Ohanna-Agent
+- **Décideurs** : Équipe Ohana-Agent
 - **Version cible** : v0.4.0
 
 ---
 
 # Contexte
 
-L'ADR-0020 introduit la notion de **Capability** comme unité fonctionnelle principale d'Ohanna-Agent.
+L'ADR-0020 introduit la notion de **Capability** comme unité fonctionnelle principale d'Ohana-Agent.
 
 Le noyau ne manipule désormais plus directement les plugins, mais des capacités représentant les fonctionnalités offertes par l'agent.
 
@@ -33,7 +33,7 @@ Cette approche augmenterait fortement le couplage.
 
 # Décision
 
-Ohanna-Agent introduit un nouveau Core Service nommé **CapabilityManager**.
+Ohana-Agent introduit un nouveau Core Service nommé **CapabilityManager**.
 
 Le CapabilityManager devient l'unique responsable de la gestion des Capabilities.
 
@@ -309,7 +309,7 @@ Toutes les interactions avec les fonctionnalités passent désormais par lui.
 
 # Décision finale
 
-Le **CapabilityManager** devient le gestionnaire officiel des fonctionnalités d'Ohanna-Agent.
+Le **CapabilityManager** devient le gestionnaire officiel des fonctionnalités d'Ohana-Agent.
 
 Il constitue le point d'entrée unique permettant au noyau de découvrir, enregistrer, rechercher et orchestrer les Capabilities.
 

@@ -34,7 +34,7 @@ class PythonPluginFactory:
         return plugin
 
     def _load_module(self, name: str, path: Path) -> ModuleType:
-        module_name = f"ohanna_plugin_{name}"
+        module_name = f"ohana_plugin_{name}"
 
         spec = importlib.util.spec_from_file_location(module_name, path)
 

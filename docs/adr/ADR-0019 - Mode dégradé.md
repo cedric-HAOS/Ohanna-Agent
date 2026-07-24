@@ -32,7 +32,7 @@ Il est donc nécessaire d'introduire un **mode dégradé**, permettant à l'agen
 
 ## Décision
 
-Ohanna-Agent adopte un **Mode dégradé** (`DEGRADED`).
+Ohana-Agent adopte un **Mode dégradé** (`DEGRADED`).
 
 Ce mode représente un état de fonctionnement partiel.
 
@@ -221,7 +221,7 @@ Ces éléments seront traités dans des évolutions ultérieures.
 
 ## Décision finale
 
-Ohanna-Agent adopte un **Mode dégradé** permettant de maintenir l'exécution des capacités encore disponibles lorsqu'une récupération complète n'est pas possible.
+Ohana-Agent adopte un **Mode dégradé** permettant de maintenir l'exécution des capacités encore disponibles lorsqu'une récupération complète n'est pas possible.
 
 Le passage en mode dégradé est déterminé par le `HealthMonitor` à partir des résultats de santé et des décisions du `RecoveryEngine`.
 

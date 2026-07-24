@@ -7,5 +7,5 @@ class PluginManifest:
 
     name: str
     version: str
-    author: str = "Ohanna"
+    author: str = "Ohana"
     description: str = ""

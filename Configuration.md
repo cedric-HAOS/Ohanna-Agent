@@ -2,7 +2,7 @@
 
 ## Introduction
 
-La configuration décrit les attentes de l'utilisateur envers Ohanna-Agent.
+La configuration décrit les attentes de l'utilisateur envers Ohana-Agent.
 
 Elle ne décrit pas les implémentations.
 

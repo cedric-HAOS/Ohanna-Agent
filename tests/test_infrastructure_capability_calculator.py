@@ -25,7 +25,7 @@ def test_infrastructure_capability_can_be_created() -> None:
 
 
 def test_infrastructure_capability_calculator_can_be_created() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
     calculator = InfrastructureCapabilityCalculator(runtime=runtime)
@@ -34,7 +34,7 @@ def test_infrastructure_capability_calculator_can_be_created() -> None:
 
 
 def test_calculate_dns_available_returns_unknown_when_dns_service_missing() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     calculator = InfrastructureCapabilityCalculator(runtime=runtime)
 
@@ -49,7 +49,7 @@ def test_calculate_dns_available_returns_unknown_when_dns_service_missing() -> N
 def test_calculate_dns_available_returns_true_when_dns_is_healthy() -> None:
     service = Service(name="DNS", type=ServiceType.DNS)
     node = Node(name="INFRA-01", services=[service])
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     service_runtime = runtime.get_service_runtime_by_type(ServiceType.DNS)
     calculator = InfrastructureCapabilityCalculator(runtime=runtime)
@@ -69,7 +69,7 @@ def test_calculate_dns_available_returns_true_when_dns_is_healthy() -> None:
 def test_calculate_dns_available_returns_false_when_dns_is_unhealthy() -> None:
     service = Service(name="DNS", type=ServiceType.DNS)
     node = Node(name="INFRA-01", services=[service])
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     service_runtime = runtime.get_service_runtime_by_type(ServiceType.DNS)
     calculator = InfrastructureCapabilityCalculator(runtime=runtime)
@@ -89,7 +89,7 @@ def test_calculate_dns_available_returns_false_when_dns_is_unhealthy() -> None:
 def test_calculate_dns_available_returns_false_when_dns_is_degraded() -> None:
     service = Service(name="DNS", type=ServiceType.DNS)
     node = Node(name="INFRA-01", services=[service])
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     service_runtime = runtime.get_service_runtime_by_type(ServiceType.DNS)
     calculator = InfrastructureCapabilityCalculator(runtime=runtime)
@@ -107,7 +107,7 @@ def test_calculate_dns_available_returns_false_when_dns_is_degraded() -> None:
 
 
 def test_calculate_mqtt_available_returns_unknown_when_mqtt_service_missing() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     calculator = InfrastructureCapabilityCalculator(runtime=runtime)
 
@@ -122,7 +122,7 @@ def test_calculate_mqtt_available_returns_unknown_when_mqtt_service_missing() ->
 def test_calculate_mqtt_available_returns_true_when_mqtt_is_healthy() -> None:
     service = Service(name="MQTT", type=ServiceType.MQTT)
     node = Node(name="INFRA-01", services=[service])
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     service_runtime = runtime.get_service_runtime_by_type(ServiceType.MQTT)
     calculator = InfrastructureCapabilityCalculator(runtime=runtime)
@@ -142,7 +142,7 @@ def test_calculate_mqtt_available_returns_true_when_mqtt_is_healthy() -> None:
 def test_calculate_mqtt_available_returns_false_when_mqtt_is_unhealthy() -> None:
     service = Service(name="MQTT", type=ServiceType.MQTT)
     node = Node(name="INFRA-01", services=[service])
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     service_runtime = runtime.get_service_runtime_by_type(ServiceType.MQTT)
     calculator = InfrastructureCapabilityCalculator(runtime=runtime)

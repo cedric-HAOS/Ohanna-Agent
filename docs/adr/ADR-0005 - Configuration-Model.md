@@ -70,7 +70,7 @@ Les composants reçoivent uniquement la section de configuration dont ils ont be
 L'organisation retenue est la suivante :
 
 ```text
-Ohanna-Agent/
+Ohana-Agent/
 │
 ├── config/
 │   ├── shikamaru.yaml

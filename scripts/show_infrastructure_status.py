@@ -17,7 +17,7 @@ from infrastructure import (
 def build_demo_infrastructure() -> Infrastructure:
     """Build a demo infrastructure."""
     return Infrastructure(
-        name="Ohanna",
+        name="Ohana",
         nodes=[
             Node(
                 name="INFRA-01",
@@ -54,7 +54,7 @@ def status_icon(health: HealthStatus) -> str:
 def print_runtime(runtime: InfrastructureRuntime) -> None:
     """Print infrastructure runtime status."""
     print()
-    print("OHANNA INFRASTRUCTURE STATUS")
+    print("OHANA INFRASTRUCTURE STATUS")
     print("=" * 80)
 
     for node_runtime in runtime.node_runtimes:

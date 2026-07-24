@@ -1,4 +1,4 @@
-"""Prepare and validate an Ohanna-Agent release."""
+"""Prepare and validate an Ohana-Agent release."""
 
 from __future__ import annotations
 
@@ -47,8 +47,8 @@ def find_distribution_artifacts(version: str) -> tuple[Path, Path]:
     """Return the unique wheel and sdist for the release version."""
     normalized_version = version.replace("-", "_")
 
-    wheels = sorted(DIST_DIRECTORY.glob(f"ohanna_agent-{normalized_version}-*.whl"))
-    sdists = sorted(DIST_DIRECTORY.glob(f"ohanna_agent-{version}.tar.gz"))
+    wheels = sorted(DIST_DIRECTORY.glob(f"ohana_agent-{normalized_version}-*.whl"))
+    sdists = sorted(DIST_DIRECTORY.glob(f"ohana_agent-{version}.tar.gz"))
 
     if len(wheels) != 1:
         raise RuntimeError(
@@ -167,7 +167,7 @@ def main() -> int:
     version = read_project_version()
     tag = f"v{version}"
 
-    print(f"Preparing Ohanna-Agent {tag}")
+    print(f"Preparing Ohana-Agent {tag}")
     print()
 
     if version != "1.0.0":

@@ -10,12 +10,12 @@ from configuration.infrastructure import (
 
 def test_infrastructure_identity_config_can_be_created() -> None:
     config = InfrastructureIdentityConfig(
-        id="ohanna-house",
-        name="Ohanna House",
+        id="ohana-house",
+        name="Ohana House",
     )
 
-    assert config.id == "ohanna-house"
-    assert config.name == "Ohanna House"
+    assert config.id == "ohana-house"
+    assert config.name == "Ohana House"
     assert config.environment == "production"
 
 
@@ -72,8 +72,8 @@ def test_service_config_can_be_created() -> None:
 def test_infrastructure_config_can_be_created() -> None:
     config = InfrastructureConfig(
         infrastructure=InfrastructureIdentityConfig(
-            id="ohanna-house",
-            name="Ohanna House",
+            id="ohana-house",
+            name="Ohana House",
         ),
         nodes=[
             NodeConfig(
@@ -96,6 +96,6 @@ def test_infrastructure_config_can_be_created() -> None:
         ],
     )
 
-    assert config.infrastructure.id == "ohanna-house"
+    assert config.infrastructure.id == "ohana-house"
     assert len(config.nodes) == 1
     assert len(config.services) == 1

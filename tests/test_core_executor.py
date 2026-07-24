@@ -9,4 +9,4 @@ class StringExecutor:
 def test_executor_protocol_accepts_matching_class() -> None:
     executor: Executor[str, str] = StringExecutor()
 
-    assert executor.execute("ohanna") == "OHANNA"
+    assert executor.execute("ohana") == "OHANA"

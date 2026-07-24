@@ -35,13 +35,13 @@ mais :
 
 > « La maison est-elle encore capable de résoudre les noms de domaine ? »
 
-Cette différence constitue la raison d'être d'Ohanna-Agent.
+Cette différence constitue la raison d'être d'Ohana-Agent.
 
 ---
 
 # Décision
 
-Ohanna-Agent est un **moteur d'observation et de raisonnement sur les capacités d'une infrastructure**.
+Ohana-Agent est un **moteur d'observation et de raisonnement sur les capacités d'une infrastructure**.
 
 Il ne supervise pas des équipements.
 
@@ -53,7 +53,7 @@ Toutes les décisions d'architecture du projet devront respecter cette vision.
 
 ---
 
-# Les responsabilités d'Ohanna-Agent
+# Les responsabilités d'Ohana-Agent
 
 Le moteur possède quatre responsabilités fondamentales.
 
@@ -122,18 +122,18 @@ Une fois calculées, les capacités deviennent disponibles pour des consommateur
 Ces consommateurs peuvent être :
 
 - Home Assistant ;
-- Ohanna-Vision ;
+- Ohana-Vision ;
 - MQTT ;
 - une API REST ;
 - un export JSON.
 
-Ohanna-Agent reste totalement indépendant de ces consommateurs.
+Ohana-Agent reste totalement indépendant de ces consommateurs.
 
 ---
 
-# Ce qu'Ohanna-Agent n'est pas
+# Ce qu'Ohana-Agent n'est pas
 
-Ohanna-Agent n'est pas :
+Ohana-Agent n'est pas :
 
 - une interface Web ;
 - un tableau de bord ;
@@ -191,13 +191,13 @@ Le moteur raisonne donc sur des relations plutôt que sur des états individuels
 
 # Les consommateurs
 
-Ohanna-Agent ne décide jamais de la manière dont ses résultats seront utilisés.
+Ohana-Agent ne décide jamais de la manière dont ses résultats seront utilisés.
 
 Il expose uniquement des données.
 
 Ces données peuvent être consommées par différents systèmes.
 
-## Ohanna-Vision
+## Ohana-Vision
 
 Visualisation de l'état global de l'infrastructure.
 
@@ -219,13 +219,13 @@ Le moteur doit pouvoir fonctionner sans aucun d'entre eux.
 
 ---
 
-# L'écosystème Ohanna
+# L'écosystème Ohana
 
 Chaque projet possède une responsabilité unique.
 
 ```text
                 +----------------------+
-                |    Ohanna-House      |
+                |    Ohana-House      |
                 | Architecture cible   |
                 +----------+-----------+
                            |
@@ -233,7 +233,7 @@ Chaque projet possède une responsabilité unique.
                            |
                            v
                 +----------------------+
-                |    Ohanna-Agent      |
+                |    Ohana-Agent      |
                 | Observer • Déduire   |
                 | Calculer             |
                 +----------+-----------+
@@ -244,18 +244,18 @@ Chaque projet possède une responsabilité unique.
         |                  |                  |
         v                  v                  v
 +---------------+  +---------------+  +---------------+
-| Ohanna-Vision |  | Home Assistant|  | MQTT / REST   |
+| Ohana-Vision |  | Home Assistant|  | MQTT / REST   |
 | Visualiser    |  | Consommer     |  | Intégrer      |
 +---------------+  +---------------+  +---------------+
 ```
 
 Les responsabilités sont clairement séparées.
 
-### Ohanna-House
+### Ohana-House
 
 Décrit l'architecture de référence.
 
-### Ohanna-Agent
+### Ohana-Agent
 
 Observe l'infrastructure.
 
@@ -263,7 +263,7 @@ Calcule les capacités.
 
 Expose les résultats.
 
-### Ohanna-Vision
+### Ohana-Vision
 
 Présente les capacités à l'utilisateur.
 
@@ -275,7 +275,7 @@ Permettent l'intégration avec des systèmes externes.
 
 # Principes d'architecture
 
-Toutes les évolutions d'Ohanna-Agent doivent respecter les principes suivants.
+Toutes les évolutions d'Ohana-Agent doivent respecter les principes suivants.
 
 ## Responsabilité unique
 
@@ -315,7 +315,7 @@ Cette séparation permet notamment :
 
 - l'ajout de nouveaux plugins sans modifier le moteur ;
 - la création de nouvelles capacités par agrégation d'observations ;
-- plusieurs interfaces clientes (Ohanna-Vision, Home Assistant, API, MQTT) ;
+- plusieurs interfaces clientes (Ohana-Vision, Home Assistant, API, MQTT) ;
 - une évolution indépendante des différents composants de l'écosystème.
 
 Cette ADR constitue le document fondateur du projet.

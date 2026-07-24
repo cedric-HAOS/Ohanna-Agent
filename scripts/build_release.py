@@ -1,4 +1,4 @@
-"""Build Ohanna-Agent distribution artifacts."""
+"""Build Ohana-Agent distribution artifacts."""
 
 from __future__ import annotations
 

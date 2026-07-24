@@ -25,7 +25,7 @@ class MQTTHeartbeatPublisher(Protocol):
 @dataclass(frozen=True)
 class MQTTHeartbeatConfig:
     agent_name: str = "shikamaru"
-    base_topic: str = "ohanna/agent/shikamaru"
+    base_topic: str = "ohana/agent/shikamaru"
     version: str = "0.3.0"
     qos: int = 1
     retain: bool = False

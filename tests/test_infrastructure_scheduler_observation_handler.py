@@ -11,7 +11,7 @@ from infrastructure import (
 
 
 def test_scheduler_observation_handler_can_be_created() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     manager = ObservationManager(runtime=runtime)
 
@@ -23,7 +23,7 @@ def test_scheduler_observation_handler_can_be_created() -> None:
 def test_scheduler_observation_handler_records_success() -> None:
     service = Service(name="DNS", type=ServiceType.DNS)
     node = Node(name="INFRA-01", services=[service])
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     manager = ObservationManager(runtime=runtime)
     handler = SchedulerObservationHandler(observation_manager=manager)
@@ -47,7 +47,7 @@ def test_scheduler_observation_handler_records_success() -> None:
 def test_scheduler_observation_handler_records_failure() -> None:
     service = Service(name="MQTT", type=ServiceType.MQTT)
     node = Node(name="INFRA-01", services=[service])
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     manager = ObservationManager(runtime=runtime)
     handler = SchedulerObservationHandler(observation_manager=manager)
@@ -70,7 +70,7 @@ def test_scheduler_observation_handler_records_failure() -> None:
 
 def test_scheduler_observation_handler_records_degraded() -> None:
     node = Node(name="INFRA-01")
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     manager = ObservationManager(runtime=runtime)
     handler = SchedulerObservationHandler(observation_manager=manager)
@@ -92,7 +92,7 @@ def test_scheduler_observation_handler_records_degraded() -> None:
 
 
 def test_scheduler_observation_handler_returns_false_for_unknown_target() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     manager = ObservationManager(runtime=runtime)
     handler = SchedulerObservationHandler(observation_manager=manager)

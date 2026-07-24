@@ -4,7 +4,7 @@
 
 Le **MQTT Runtime** est la couche de communication de Shikamaru.
 
-Son rôle est de connecter le noyau de l'agent au reste de l'écosystème Ohanna via le protocole MQTT, tout en maintenant un découplage strict entre les composants internes et la bibliothèque MQTT utilisée.
+Son rôle est de connecter le noyau de l'agent au reste de l'écosystème Ohana via le protocole MQTT, tout en maintenant un découplage strict entre les composants internes et la bibliothèque MQTT utilisée.
 
 Le runtime MQTT constitue la frontière entre le monde réseau et le cœur applicatif.
 
@@ -208,7 +208,7 @@ Le heartbeat informe les autres composants que Shikamaru est toujours actif.
 Publication périodique :
 
 ```text
-ohanna/agent/shikamaru/status
+ohana/agent/shikamaru/status
 ```
 
 Exemple :
@@ -239,7 +239,7 @@ Publié lors de la connexion.
 Topic :
 
 ```text
-ohanna/agent/shikamaru/availability
+ohana/agent/shikamaru/availability
 ```
 
 Payload :
@@ -343,7 +343,7 @@ MQTTClient.disconnect()
 Tous les topics sont regroupés sous une racine unique.
 
 ```text
-ohanna/
+ohana/
 └── agent/
     └── shikamaru/
         ├── availability
@@ -374,7 +374,7 @@ mqtt:
 
   client_id: shikamaru
 
-  base_topic: ohanna/agent/shikamaru
+  base_topic: ohana/agent/shikamaru
 
   qos: 1
   retain: false
@@ -478,6 +478,6 @@ Cette architecture apporte :
 * une excellente évolutivité ;
 * une intégration naturelle avec le Dispatcher ;
 * une compatibilité avec les futurs plugins ;
-* une base solide pour l'intégration de Home Assistant et des services Ohanna.
+* une base solide pour l'intégration de Home Assistant et des services Ohana.
 
 Le MQTT Runtime constitue ainsi la passerelle officielle entre Shikamaru et le reste de l'écosystème.

@@ -1,4 +1,4 @@
-"""Health monitoring primitives for Ohanna-Agent."""
+"""Health monitoring primitives for Ohana-Agent."""
 
 from __future__ import annotations
 

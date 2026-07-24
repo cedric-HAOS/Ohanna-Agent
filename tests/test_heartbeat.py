@@ -47,13 +47,13 @@ def make_service(
 def test_status_topic_uses_base_topic() -> None:
     service, _ = make_service()
 
-    assert service.status_topic == "ohanna/agent/shikamaru/status"
+    assert service.status_topic == "ohana/agent/shikamaru/status"
 
 
 def test_availability_topic_uses_base_topic() -> None:
     service, _ = make_service()
 
-    assert service.availability_topic == "ohanna/agent/shikamaru/availability"
+    assert service.availability_topic == "ohana/agent/shikamaru/availability"
 
 
 def test_build_status_message() -> None:
@@ -117,7 +117,7 @@ def test_publish_heartbeat_once() -> None:
 
     published = publisher.published[0]
 
-    assert published["topic"] == "ohanna/agent/shikamaru/status"
+    assert published["topic"] == "ohana/agent/shikamaru/status"
     assert published["qos"] == 1
     assert published["retain"] is False
     assert published["payload"]["agent"] == "shikamaru"
@@ -135,7 +135,7 @@ def test_publish_online() -> None:
 
     assert publisher.published == [
         {
-            "topic": "ohanna/agent/shikamaru/availability",
+            "topic": "ohana/agent/shikamaru/availability",
             "payload": {"status": "online"},
             "qos": 1,
             "retain": True,
@@ -150,7 +150,7 @@ def test_publish_offline() -> None:
 
     assert publisher.published == [
         {
-            "topic": "ohanna/agent/shikamaru/availability",
+            "topic": "ohana/agent/shikamaru/availability",
             "payload": {"status": "offline"},
             "qos": 1,
             "retain": True,

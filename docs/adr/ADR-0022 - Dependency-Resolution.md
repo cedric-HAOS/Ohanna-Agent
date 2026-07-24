@@ -2,14 +2,14 @@
 
 - **Statut** : Accepté
 - **Date** : 2026-07-08
-- **Décideurs** : Équipe Ohanna-Agent
+- **Décideurs** : Équipe Ohana-Agent
 - **Version cible** : v0.4.0
 
 ---
 
 # Contexte
 
-L'ADR-0020 introduit les **Capabilities** comme unité fonctionnelle centrale d'Ohanna-Agent.
+L'ADR-0020 introduit les **Capabilities** comme unité fonctionnelle centrale d'Ohana-Agent.
 
 L'ADR-0021 introduit le **CapabilityManager**, responsable de leur enregistrement et de leur orchestration.
 
@@ -318,7 +318,7 @@ Toutes les nouvelles Capabilities s'intègrent automatiquement au système dès 
 
 # Décision finale
 
-Les dépendances d'Ohanna-Agent sont désormais exprimées exclusivement entre **Capabilities**.
+Les dépendances d'Ohana-Agent sont désormais exprimées exclusivement entre **Capabilities**.
 
 Le **CapabilityManager** construit automatiquement le graphe de dépendances, détecte les incohérences et détermine l'ordre de démarrage, d'arrêt et de réparation des fonctionnalités.
 

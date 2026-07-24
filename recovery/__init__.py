@@ -1,1 +1,1 @@
-"""Recovery package for Ohanna-Agent."""
+"""Recovery package for Ohana-Agent."""

@@ -2,14 +2,14 @@
 
 - **Statut** : Accepté
 - **Date** : 2026-07-08
-- **Décideurs** : Équipe Ohanna-Agent
+- **Décideurs** : Équipe Ohana-Agent
 - **Version cible** : v0.4.0
 
 ---
 
 # Contexte
 
-L'ADR-0020 introduit les **Capabilities** comme unité fonctionnelle centrale d'Ohanna-Agent.
+L'ADR-0020 introduit les **Capabilities** comme unité fonctionnelle centrale d'Ohana-Agent.
 
 Les ADR suivants définissent leur gestion, leur découverte et leurs dépendances.
 
@@ -357,7 +357,7 @@ Cette homogénéité simplifie considérablement l'évolution du noyau **Shikama
 
 # Décision finale
 
-Toutes les **Capabilities** d'Ohanna-Agent suivent un cycle de vie commun, indépendant de leur implémentation.
+Toutes les **Capabilities** d'Ohana-Agent suivent un cycle de vie commun, indépendant de leur implémentation.
 
 Le **CapabilityManager** orchestre les transitions d'état, tandis que chaque Capability reste responsable de son comportement interne.
 

@@ -3,7 +3,7 @@
 **Statut :** Accepté  
 **Version :** 1.0  
 **Date :** 2026-07-07  
-**Projet :** Ohanna-Agent  
+**Projet :** Ohana-Agent
 **Décideurs :** Cédric Harnois, ChatGPT
 
 ---
@@ -56,7 +56,7 @@ Chaque fichier suit l'ordre suivant :
 
 ```python
 """
-Ohanna-Agent
+Ohana-Agent
 
 Component:
     Lifecycle
@@ -299,7 +299,7 @@ Un TODO vague est interdit.
 
 ```python
 """
-Ohanna-Agent
+Ohana-Agent
 
 Component:
     Lifecycle

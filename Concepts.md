@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Ce document définit les concepts fondamentaux utilisés par Ohanna-Agent.
+Ce document définit les concepts fondamentaux utilisés par Ohana-Agent.
 
 Chaque décision d'architecture, chaque plugin et chaque ligne de code doivent s'appuyer sur ces définitions.
 
@@ -12,9 +12,9 @@ Il décrit une idée stable, indépendante des technologies utilisées.
 
 ---
 
-# Le modèle d'Ohanna-Agent
+# Le modèle d'Ohana-Agent
 
-Ohanna-Agent repose sur un principe simple.
+Ohana-Agent repose sur un principe simple.
 
 Une infrastructure est définie par les capacités qu'elle fournit.
 
@@ -55,7 +55,7 @@ Elle ne change pas selon les machines ou les plugins.
 
 Mission :
 
-Garantir les capacités définies par l'architecture d'Ohanna-House.
+Garantir les capacités définies par l'architecture d'Ohana-House.
 
 ---
 
@@ -244,7 +244,7 @@ Elle est toujours vérifiée par une nouvelle observation.
 
 # Résumé
 
-Le fonctionnement complet d'Ohanna-Agent peut être résumé par une seule phrase.
+Le fonctionnement complet d'Ohana-Agent peut être résumé par une seule phrase.
 
 Observer.
 

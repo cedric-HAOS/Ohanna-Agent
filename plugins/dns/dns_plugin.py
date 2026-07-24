@@ -55,11 +55,11 @@ class DNSPlugin(Plugin):
         return PluginManifest(
             name="dns",
             version="0.1.0",
-            description="DNS capability plugin for Ohanna-Agent.",
+            description="DNS capability plugin for Ohana-Agent.",
         )
 
     def register(self, context: PluginContext) -> None:
-        """Register the DNS plugin in the Ohanna-Agent context."""
+        """Register the DNS plugin in the Ohana-Agent context."""
         self._event_bus = context.event_bus
         self._state = PluginState.REGISTERED
 

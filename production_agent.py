@@ -1,4 +1,4 @@
-"""Long-running Ohanna-Agent production runtime."""
+"""Long-running Ohana-Agent production runtime."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ LOGGER = logging.getLogger(__name__)
 
 @dataclass(slots=True)
 class ProductionAgent:
-    """Run the configured Ohanna-Agent scheduler continuously."""
+    """Run the configured Ohana-Agent scheduler continuously."""
 
     scheduler: Scheduler
     vision_client: VisionClient | None = None
@@ -152,7 +152,7 @@ class ProductionAgent:
 
     def request_stop(self) -> None:
         """Request a graceful shutdown."""
-        LOGGER.info("Ohanna-Agent shutdown requested.")
+        LOGGER.info("Ohana-Agent shutdown requested.")
         self._stop_event.set()
 
     def stop(self) -> None:
@@ -163,12 +163,12 @@ class ProductionAgent:
         self._infrastructure_synchronized = False
         self._next_infrastructure_refresh_at = None
         self._stop_event.set()
-        LOGGER.info("Ohanna-Agent stopped.")
+        LOGGER.info("Ohana-Agent stopped.")
 
     def _start_scheduler(self) -> None:
         """Start observations after infrastructure synchronization."""
         self.scheduler.start()
-        LOGGER.info("Ohanna-Agent started.")
+        LOGGER.info("Ohana-Agent started.")
 
     def _synchronize_infrastructure(self) -> bool:
         """Send the complete infrastructure snapshot to Vision."""
@@ -195,7 +195,7 @@ class ProductionAgent:
             self._next_infrastructure_refresh_at = None
 
             LOGGER.warning(
-                "Unable to synchronize infrastructure with Ohanna-Vision: %s",
+                "Unable to synchronize infrastructure with Ohana-Vision: %s",
                 error,
             )
             return False
@@ -207,7 +207,7 @@ class ProductionAgent:
         )
 
         LOGGER.info(
-            "Infrastructure synchronized with Ohanna-Vision."
+            "Infrastructure synchronized with Ohana-Vision."
         )
         return True
 

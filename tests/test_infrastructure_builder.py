@@ -15,7 +15,7 @@ def build_infrastructure():
 def test_builder_builds_infrastructure() -> None:
     infrastructure = build_infrastructure()
 
-    assert infrastructure.name == "Ohanna House"
+    assert infrastructure.name == "Ohana House"
 
 
 def test_builder_builds_nodes() -> None:

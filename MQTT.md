@@ -2,9 +2,9 @@
 
 ## Introduction
 
-MQTT est une interface de communication d'Ohanna-Agent.
+MQTT est une interface de communication d'Ohana-Agent.
 
-Son rôle est de transporter les informations entre Ohanna-Agent et les systèmes externes.
+Son rôle est de transporter les informations entre Ohana-Agent et les systèmes externes.
 
 MQTT ne fait pas partie du moteur de décision.
 
@@ -16,7 +16,7 @@ Il constitue uniquement un moyen d'échanger des concepts internes avec le monde
 
 # Position dans l'architecture
 
-Ohanna-Agent est construit autour de concepts indépendants des technologies.
+Ohana-Agent est construit autour de concepts indépendants des technologies.
 
 Shikamaru manipule exclusivement :
 
@@ -30,7 +30,7 @@ Shikamaru manipule exclusivement :
 MQTT permet simplement de transporter ces informations.
 
 ```text
-                 Ohanna-Agent
+                 Ohana-Agent
 
                   Shikamaru
         (Moteur de décision)
@@ -133,7 +133,7 @@ Exemples :
 * réparation terminée ;
 * plugin chargé.
 
-Ils permettent aux systèmes externes de suivre la vie d'Ohanna-Agent.
+Ils permettent aux systèmes externes de suivre la vie d'Ohana-Agent.
 
 ---
 
@@ -149,7 +149,7 @@ Le protocole de transport n'influence jamais la logique métier.
 
 # Découplage
 
-MQTT constitue une frontière entre Ohanna-Agent et son environnement.
+MQTT constitue une frontière entre Ohana-Agent et son environnement.
 
 Le remplacement de MQTT par un autre protocole ne nécessite aucune modification de :
 
@@ -218,7 +218,7 @@ MQTT respecte les principes suivants :
 * il transporte les informations ;
 * il ne contient aucune logique métier ;
 * il est interchangeable ;
-* il reflète les concepts internes d'Ohanna-Agent ;
+* il reflète les concepts internes d'Ohana-Agent ;
 * il reste indépendant des capacités qu'il transporte.
 
 ---
@@ -231,4 +231,4 @@ Shikamaru reste le seul moteur de décision.
 
 Les plugins produisent les observations et exécutent les commandes.
 
-Les capacités demeurent le cœur du modèle d'Ohanna-Agent.
+Les capacités demeurent le cœur du modèle d'Ohana-Agent.

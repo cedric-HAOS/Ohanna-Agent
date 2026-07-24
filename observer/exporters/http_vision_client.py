@@ -1,4 +1,4 @@
-"""HTTP client used to send data to Ohanna-Vision."""
+"""HTTP client used to send data to Ohana-Vision."""
 
 import json
 from dataclasses import dataclass
@@ -11,7 +11,7 @@ from observer.exporters.vision_client_error import VisionClientError
 
 @dataclass(frozen=True, slots=True)
 class HttpVisionClient:
-    """Send observation and infrastructure payloads to Ohanna-Vision."""
+    """Send observation and infrastructure payloads to Ohana-Vision."""
 
     observation_url: str
     infrastructure_url: str = (
@@ -40,7 +40,7 @@ class HttpVisionClient:
         self,
         payload: dict[str, Any],
     ) -> None:
-        """Send one observation payload to Ohanna-Vision."""
+        """Send one observation payload to Ohana-Vision."""
         self._send_payload(
             payload=payload,
             url=self.observation_url,
@@ -53,7 +53,7 @@ class HttpVisionClient:
         self,
         payload: dict[str, Any],
     ) -> None:
-        """Send one infrastructure snapshot to Ohanna-Vision."""
+        """Send one infrastructure snapshot to Ohana-Vision."""
         self._send_payload(
             payload=payload,
             url=self.infrastructure_url,
@@ -105,19 +105,19 @@ class HttpVisionClient:
 
         except URLError as error:
             raise VisionClientError(
-                "Unable to reach Ohanna-Vision at "
+                "Unable to reach Ohana-Vision at "
                 f"{url}: {error.reason}"
             ) from error
 
         except TimeoutError as error:
             raise VisionClientError(
                 f"Timed out while sending the {payload_name} to "
-                f"Ohanna-Vision at {url}."
+                f"Ohana-Vision at {url}."
             ) from error
 
         if status_code != expected_status:
             raise VisionClientError(
-                "Ohanna-Vision returned unexpected HTTP status "
+                "Ohana-Vision returned unexpected HTTP status "
                 f"{status_code}; expected {expected_status}."
             )
 
@@ -164,7 +164,7 @@ class HttpVisionClient:
     ) -> str:
         """Build a useful HTTP failure message."""
         message = (
-            f"Ohanna-Vision rejected the {payload_name} "
+            f"Ohana-Vision rejected the {payload_name} "
             f"with HTTP status {status_code}."
         )
 

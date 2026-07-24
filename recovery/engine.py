@@ -1,4 +1,4 @@
-"""Recovery engine for Ohanna-Agent."""
+"""Recovery engine for Ohana-Agent."""
 
 from __future__ import annotations
 

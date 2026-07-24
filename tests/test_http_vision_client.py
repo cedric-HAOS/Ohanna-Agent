@@ -15,7 +15,7 @@ from observer.exporters import (
 
 
 class VisionRequestHandler(BaseHTTPRequestHandler):
-    """Minimal fake Ohanna-Vision HTTP endpoint."""
+    """Minimal fake Ohana-Vision HTTP endpoint."""
 
     response_status = 202
     response_body = b"{}"
@@ -102,7 +102,7 @@ def run_test_server(
 
 
 def build_payload() -> dict[str, Any]:
-    """Build a valid Ohanna-Vision request payload."""
+    """Build a valid Ohana-Vision request payload."""
     return {
         "capability_id": "dns.resolve",
         "service_id": "dns-primary",
@@ -216,7 +216,7 @@ def test_http_client_reports_unavailable_server() -> None:
 
     with pytest.raises(
         VisionClientError,
-        match="Unable to reach Ohanna-Vision",
+        match="Unable to reach Ohana-Vision",
     ):
         client.send_observation(build_payload())
 
@@ -248,8 +248,8 @@ def build_infrastructure_payload() -> dict[str, Any]:
     """Build a valid infrastructure payload."""
     return {
         "schema_version": 1,
-        "infrastructure_id": "ohanna-house",
-        "name": "Ohanna House",
+        "infrastructure_id": "ohana-house",
+        "name": "Ohana House",
         "environment": "production",
         "metadata": {
             "version": "1.0",

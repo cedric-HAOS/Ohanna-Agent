@@ -1,4 +1,4 @@
-"""Production bootstrap for Ohanna-Agent."""
+"""Production bootstrap for Ohana-Agent."""
 
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ def build_production_agent(
     vision_client: VisionClient | None = None,
     clock: Clock | None = None,
 ) -> ProductionAgent:
-    """Build the complete production Ohanna-Agent runtime."""
+    """Build the complete production Ohana-Agent runtime."""
     configuration = ConfigurationLoader.load(application_config_path)
 
     infrastructure_config = InfrastructureLoader().load(infrastructure_config_path)
@@ -92,7 +92,7 @@ def build_production_agent(
     if resolved_vision_client is None:
         if not configuration.vision.enabled:
             raise ValueError(
-                "Ohanna-Vision export must be enabled for the production bootstrap."
+                "Ohana-Vision export must be enabled for the production bootstrap."
             )
 
         resolved_vision_client = HttpVisionClient(

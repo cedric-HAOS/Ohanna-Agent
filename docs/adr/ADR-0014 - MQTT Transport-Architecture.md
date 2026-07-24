@@ -125,7 +125,7 @@ Exemple :
 
 ```python
 MQTTLastWill(
-    topic="ohanna/agent/shikamaru/availability",
+    topic="ohana/agent/shikamaru/availability",
     payload='{"status": "offline"}',
     qos=1,
     retain=True,

@@ -12,7 +12,7 @@ class FakePlugin(Plugin):
         self._manifest = PluginManifest(
             name=name,
             version="1.0.0",
-            author="Ohanna",
+            author="Ohana",
             description="Fake plugin",
         )
         self.registered_context = None

@@ -1,8 +1,8 @@
-"""Tests for the Ohanna-Agent systemd service unit."""
+"""Tests for the Ohana-Agent systemd service unit."""
 
 from pathlib import Path
 
-SERVICE_PATH = Path("deployment/systemd/ohanna-agent.service")
+SERVICE_PATH = Path("deployment/systemd/ohana-agent.service")
 
 
 def read_service() -> str:
@@ -19,18 +19,18 @@ def test_systemd_service_uses_reference_executable_and_configuration() -> None:
     """Use the Linux filesystem paths defined by the deployment contract."""
     service = read_service()
 
-    assert "/opt/ohanna-agent/venv/bin/ohanna-agent" in service
-    assert "--config /etc/ohanna-agent/shikamaru.yaml" in service
-    assert "--infrastructure /etc/ohanna-agent/infrastructure.yaml" in service
-    assert "--dns-config /etc/ohanna-agent/plugins/dns.yaml" in service
+    assert "/opt/ohana-agent/venv/bin/ohana-agent" in service
+    assert "--config /etc/ohana-agent/shikamaru.yaml" in service
+    assert "--infrastructure /etc/ohana-agent/infrastructure.yaml" in service
+    assert "--dns-config /etc/ohana-agent/plugins/dns.yaml" in service
 
 
 def test_systemd_service_runs_as_dedicated_user() -> None:
-    """Run Ohanna-Agent without root privileges."""
+    """Run Ohana-Agent without root privileges."""
     service = read_service()
 
-    assert "User=ohanna-agent" in service
-    assert "Group=ohanna-agent" in service
+    assert "User=ohana-agent" in service
+    assert "Group=ohana-agent" in service
 
 
 def test_systemd_service_waits_for_network_and_restarts_on_failure() -> None:

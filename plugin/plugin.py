@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Plugin(ABC):
-    """Base contract for every Ohanna-Agent plugin."""
+    """Base contract for every Ohana-Agent plugin."""
 
     @property
     @abstractmethod

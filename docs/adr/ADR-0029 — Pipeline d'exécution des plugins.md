@@ -7,7 +7,7 @@
 
 # Contexte
 
-Ohanna-Agent supervise les capacités d'une infrastructure.
+Ohana-Agent supervise les capacités d'une infrastructure.
 
 Les plugins réalisent des vérifications techniques (DNS, DHCP, MQTT, HTTP, NTP, etc.) et produisent des résultats d'observation.
 
@@ -317,7 +317,7 @@ sans modification du Scheduler ni du Runtime Infrastructure.
 
 # Vision
 
-Cette ADR formalise le principe fondamental d'Ohanna-Agent :
+Cette ADR formalise le principe fondamental d'Ohana-Agent :
 
 > Les plugins produisent des faits techniques.
 

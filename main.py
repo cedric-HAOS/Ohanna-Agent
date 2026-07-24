@@ -1,4 +1,4 @@
-"""Command-line entry point for Ohanna-Agent."""
+"""Command-line entry point for Ohana-Agent."""
 
 from __future__ import annotations
 
@@ -15,23 +15,23 @@ from production_agent import ProductionAgent
 
 
 def get_application_version() -> str:
-    """Return the installed Ohanna-Agent package version."""
+    """Return the installed Ohana-Agent package version."""
     try:
-        return package_version("ohanna-agent")
+        return package_version("ohana-agent")
     except PackageNotFoundError:
         return "unknown"
 
 
 def parse_arguments() -> argparse.Namespace:
-    """Parse Ohanna-Agent command-line arguments."""
+    """Parse Ohana-Agent command-line arguments."""
     parser = argparse.ArgumentParser(
-        prog="ohanna-agent",
-        description="Run Ohanna-Agent.",
+        prog="ohana-agent",
+        description="Run Ohana-Agent.",
     )
     parser.add_argument(
         "--version",
         action="version",
-        version=f"ohanna-agent {get_application_version()}",
+        version=f"ohana-agent {get_application_version()}",
     )
     parser.add_argument(
         "--config",
@@ -113,7 +113,7 @@ def install_signal_handlers(
 
 
 def main() -> int:
-    """Build and run Ohanna-Agent."""
+    """Build and run Ohana-Agent."""
     arguments = parse_arguments()
 
     configure_logging(arguments.log_level)

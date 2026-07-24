@@ -12,13 +12,13 @@ DIST_DIRECTORY = Path("dist")
 @pytest.fixture(scope="session")
 def wheel_path() -> Path:
     """Return the unique wheel available in the distribution directory."""
-    wheels = list(DIST_DIRECTORY.glob("ohanna_agent-*.whl"))
+    wheels = list(DIST_DIRECTORY.glob("ohana_agent-*.whl"))
 
     assert DIST_DIRECTORY.is_dir(), (
         "The dist directory does not exist. Run `python -m build` before pytest."
     )
     assert len(wheels) == 1, (
-        "Exactly one Ohanna-Agent wheel must exist in dist/. "
+        "Exactly one Ohana-Agent wheel must exist in dist/. "
         "Clean dist/ and run `python -m build` again."
     )
 
@@ -28,13 +28,13 @@ def wheel_path() -> Path:
 @pytest.fixture(scope="session")
 def sdist_path() -> Path:
     """Return the unique source distribution available in dist."""
-    source_distributions = list(DIST_DIRECTORY.glob("ohanna_agent-*.tar.gz"))
+    source_distributions = list(DIST_DIRECTORY.glob("ohana_agent-*.tar.gz"))
 
     assert DIST_DIRECTORY.is_dir(), (
         "The dist directory does not exist. Run `python -m build` before pytest."
     )
     assert len(source_distributions) == 1, (
-        "Exactly one Ohanna-Agent source distribution must exist in dist/. "
+        "Exactly one Ohana-Agent source distribution must exist in dist/. "
         "Clean dist/ and run `python -m build` again."
     )
 
@@ -183,7 +183,7 @@ def test_sdist_contains_linux_deployment_resources(
     required_files = {
         "deployment/install.sh",
         "deployment/update.sh",
-        "deployment/systemd/ohanna-agent.service",
+        "deployment/systemd/ohana-agent.service",
         "docs/Deployment/Linux-Filesystem.md",
     }
 

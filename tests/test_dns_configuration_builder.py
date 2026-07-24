@@ -50,7 +50,7 @@ def build_dns_infrastructure(
     )
 
     return Infrastructure(
-        name="Ohanna House",
+        name="Ohana House",
         nodes=[node],
     )
 

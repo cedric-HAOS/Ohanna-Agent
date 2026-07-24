@@ -11,7 +11,7 @@ from infrastructure import (
 
 
 def test_observation_manager_can_be_created() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     manager = ObservationManager(runtime=runtime)
 
@@ -20,7 +20,7 @@ def test_observation_manager_can_be_created() -> None:
 
 
 def test_observation_manager_records_observation() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
     manager = ObservationManager(runtime=runtime)
 
@@ -39,7 +39,7 @@ def test_observation_manager_records_observation() -> None:
 def test_observation_manager_applies_observation_to_service_runtime() -> None:
     service = Service(name="DNS", type=ServiceType.DNS)
     node = Node(name="INFRA-01", services=[service])
-    infrastructure = Infrastructure(name="Ohanna", nodes=[node])
+    infrastructure = Infrastructure(name="Ohana", nodes=[node])
 
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 
@@ -64,7 +64,7 @@ def test_observation_manager_applies_observation_to_service_runtime() -> None:
 def test_observation_manager_applies_observation_to_node_runtime() -> None:
     node = Node(name="INFRA-01")
     infrastructure = Infrastructure(
-        name="Ohanna",
+        name="Ohana",
         nodes=[node],
     )
 
@@ -89,7 +89,7 @@ def test_observation_manager_applies_observation_to_node_runtime() -> None:
 
 
 def test_observation_manager_returns_false_for_unknown_target() -> None:
-    infrastructure = Infrastructure(name="Ohanna")
+    infrastructure = Infrastructure(name="Ohana")
 
     runtime = InfrastructureRuntime.from_infrastructure(infrastructure)
 

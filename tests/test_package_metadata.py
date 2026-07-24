@@ -27,7 +27,7 @@ def test_package_declares_public_metadata() -> None:
     """Expose the metadata required for a public release."""
     project = load_pyproject()["project"]
 
-    assert project["name"] == "ohanna-agent"
+    assert project["name"] == "ohana-agent"
     assert project["version"] == "1.1.0"
     assert project["description"]
     assert project["readme"] == "README.md"
@@ -74,7 +74,7 @@ def test_package_declares_console_entry_point() -> None:
     project = load_pyproject()["project"]
 
     assert project["scripts"] == {
-        "ohanna-agent": "main:main",
+        "ohana-agent": "main:main",
     }
 
 
@@ -82,7 +82,7 @@ def test_package_declares_project_urls() -> None:
     """Expose the official project resources."""
     urls = load_pyproject()["project"]["urls"]
 
-    repository = "https://github.com/cedric-HAOS/Ohanna-Agent"
+    repository = "https://github.com/cedric-HAOS/Ohana-Agent"
 
     assert urls["Homepage"] == repository
     assert urls["Repository"] == repository

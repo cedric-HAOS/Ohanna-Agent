@@ -39,7 +39,7 @@ class EchoPlugin(Plugin):
         return PluginManifest(
             name="echo",
             version="1.0.0",
-            author="Ohanna",
+            author="Ohana",
             description="Echo plugin",
         )
 

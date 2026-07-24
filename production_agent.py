@@ -7,7 +7,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from threading import Event
 from time import monotonic
-from typing import Any
+from typing import Any, Protocol
 
 from observer.exporters import (
     VisionClient,
@@ -16,6 +16,16 @@ from observer.exporters import (
 from scheduler import Scheduler
 
 LOGGER = logging.getLogger(__name__)
+
+
+class AdministrationRuntime(Protocol):
+    """Lifecycle exposed by the optional administration endpoint."""
+
+    def start(self) -> None:
+        """Start accepting administration requests."""
+
+    def stop(self) -> None:
+        """Stop accepting administration requests."""
 
 
 @dataclass(slots=True)
@@ -28,6 +38,7 @@ class ProductionAgent:
     tick_interval_seconds: float = 1.0
     infrastructure_retry_seconds: float = 10.0
     infrastructure_refresh_seconds: float = 300.0
+    administration_runtime: AdministrationRuntime | None = None
     monotonic_clock: Callable[[], float] = field(
         default=monotonic,
         repr=False,
@@ -89,6 +100,7 @@ class ProductionAgent:
             return
 
         self._stop_event.clear()
+        self._start_administration()
 
         if not self._synchronize_infrastructure():
             return
@@ -115,6 +127,7 @@ class ProductionAgent:
     def run(self) -> None:
         """Run until a stop request is received."""
         self._stop_event.clear()
+        self._start_administration()
 
         try:
             while not self._stop_event.is_set():
@@ -148,14 +161,31 @@ class ProductionAgent:
         self._stop_event.set()
 
     def stop(self) -> None:
-        """Stop the scheduler."""
+        """Stop the scheduler and administration endpoint."""
         if self.scheduler.running:
             self.scheduler.stop()
+
+        if self.administration_runtime is not None:
+            self.administration_runtime.stop()
 
         self._infrastructure_synchronized = False
         self._next_infrastructure_refresh_at = None
         self._stop_event.set()
         LOGGER.info("Ohana-Agent stopped.")
+
+    def update_infrastructure_payload(
+        self,
+        payload: dict[str, Any],
+    ) -> None:
+        """Replace and immediately synchronize the Agent-owned configuration."""
+        self.infrastructure_payload = payload
+
+        if self.vision_client is not None:
+            self._synchronize_infrastructure()
+
+    def _start_administration(self) -> None:
+        if self.administration_runtime is not None:
+            self.administration_runtime.start()
 
     def _start_scheduler(self) -> None:
         """Start observations after infrastructure synchronization."""

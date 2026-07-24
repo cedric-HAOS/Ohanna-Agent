@@ -17,6 +17,16 @@ def test_shikamaru_example_configuration_is_valid() -> None:
     assert configuration.vision.enabled is True
 
 
+def test_shikamaru_development_configuration_is_valid() -> None:
+    configuration = ConfigurationLoader.load(
+        "config/shikamaru.development.yaml"
+    )
+
+    assert configuration.administration.enabled is True
+    assert configuration.administration.dhcp.enabled is True
+    assert configuration.administration.dhcp.validation_command is None
+
+
 def test_infrastructure_example_configuration_is_valid() -> None:
     """Load the example infrastructure configuration."""
     configuration = InfrastructureLoader().load(

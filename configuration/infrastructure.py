@@ -38,6 +38,10 @@ class ServiceConfig(Config):
     type: str
     node: str
     port: int | None = None
+    implementation: str | None = None
+    enabled: bool = True
+    critical: bool = False
+    metadata: dict[str, object] = Field(default_factory=dict)
 
 
 class TopologyDeviceConfig(Config):

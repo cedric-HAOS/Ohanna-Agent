@@ -40,7 +40,7 @@ def test_infrastructure_example_yaml_declares_nodes() -> None:
 
     nodes = data["nodes"]
 
-    assert len(nodes) == 2
+    assert len(nodes) == 4
     assert nodes[0]["endpoint"]["type"] == "ip"
     assert nodes[0]["endpoint"]["address"] == "192.168.1.10"
 
@@ -52,9 +52,9 @@ def test_infrastructure_example_yaml_declares_services() -> None:
 
     services = data["services"]
 
-    assert len(services) == 2
-    assert services[0]["id"] == "dns-primary"
-    assert services[0]["type"] == "dns"
+    assert len(services) == 8
+    assert services[0]["id"] == "dhcp-primary"
+    assert services[0]["type"] == "dhcp"
     assert services[0]["node"] == "infra-01"
 
 
@@ -63,9 +63,11 @@ def test_infrastructure_example_yaml_declares_service_endpoints() -> None:
 
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
 
-    dns_service = data["services"][0]
+    dhcp_service = data["services"][0]
 
-    assert dns_service["port"] == 53
+    assert dhcp_service["port"] == 67
+    assert dhcp_service["implementation"] == "dnsmasq"
+    assert dhcp_service["critical"] is True
 
 
 def test_infrastructure_example_yaml_declares_topology() -> None:

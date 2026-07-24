@@ -21,7 +21,7 @@ def test_builder_builds_infrastructure() -> None:
 def test_builder_builds_nodes() -> None:
     infrastructure = build_infrastructure()
 
-    assert len(infrastructure.nodes) == 2
+    assert len(infrastructure.nodes) == 4
     assert infrastructure.nodes[0].name == "infra-01"
 
 
@@ -40,9 +40,9 @@ def test_builder_builds_services() -> None:
 
     node = infrastructure.nodes[0]
 
-    assert len(node.services) == 1
-    assert node.services[0].name == "dns-primary"
-    assert node.services[0].type == ServiceType.DNS
+    assert len(node.services) == 2
+    assert node.services[0].name == "dhcp-primary"
+    assert node.services[0].type == ServiceType.DHCP
 
 
 def test_builder_builds_service_endpoint() -> None:
@@ -53,4 +53,4 @@ def test_builder_builds_service_endpoint() -> None:
     assert service.endpoint is not None
     assert service.endpoint.type == EndpointType.IP
     assert service.endpoint.address == "192.168.1.10"
-    assert service.endpoint.port == 53
+    assert service.endpoint.port == 67

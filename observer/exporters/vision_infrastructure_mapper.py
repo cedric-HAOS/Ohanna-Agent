@@ -48,6 +48,10 @@ class VisionInfrastructureMapper:
                     "type": service.type,
                     "node_id": service.node,
                     "port": service.port,
+                    "implementation": service.implementation,
+                    "enabled": service.enabled,
+                    "critical": service.critical,
+                    "metadata": deepcopy(service.metadata),
                 }
                 for service in config.services
             ],

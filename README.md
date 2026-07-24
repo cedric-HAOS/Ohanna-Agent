@@ -4,7 +4,26 @@
 
 Ohana-Agent est le moteur d'observation de l'écosystème Ohana. Il charge une infrastructure déclarative, exécute les plugins de capacité, produit des observations normalisées et les transmet à Ohana-Vision.
 
-La version 1.1.0 fait également de l'Agent la source de vérité de la topologie : nœuds, services, équipements, liens et positions logiques sur la grille sont définis dans `config/infrastructure.yaml`, puis synchronisés avec Vision.
+Depuis la version 1.1.0, l'Agent est la source de vérité de la topologie :
+nœuds, services, équipements, liens et positions logiques sur la grille. La
+version 1.2.0 ajoute leur administration graphique sécurisée depuis Vision.
+
+---
+
+# Administration graphique
+
+Ohana-Agent expose une API locale permettant à Ohana-Vision de modifier
+l'infrastructure et le serveur DHCP sans édition manuelle de YAML.
+
+- l'API écoute par défaut sur `127.0.0.1:8765` ;
+- chaque requête exige le jeton partagé installé dans
+  `/etc/ohana-agent/management.token` ;
+- l'Agent demeure seul propriétaire des fichiers de configuration ;
+- une configuration DHCP n'est conservée que si `dnsmasq --test` l'accepte ;
+- toute écriture est atomique et restaurée automatiquement en cas d'échec.
+
+Le contrat et le modèle de sécurité sont détaillés dans
+[`docs/Administration.md`](docs/Administration.md).
 
 ---
 

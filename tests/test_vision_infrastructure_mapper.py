@@ -120,6 +120,10 @@ def test_mapper_builds_vision_infrastructure_payload() -> None:
                 "type": "dns",
                 "node_id": "infra-01",
                 "port": 53,
+                "implementation": None,
+                "enabled": True,
+                "critical": False,
+                "metadata": {},
             },
             {
                 "service_id": "mqtt-primary",
@@ -127,6 +131,10 @@ def test_mapper_builds_vision_infrastructure_payload() -> None:
                 "type": "mqtt",
                 "node_id": "ha-green",
                 "port": 1883,
+                "implementation": None,
+                "enabled": True,
+                "critical": False,
+                "metadata": {},
             },
         ],
     }
@@ -218,6 +226,10 @@ def test_mapper_only_emits_public_contract_fields() -> None:
         "type",
         "node_id",
         "port",
+        "implementation",
+        "enabled",
+        "critical",
+        "metadata",
     }
 
 

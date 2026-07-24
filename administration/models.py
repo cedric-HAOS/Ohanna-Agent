@@ -1,0 +1,157 @@
+"""Versioned public models for Ohana-Agent administration."""
+
+from __future__ import annotations
+
+import re
+from ipaddress import IPv4Address
+from typing import Literal, Self
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+MAC_ADDRESS_PATTERN = re.compile(r"^(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$")
+HOSTNAME_PATTERN = re.compile(
+    r"^(?=.{1,253}$)(?!-)[A-Za-z0-9-]+(?:\.(?!-)[A-Za-z0-9-]+)*$"
+)
+
+
+class AdministrationModel(BaseModel):
+    """Strict mutable model used by administration contracts."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+    )
+
+
+class DHCPSettings(AdministrationModel):
+    """Editable dnsmasq DHCP settings."""
+
+    interface: str = Field(min_length=1)
+    range_start: IPv4Address
+    range_end: IPv4Address
+    subnet_mask: IPv4Address
+    lease_duration: str = Field(pattern=r"^[1-9][0-9]*[mhdw]$")
+    gateway: IPv4Address
+    dns_servers: list[IPv4Address] = Field(min_length=1)
+    ntp_servers: list[IPv4Address] = Field(min_length=1)
+    domain: str = Field(min_length=1)
+
+    @field_validator("domain")
+    @classmethod
+    def validate_domain(cls, value: str) -> str:
+        """Require a DNS-compatible local domain."""
+        if HOSTNAME_PATTERN.fullmatch(value) is None:
+            raise ValueError("domain must be a valid DNS name")
+
+        return value.lower()
+
+    @model_validator(mode="after")
+    def validate_range(self) -> Self:
+        """Require an ordered range sharing the declared subnet."""
+        if int(self.range_start) > int(self.range_end):
+            raise ValueError("range_start must be lower than or equal to range_end")
+
+        mask = int(self.subnet_mask)
+        start_network = int(self.range_start) & mask
+        end_network = int(self.range_end) & mask
+        gateway_network = int(self.gateway) & mask
+
+        if len({start_network, end_network, gateway_network}) != 1:
+            raise ValueError(
+                "DHCP range and gateway must belong to the same subnet"
+            )
+
+        return self
+
+
+DHCPReservationCategory = Literal[
+    "infrastructure",
+    "servers",
+    "network",
+    "home_automation",
+    "critical",
+]
+
+
+class DHCPReservation(AdministrationModel):
+    """Static DHCP reservation managed by dnsmasq."""
+
+    mac_address: str
+    address: IPv4Address
+    hostname: str = Field(min_length=1)
+    category: DHCPReservationCategory
+    description: str = ""
+
+    @field_validator("mac_address")
+    @classmethod
+    def normalize_mac_address(cls, value: str) -> str:
+        """Normalize and validate a colon-separated MAC address."""
+        if MAC_ADDRESS_PATTERN.fullmatch(value) is None:
+            raise ValueError("mac_address must use the AA:BB:CC:DD:EE:FF format")
+
+        return value.upper()
+
+    @field_validator("hostname")
+    @classmethod
+    def validate_hostname(cls, value: str) -> str:
+        """Require a DNS-compatible hostname."""
+        if HOSTNAME_PATTERN.fullmatch(value) is None:
+            raise ValueError("hostname must be a valid DNS name")
+
+        return value.lower()
+
+
+class DHCPLease(AdministrationModel):
+    """Active lease read from dnsmasq's lease database."""
+
+    expires_at: int = Field(ge=0)
+    mac_address: str
+    address: IPv4Address
+    hostname: str | None = None
+    client_id: str | None = None
+
+    @field_validator("mac_address")
+    @classmethod
+    def normalize_mac_address(cls, value: str) -> str:
+        """Normalize a lease MAC address."""
+        if MAC_ADDRESS_PATTERN.fullmatch(value) is None:
+            raise ValueError("lease mac_address is invalid")
+
+        return value.upper()
+
+
+class DHCPConfiguration(AdministrationModel):
+    """Complete DHCP administration document."""
+
+    schema_version: Literal[1] = 1
+    implementation: Literal["dnsmasq"] = "dnsmasq"
+    server_node_id: str = Field(min_length=1)
+    settings: DHCPSettings
+    reservations: list[DHCPReservation] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_unique_reservations(self) -> Self:
+        """Reject duplicate MAC, address and hostname reservations."""
+        for field_name in ("mac_address", "address", "hostname"):
+            values = [
+                str(getattr(reservation, field_name)).lower()
+                for reservation in self.reservations
+            ]
+
+            if len(values) != len(set(values)):
+                raise ValueError(f"reservations contain duplicate {field_name} values")
+
+        return self
+
+
+class DHCPAdministrationState(DHCPConfiguration):
+    """DHCP configuration enriched with currently active leases."""
+
+    leases: list[DHCPLease] = Field(default_factory=list)
+
+
+class AdministrationCapabilities(AdministrationModel):
+    """Administration functions explicitly exposed by Ohana-Agent."""
+
+    schema_version: Literal[1] = 1
+    operations: list[str] = Field(default_factory=list)

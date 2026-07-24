@@ -1,0 +1,371 @@
+"""Authenticated loopback HTTP API for Agent administration."""
+
+from __future__ import annotations
+
+import hmac
+import json
+import logging
+from collections.abc import Callable
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from threading import Thread
+from typing import Any
+
+from pydantic import ValidationError
+
+from administration.dhcp import (
+    DHCPConfigurationError,
+    DnsmasqDHCPRepository,
+)
+from administration.infrastructure import (
+    InfrastructureConfigurationRepository,
+)
+from administration.models import (
+    AdministrationCapabilities,
+    DHCPConfiguration,
+)
+from configuration.infrastructure import InfrastructureConfig
+
+LOGGER = logging.getLogger(__name__)
+MAXIMUM_REQUEST_BYTES = 1024 * 1024
+
+
+class AdministrationService:
+    """Execute versioned administration operations owned by Agent."""
+
+    def __init__(
+        self,
+        *,
+        infrastructure_repository: InfrastructureConfigurationRepository,
+        dhcp_repository: DnsmasqDHCPRepository | None = None,
+        on_infrastructure_changed: (
+            Callable[[InfrastructureConfig], None] | None
+        ) = None,
+    ) -> None:
+        self.infrastructure_repository = infrastructure_repository
+        self.dhcp_repository = dhcp_repository
+        self.on_infrastructure_changed = on_infrastructure_changed
+
+    def capabilities(self) -> AdministrationCapabilities:
+        """Declare the operations actually supported by this Agent."""
+        operations = [
+            "infrastructure.read",
+            "infrastructure.write",
+        ]
+
+        if self.dhcp_repository is not None:
+            operations.extend(
+                [
+                    "dhcp.read",
+                    "dhcp.write",
+                    "dhcp.leases.read",
+                ]
+            )
+
+        return AdministrationCapabilities(
+            operations=operations,
+        )
+
+    def read_infrastructure(self) -> InfrastructureConfig:
+        """Read the Agent-owned infrastructure definition."""
+        return self.infrastructure_repository.read()
+
+    def write_infrastructure(
+        self,
+        payload: dict[str, Any],
+    ) -> InfrastructureConfig:
+        """Validate, persist and publish an infrastructure definition."""
+        configuration = InfrastructureConfig.model_validate(payload)
+        saved_configuration = self.infrastructure_repository.write(configuration)
+
+        if self.on_infrastructure_changed is not None:
+            self.on_infrastructure_changed(saved_configuration)
+
+        return saved_configuration
+
+    def read_dhcp(self) -> object:
+        """Return the DHCP configuration and active leases."""
+        if self.dhcp_repository is None:
+            raise LookupError("DHCP administration is unavailable")
+
+        return self.dhcp_repository.read()
+
+    def write_dhcp(
+        self,
+        payload: dict[str, Any],
+    ) -> object:
+        """Validate and persist the DHCP configuration."""
+        if self.dhcp_repository is None:
+            raise LookupError("DHCP administration is unavailable")
+
+        configuration = DHCPConfiguration.model_validate(payload)
+        return self.dhcp_repository.write(configuration)
+
+
+class AdministrationHTTPServer:
+    """Run the administration API in a dedicated loopback thread."""
+
+    def __init__(
+        self,
+        *,
+        service: AdministrationService,
+        token: str,
+        host: str = "127.0.0.1",
+        port: int = 8765,
+    ) -> None:
+        normalized_token = token.strip()
+
+        if not normalized_token:
+            raise ValueError("Administration token cannot be empty.")
+
+        self.service = service
+        self.token = normalized_token
+        self.host = host
+        self.port = port
+        self._server: ThreadingHTTPServer | None = None
+        self._thread: Thread | None = None
+
+    @property
+    def running(self) -> bool:
+        """Return whether the administration server thread is alive."""
+        return self._thread is not None and self._thread.is_alive()
+
+    @property
+    def address(self) -> tuple[str, int] | None:
+        """Return the effective listening address."""
+        if self._server is None:
+            return None
+
+        host, port = self._server.server_address[:2]
+        return str(host), int(port)
+
+    def start(self) -> None:
+        """Start the HTTP server once."""
+        if self.running:
+            return
+
+        handler_class = self._handler_class()
+        self._server = ThreadingHTTPServer(
+            (self.host, self.port),
+            handler_class,
+        )
+        self._thread = Thread(
+            target=self._server.serve_forever,
+            name="ohana-agent-administration",
+            daemon=True,
+        )
+        self._thread.start()
+        LOGGER.info(
+            "Administration API listening on http://%s:%s",
+            *self.address,
+        )
+
+    def stop(self) -> None:
+        """Stop the HTTP server and release its socket."""
+        if self._server is not None:
+            self._server.shutdown()
+            self._server.server_close()
+
+        if self._thread is not None:
+            self._thread.join(timeout=5)
+
+        self._server = None
+        self._thread = None
+
+    def _handler_class(self) -> type[BaseHTTPRequestHandler]:
+        service = self.service
+        expected_token = self.token
+
+        class AdministrationRequestHandler(BaseHTTPRequestHandler):
+            """Handle one administration request."""
+
+            server_version = "Ohana-Agent-Administration/1"
+
+            def do_GET(self) -> None:  # noqa: N802
+                """Handle administration reads."""
+                if not self._authorized(expected_token):
+                    return
+
+                routes: dict[str, Callable[[], object]] = {
+                    "/v1/capabilities": service.capabilities,
+                    "/v1/infrastructure": service.read_infrastructure,
+                    "/v1/dhcp": service.read_dhcp,
+                }
+                operation = routes.get(self.path)
+
+                if operation is None:
+                    self._write_error(
+                        HTTPStatus.NOT_FOUND,
+                        "Administration endpoint not found",
+                    )
+                    return
+
+                self._execute(operation)
+
+            def do_PUT(self) -> None:  # noqa: N802
+                """Handle configuration changes."""
+                if not self._authorized(expected_token):
+                    return
+
+                routes: dict[str, Callable[[dict[str, Any]], object]] = {
+                    "/v1/infrastructure": service.write_infrastructure,
+                    "/v1/dhcp": service.write_dhcp,
+                }
+                operation = routes.get(self.path)
+
+                if operation is None:
+                    self._write_error(
+                        HTTPStatus.NOT_FOUND,
+                        "Administration endpoint not found",
+                    )
+                    return
+
+                payload = self._read_json()
+
+                if payload is None:
+                    return
+
+                self._execute(
+                    lambda: operation(payload),
+                )
+
+            def log_message(
+                self,
+                format: str,
+                *args: object,
+            ) -> None:
+                """Route request logs through Python logging."""
+                LOGGER.info(
+                    "%s - %s",
+                    self.address_string(),
+                    format % args,
+                )
+
+            def _authorized(self, token: str) -> bool:
+                authorization = self.headers.get("Authorization", "")
+                prefix = "Bearer "
+
+                if not authorization.startswith(prefix) or not hmac.compare_digest(
+                    authorization.removeprefix(prefix),
+                    token,
+                ):
+                    self._write_error(
+                        HTTPStatus.UNAUTHORIZED,
+                        "A valid administration token is required",
+                    )
+                    return False
+
+                return True
+
+            def _read_json(self) -> dict[str, Any] | None:
+                raw_length = self.headers.get("Content-Length")
+
+                try:
+                    content_length = int(raw_length or "0")
+                except ValueError:
+                    self._write_error(
+                        HTTPStatus.BAD_REQUEST,
+                        "Invalid Content-Length header",
+                    )
+                    return None
+
+                if content_length <= 0 or content_length > MAXIMUM_REQUEST_BYTES:
+                    self._write_error(
+                        HTTPStatus.BAD_REQUEST,
+                        "Administration request body size is invalid",
+                    )
+                    return None
+
+                try:
+                    payload = json.loads(
+                        self.rfile.read(content_length).decode("utf-8")
+                    )
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    self._write_error(
+                        HTTPStatus.BAD_REQUEST,
+                        "Administration request body must be valid JSON",
+                    )
+                    return None
+
+                if not isinstance(payload, dict):
+                    self._write_error(
+                        HTTPStatus.BAD_REQUEST,
+                        "Administration request body must be a JSON object",
+                    )
+                    return None
+
+                return payload
+
+            def _execute(
+                self,
+                operation: Callable[[], object],
+            ) -> None:
+                try:
+                    result = operation()
+                except LookupError as error:
+                    self._write_error(
+                        HTTPStatus.NOT_FOUND,
+                        str(error),
+                    )
+                    return
+                except (
+                    DHCPConfigurationError,
+                    ValidationError,
+                    ValueError,
+                ) as error:
+                    self._write_error(
+                        HTTPStatus.UNPROCESSABLE_ENTITY,
+                        str(error),
+                    )
+                    return
+                except OSError as error:
+                    LOGGER.exception("Administration operation failed")
+                    self._write_error(
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        f"Unable to apply administration operation: {error}",
+                    )
+                    return
+
+                self._write_json(
+                    HTTPStatus.OK,
+                    result,
+                )
+
+            def _write_error(
+                self,
+                status: HTTPStatus,
+                detail: str,
+            ) -> None:
+                self._write_json(
+                    status,
+                    {
+                        "detail": detail,
+                    },
+                )
+
+            def _write_json(
+                self,
+                status: HTTPStatus,
+                payload: object,
+            ) -> None:
+                if hasattr(payload, "model_dump"):
+                    payload = payload.model_dump(mode="json")  # type: ignore[union-attr]
+
+                content = json.dumps(
+                    payload,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+                self.send_response(status)
+                self.send_header(
+                    "Content-Type",
+                    "application/json; charset=utf-8",
+                )
+                self.send_header(
+                    "Content-Length",
+                    str(len(content)),
+                )
+                self.end_headers()
+                self.wfile.write(content)
+
+        return AdministrationRequestHandler

@@ -17,6 +17,7 @@ from typing import Literal
 
 from pydantic import Field
 
+from configuration.administration import AdministrationConfig
 from configuration.agent import AgentConfig
 from configuration.base import Config
 from configuration.health import HealthConfig
@@ -37,3 +38,6 @@ class Configuration(Config):
     health: HealthConfig = Field(default_factory=HealthConfig)
     plugins: PluginsConfig = Field(default_factory=PluginsConfig)
     vision: VisionConfig = Field(default_factory=VisionConfig)
+    administration: AdministrationConfig = Field(
+        default_factory=AdministrationConfig
+    )

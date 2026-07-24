@@ -1,0 +1,56 @@
+# -----------------------------------------------------------------------------
+# Ohana-Agent
+# Local development profile for graphical administration
+# -----------------------------------------------------------------------------
+
+version: 1
+
+agent:
+  name: Shikamaru
+  environment: development
+
+mqtt:
+  host: localhost
+  port: 1883
+  client_id: ohana-agent-development
+  keepalive_seconds: 60
+  authentication:
+    username: null
+    password: null
+
+logging:
+  level: INFO
+
+health:
+  enabled: true
+  interval_seconds: 30
+
+plugins:
+  enabled: true
+  directory: plugins
+
+vision:
+  enabled: true
+  observation_url: http://127.0.0.1:8000/api/observations
+  infrastructure_url: http://127.0.0.1:8000/api/infrastructure
+  timeout_seconds: 5.0
+  infrastructure_retry_seconds: 10.0
+  infrastructure_refresh_seconds: 300.0
+
+administration:
+  enabled: true
+  host: 127.0.0.1
+  port: 8765
+  token_file: config/management.development.token
+  dhcp:
+    enabled: true
+    server_node_id: infra-01
+    main_config_path: config/development/dnsmasq/00-ohana.conf
+    infrastructure_reservations_path: config/development/dnsmasq/10-infrastructure.conf
+    server_reservations_path: config/development/dnsmasq/20-serveurs.conf
+    network_reservations_path: config/development/dnsmasq/30-infrastructure-reseau.conf
+    home_automation_reservations_path: config/development/dnsmasq/40-passerelles-domotiques.conf
+    critical_reservations_path: config/development/dnsmasq/50-equipements-critiques.conf
+    leases_path: config/development/dnsmasq/dnsmasq.leases
+    validation_command: null
+    reload_request_path: config/development/run/dhcp-reload.request

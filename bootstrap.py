@@ -5,6 +5,12 @@ from __future__ import annotations
 from datetime import timedelta
 from pathlib import Path
 
+from administration import (
+    AdministrationHTTPServer,
+    AdministrationService,
+    DnsmasqDHCPRepository,
+    InfrastructureConfigurationRepository,
+)
 from builder import (
     DNSConfigurationBuilder,
     InfrastructureBuilder,
@@ -192,7 +198,7 @@ def build_production_agent(
             )
         )
 
-    return ProductionAgent(
+    agent = ProductionAgent(
         scheduler=scheduler,
         vision_client=resolved_vision_client,
         infrastructure_payload=(
@@ -205,3 +211,67 @@ def build_production_agent(
             configuration.vision.infrastructure_refresh_seconds
         ),
     )
+
+    if configuration.administration.enabled:
+        administration_config = configuration.administration
+
+        try:
+            administration_token = administration_config.token_file.read_text(
+                encoding="utf-8"
+            ).strip()
+        except OSError as error:
+            raise ValueError(
+                "Unable to read the Ohana administration token from "
+                f"{administration_config.token_file}."
+            ) from error
+
+        dhcp_repository = None
+
+        if administration_config.dhcp.enabled:
+            dhcp_config = administration_config.dhcp
+            dhcp_repository = DnsmasqDHCPRepository(
+                main_config_path=dhcp_config.main_config_path,
+                reservation_paths={
+                    "infrastructure": (
+                        dhcp_config.infrastructure_reservations_path
+                    ),
+                    "servers": dhcp_config.server_reservations_path,
+                    "network": dhcp_config.network_reservations_path,
+                    "home_automation": (
+                        dhcp_config.home_automation_reservations_path
+                    ),
+                    "critical": dhcp_config.critical_reservations_path,
+                },
+                leases_path=dhcp_config.leases_path,
+                server_node_id=dhcp_config.server_node_id,
+                validation_command=(
+                    dhcp_config.validation_command
+                ),
+                reload_request_path=(
+                    dhcp_config.reload_request_path
+                ),
+            )
+
+        administration_service = AdministrationService(
+            infrastructure_repository=(
+                InfrastructureConfigurationRepository(
+                    infrastructure_config_path,
+                )
+            ),
+            dhcp_repository=dhcp_repository,
+            on_infrastructure_changed=lambda changed_configuration: (
+                agent.update_infrastructure_payload(
+                    VisionInfrastructureMapper().to_payload(
+                        changed_configuration
+                    )
+                )
+            ),
+        )
+        agent.administration_runtime = AdministrationHTTPServer(
+            service=administration_service,
+            token=administration_token,
+            host=str(administration_config.host),
+            port=administration_config.port,
+        )
+
+    return agent

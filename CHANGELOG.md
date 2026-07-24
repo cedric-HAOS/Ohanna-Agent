@@ -6,6 +6,30 @@ Le projet suit les principes de **Semantic Versioning**.
 
 ---
 
+# [1.2.0] — Administration graphique — 2026-07-24
+
+## Ajouté
+
+- API d'administration locale, versionnée et protégée par jeton Bearer.
+- Lecture et modification des paramètres DHCP, réservations et baux actifs.
+- Validation de la configuration par `dnsmasq --test` avant rechargement.
+- Écriture atomique et restauration automatique des fichiers DHCP en cas de rejet.
+- Lecture, validation et écriture atomique de l'infrastructure.
+- Synchronisation immédiate de l'architecture modifiée avec Ohana-Vision.
+- Déclaration enrichie des services : implémentation, activation, criticité et métadonnées.
+- Modèle Ohana-House complet avec DHCP, DNS, NTP, MQTT, Z-Wave,
+  téléinformation et Home Assistant.
+
+## Sécurité
+
+- Écoute limitée à `127.0.0.1` par défaut.
+- Authentification constante par secret partagé installé hors du dépôt.
+- Chemins de fichiers et commandes système définis exclusivement par la
+  configuration locale de l'Agent.
+- Taille maximale des requêtes d'administration limitée à 1 Mio.
+
+---
+
 # [1.1.1] — Nommage Ohana cohérent
 
 ## Modifié

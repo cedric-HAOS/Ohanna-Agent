@@ -20,7 +20,7 @@ def test_loader_loads_nodes() -> None:
 
     config = loader.load("config/infrastructure.example.yaml")
 
-    assert len(config.nodes) == 2
+    assert len(config.nodes) == 4
 
     assert config.nodes[0].id == "infra-01"
 
@@ -30,9 +30,11 @@ def test_loader_loads_services() -> None:
 
     config = loader.load("config/infrastructure.example.yaml")
 
-    assert len(config.services) == 2
+    assert len(config.services) == 8
 
-    assert config.services[0].id == "dns-primary"
+    assert config.services[0].id == "dhcp-primary"
+    assert config.services[0].implementation == "dnsmasq"
+    assert config.services[0].critical is True
 
 
 def test_loader_loads_endpoints() -> None:
@@ -40,7 +42,7 @@ def test_loader_loads_endpoints() -> None:
 
     config = loader.load("config/infrastructure.example.yaml")
 
-    assert config.services[0].port == 53
+    assert config.services[0].port == 67
 
 
 def test_loader_accepts_path_object() -> None:
@@ -107,7 +109,7 @@ def test_loader_loads_complete_topology() -> None:
     config = InfrastructureLoader().load("config/infrastructure.example.yaml")
 
     assert config.topology is not None
-    assert len(config.topology.devices) == 4
-    assert len(config.topology.links) == 3
+    assert len(config.topology.devices) == 10
+    assert len(config.topology.links) == 9
     assert len(config.topology.layouts) == 1
-    assert config.topology.layouts[0].positions["infra-01"].column == 2
+    assert config.topology.layouts[0].positions["sw-01"].column == 2

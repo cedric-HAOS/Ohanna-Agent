@@ -36,3 +36,23 @@ vision:
   timeout_seconds: 5.0
   infrastructure_retry_seconds: 10.0
   infrastructure_refresh_seconds: 300.0
+
+administration:
+  enabled: true
+  host: 127.0.0.1
+  port: 8765
+  token_file: /etc/ohana-agent/management.token
+  dhcp:
+    enabled: true
+    server_node_id: infra-01
+    main_config_path: /etc/dnsmasq.d/00-ohana.conf
+    infrastructure_reservations_path: /etc/dnsmasq.d/10-infrastructure.conf
+    server_reservations_path: /etc/dnsmasq.d/20-serveurs.conf
+    network_reservations_path: /etc/dnsmasq.d/30-infrastructure-reseau.conf
+    home_automation_reservations_path: /etc/dnsmasq.d/40-passerelles-domotiques.conf
+    critical_reservations_path: /etc/dnsmasq.d/50-equipements-critiques.conf
+    leases_path: /var/lib/misc/dnsmasq.leases
+    validation_command:
+      - /usr/sbin/dnsmasq
+      - --test
+    reload_request_path: /run/ohana-agent/dhcp-reload.request

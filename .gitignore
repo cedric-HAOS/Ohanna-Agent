@@ -28,3 +28,7 @@ dist/
 
 # Temporary topology exports
 /actual_topology.json
+
+# Local graphical-administration profile
+/config/management.development.token
+/config/development/

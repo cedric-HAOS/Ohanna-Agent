@@ -22,6 +22,8 @@ class ServiceType(StrEnum):
     HTTPS = "https"
     NTP = "ntp"
     HOME_ASSISTANT = "home_assistant"
+    ZWAVE = "zwave"
+    TELEINFORMATION = "teleinformation"
 
 
 class HealthStatus(StrEnum):

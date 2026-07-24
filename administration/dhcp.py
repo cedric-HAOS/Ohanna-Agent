@@ -109,11 +109,7 @@ class DnsmasqDHCPRepository:
             )
 
         previous_contents = {
-            path: (
-                path.read_bytes()
-                if path.is_file()
-                else None
-            )
+            path: (path.read_bytes() if path.is_file() else None)
             for path in rendered_files
         }
 
@@ -272,9 +268,7 @@ class DnsmasqDHCPRepository:
                     for value in directive.removeprefix(prefix).split(",")
                 ]
 
-        raise DHCPConfigurationError(
-            f"dnsmasq DHCP option {option_name!r} is missing"
-        )
+        raise DHCPConfigurationError(f"dnsmasq DHCP option {option_name!r} is missing")
 
     @staticmethod
     def _read_reservations(
@@ -301,8 +295,7 @@ class DnsmasqDHCPRepository:
                 )
 
             values = [
-                value.strip()
-                for value in line.removeprefix("dhcp-host=").split(",")
+                value.strip() for value in line.removeprefix("dhcp-host=").split(",")
             ]
 
             if len(values) != 3:
@@ -446,9 +439,7 @@ class DnsmasqDHCPRepository:
             or result.stdout.strip()
             or f"exit code {result.returncode}"
         )
-        raise DHCPConfigurationError(
-            f"dnsmasq rejected the configuration: {detail}"
-        )
+        raise DHCPConfigurationError(f"dnsmasq rejected the configuration: {detail}")
 
     def _request_reload(self) -> None:
         if self.reload_request_path is None:

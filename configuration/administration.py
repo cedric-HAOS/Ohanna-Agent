@@ -31,9 +31,7 @@ class DHCPAdministrationConfig(Config):
         "/usr/sbin/dnsmasq",
         "--test",
     )
-    reload_request_path: Path = Path(
-        "/run/ohana-agent/dhcp-reload.request"
-    )
+    reload_request_path: Path = Path("/run/ohana-agent/dhcp-reload.request")
 
 
 class AdministrationConfig(Config):
@@ -42,9 +40,5 @@ class AdministrationConfig(Config):
     enabled: bool = False
     host: IPvAnyAddress = IPvAnyAddress("127.0.0.1")
     port: int = Field(default=8765, ge=1, le=65535)
-    token_file: Path = Path(
-        "/etc/ohana-agent/management.token"
-    )
-    dhcp: DHCPAdministrationConfig = Field(
-        default_factory=DHCPAdministrationConfig
-    )
+    token_file: Path = Path("/etc/ohana-agent/management.token")
+    dhcp: DHCPAdministrationConfig = Field(default_factory=DHCPAdministrationConfig)

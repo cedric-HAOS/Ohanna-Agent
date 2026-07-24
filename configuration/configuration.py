@@ -38,6 +38,4 @@ class Configuration(Config):
     health: HealthConfig = Field(default_factory=HealthConfig)
     plugins: PluginsConfig = Field(default_factory=PluginsConfig)
     vision: VisionConfig = Field(default_factory=VisionConfig)
-    administration: AdministrationConfig = Field(
-        default_factory=AdministrationConfig
-    )
+    administration: AdministrationConfig = Field(default_factory=AdministrationConfig)

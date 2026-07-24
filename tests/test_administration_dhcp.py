@@ -22,19 +22,11 @@ def make_repository(
     return DnsmasqDHCPRepository(
         main_config_path=temporary_path / "00-ohana.conf",
         reservation_paths={
-            "infrastructure": (
-                temporary_path / "10-infrastructure.conf"
-            ),
+            "infrastructure": (temporary_path / "10-infrastructure.conf"),
             "servers": temporary_path / "20-serveurs.conf",
-            "network": (
-                temporary_path / "30-infrastructure-reseau.conf"
-            ),
-            "home_automation": (
-                temporary_path / "40-passerelles-domotiques.conf"
-            ),
-            "critical": (
-                temporary_path / "50-equipements-critiques.conf"
-            ),
+            "network": (temporary_path / "30-infrastructure-reseau.conf"),
+            "home_automation": (temporary_path / "40-passerelles-domotiques.conf"),
+            "critical": (temporary_path / "50-equipements-critiques.conf"),
         },
         leases_path=temporary_path / "dnsmasq.leases",
     )
@@ -84,20 +76,13 @@ def test_dhcp_repository_round_trips_configuration(
 
     assert saved.settings.range_start.exploded == "192.168.1.100"
     assert saved.settings.range_end.exploded == "192.168.1.199"
-    assert [
-        reservation.hostname
-        for reservation in saved.reservations
-    ] == [
+    assert [reservation.hostname for reservation in saved.reservations] == [
         "infra-01",
         "ha-01",
     ]
-    assert (
-        "dhcp-option=option:dns-server,"
-        "192.168.1.11,192.168.1.12"
-        in (tmp_path / "00-ohana.conf").read_text(
-            encoding="utf-8"
-        )
-    )
+    assert "dhcp-option=option:dns-server,192.168.1.11,192.168.1.12" in (
+        tmp_path / "00-ohana.conf"
+    ).read_text(encoding="utf-8")
 
 
 def test_dhcp_repository_reads_active_leases(
@@ -106,8 +91,7 @@ def test_dhcp_repository_reads_active_leases(
     repository = make_repository(tmp_path)
     repository.write(make_configuration())
     (tmp_path / "dnsmasq.leases").write_text(
-        "1784900000 aa:bb:cc:dd:ee:01 "
-        "192.168.1.10 infra-01 01:aa\n",
+        "1784900000 aa:bb:cc:dd:ee:01 192.168.1.10 infra-01 01:aa\n",
         encoding="utf-8",
     )
 
@@ -164,9 +148,7 @@ def test_dhcp_repository_rolls_back_rejected_configuration(
 ) -> None:
     repository = make_repository(tmp_path)
     repository.write(make_configuration())
-    original_main = (tmp_path / "00-ohana.conf").read_text(
-        encoding="utf-8"
-    )
+    original_main = (tmp_path / "00-ohana.conf").read_text(encoding="utf-8")
     reload_request = tmp_path / "dhcp-reload.request"
     repository.validation_command = (
         sys.executable,
@@ -183,7 +165,5 @@ def test_dhcp_repository_rolls_back_rejected_configuration(
     ):
         repository.write(changed)
 
-    assert (tmp_path / "00-ohana.conf").read_text(
-        encoding="utf-8"
-    ) == original_main
+    assert (tmp_path / "00-ohana.conf").read_text(encoding="utf-8") == original_main
     assert not reload_request.exists()

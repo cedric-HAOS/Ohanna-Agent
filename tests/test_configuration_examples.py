@@ -18,9 +18,7 @@ def test_shikamaru_example_configuration_is_valid() -> None:
 
 
 def test_shikamaru_development_configuration_is_valid() -> None:
-    configuration = ConfigurationLoader.load(
-        "config/shikamaru.development.yaml"
-    )
+    configuration = ConfigurationLoader.load("config/shikamaru.development.yaml")
 
     assert configuration.administration.enabled is True
     assert configuration.administration.dhcp.enabled is True

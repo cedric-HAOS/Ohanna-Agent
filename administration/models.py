@@ -57,9 +57,7 @@ class DHCPSettings(AdministrationModel):
         gateway_network = int(self.gateway) & mask
 
         if len({start_network, end_network, gateway_network}) != 1:
-            raise ValueError(
-                "DHCP range and gateway must belong to the same subnet"
-            )
+            raise ValueError("DHCP range and gateway must belong to the same subnet")
 
         return self
 

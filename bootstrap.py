@@ -232,24 +232,16 @@ def build_production_agent(
             dhcp_repository = DnsmasqDHCPRepository(
                 main_config_path=dhcp_config.main_config_path,
                 reservation_paths={
-                    "infrastructure": (
-                        dhcp_config.infrastructure_reservations_path
-                    ),
+                    "infrastructure": (dhcp_config.infrastructure_reservations_path),
                     "servers": dhcp_config.server_reservations_path,
                     "network": dhcp_config.network_reservations_path,
-                    "home_automation": (
-                        dhcp_config.home_automation_reservations_path
-                    ),
+                    "home_automation": (dhcp_config.home_automation_reservations_path),
                     "critical": dhcp_config.critical_reservations_path,
                 },
                 leases_path=dhcp_config.leases_path,
                 server_node_id=dhcp_config.server_node_id,
-                validation_command=(
-                    dhcp_config.validation_command
-                ),
-                reload_request_path=(
-                    dhcp_config.reload_request_path
-                ),
+                validation_command=(dhcp_config.validation_command),
+                reload_request_path=(dhcp_config.reload_request_path),
             )
 
         administration_service = AdministrationService(
@@ -261,9 +253,7 @@ def build_production_agent(
             dhcp_repository=dhcp_repository,
             on_infrastructure_changed=lambda changed_configuration: (
                 agent.update_infrastructure_payload(
-                    VisionInfrastructureMapper().to_payload(
-                        changed_configuration
-                    )
+                    VisionInfrastructureMapper().to_payload(changed_configuration)
                 )
             ),
         )

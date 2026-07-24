@@ -53,9 +53,7 @@ def administration_server(
     server = AdministrationHTTPServer(
         service=AdministrationService(
             infrastructure_repository=(
-                InfrastructureConfigurationRepository(
-                    infrastructure_path
-                )
+                InfrastructureConfigurationRepository(infrastructure_path)
             ),
         ),
         token="test-secret",
@@ -79,22 +77,14 @@ def request_json(
     """Call the temporary administration server."""
     assert server.address is not None
     host, port = server.address
-    data = (
-        json.dumps(payload).encode("utf-8")
-        if payload is not None
-        else None
-    )
+    data = json.dumps(payload).encode("utf-8") if payload is not None else None
     request = Request(
         f"http://{host}:{port}{path}",
         method=method,
         data=data,
         headers={
             "Authorization": f"Bearer {token}",
-            **(
-                {"Content-Type": "application/json"}
-                if data is not None
-                else {}
-            ),
+            **({"Content-Type": "application/json"} if data is not None else {}),
         },
     )
 

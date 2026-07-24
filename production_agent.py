@@ -51,14 +51,10 @@ class ProductionAgent:
     def __post_init__(self) -> None:
         """Validate runtime settings."""
         if self.tick_interval_seconds <= 0:
-            raise ValueError(
-                "tick_interval_seconds must be greater than zero."
-            )
+            raise ValueError("tick_interval_seconds must be greater than zero.")
 
         if self.infrastructure_retry_seconds <= 0:
-            raise ValueError(
-                "infrastructure_retry_seconds must be greater than zero."
-            )
+            raise ValueError("infrastructure_retry_seconds must be greater than zero.")
 
         if self.infrastructure_refresh_seconds <= 0:
             raise ValueError(
@@ -124,9 +120,7 @@ class ProductionAgent:
             while not self._stop_event.is_set():
                 if not self._infrastructure_synchronized:
                     if not self._synchronize_infrastructure():
-                        if self._stop_event.wait(
-                            self.infrastructure_retry_seconds
-                        ):
+                        if self._stop_event.wait(self.infrastructure_retry_seconds):
                             break
 
                         continue
@@ -139,9 +133,7 @@ class ProductionAgent:
 
                 if self._infrastructure_refresh_due():
                     if not self._synchronize_infrastructure():
-                        if self._stop_event.wait(
-                            self.infrastructure_retry_seconds
-                        ):
+                        if self._stop_event.wait(self.infrastructure_retry_seconds):
                             break
 
                         continue
@@ -184,9 +176,7 @@ class ProductionAgent:
             )
 
         try:
-            self.vision_client.send_infrastructure(
-                self.infrastructure_payload
-            )
+            self.vision_client.send_infrastructure(self.infrastructure_payload)
         except VisionClientError as error:
             if self.scheduler.running:
                 self.scheduler.stop()
@@ -202,13 +192,10 @@ class ProductionAgent:
 
         self._infrastructure_synchronized = True
         self._next_infrastructure_refresh_at = (
-            self.monotonic_clock()
-            + self.infrastructure_refresh_seconds
+            self.monotonic_clock() + self.infrastructure_refresh_seconds
         )
 
-        LOGGER.info(
-            "Infrastructure synchronized with Ohana-Vision."
-        )
+        LOGGER.info("Infrastructure synchronized with Ohana-Vision.")
         return True
 
     def _infrastructure_refresh_due(self) -> bool:
@@ -216,7 +203,4 @@ class ProductionAgent:
         if self._next_infrastructure_refresh_at is None:
             return False
 
-        return (
-            self.monotonic_clock()
-            >= self._next_infrastructure_refresh_at
-        )
+        return self.monotonic_clock() >= self._next_infrastructure_refresh_at

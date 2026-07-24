@@ -41,20 +41,12 @@ def test_load_shikamaru_configuration() -> None:
     assert str(configuration.vision.observation_url) == (
         "http://127.0.0.1:8000/api/observations"
     )
-    assert str(
-        configuration.vision.infrastructure_url
-    ) == (
+    assert str(configuration.vision.infrastructure_url) == (
         "http://127.0.0.1:8000/api/infrastructure"
     )
     assert configuration.vision.timeout_seconds == 5.0
-    assert (
-        configuration.vision.infrastructure_retry_seconds
-        == 10.0
-    )
-    assert (
-        configuration.vision.infrastructure_refresh_seconds
-        == 300.0
-    )
+    assert configuration.vision.infrastructure_retry_seconds == 10.0
+    assert configuration.vision.infrastructure_refresh_seconds == 300.0
 
 
 def test_configuration_accepts_schema_version_one(

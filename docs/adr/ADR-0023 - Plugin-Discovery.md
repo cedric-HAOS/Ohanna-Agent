@@ -78,7 +78,6 @@ Exemple conceptuel :
 
 ```python
 class DNSPlugin(Plugin):
-
     def capabilities(self):
         return [
             DNSCapability(),
@@ -89,7 +88,6 @@ ou
 
 ```python
 class MonitoringPlugin(Plugin):
-
     def capabilities(self):
         return [
             MonitoringCapability(),

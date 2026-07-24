@@ -11,15 +11,11 @@ class VisionConfig(Config):
     enabled: bool = True
 
     observation_url: HttpUrl = Field(
-        default=HttpUrl(
-            "http://127.0.0.1:8000/api/observations"
-        )
+        default=HttpUrl("http://127.0.0.1:8000/api/observations")
     )
 
     infrastructure_url: HttpUrl = Field(
-        default=HttpUrl(
-            "http://127.0.0.1:8000/api/infrastructure"
-        )
+        default=HttpUrl("http://127.0.0.1:8000/api/infrastructure")
     )
 
     timeout_seconds: PositiveFloat = 5.0

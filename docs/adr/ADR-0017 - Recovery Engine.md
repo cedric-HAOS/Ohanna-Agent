@@ -91,15 +91,11 @@ API conceptuelle :
 
 ```python
 class RecoveryEngine:
+    def handle(self, result: HealthResult) -> None: ...
 
-    def handle(self, result: HealthResult) -> None:
-        ...
+    def recover(self, source: str) -> None: ...
 
-    def recover(self, source: str) -> None:
-        ...
-
-    def is_recovering(self, source: str) -> bool:
-        ...
+    def is_recovering(self, source: str) -> bool: ...
 ```
 
 ## RecoveryStrategy
@@ -110,18 +106,15 @@ Exemple :
 
 ```python
 class RecoveryStrategy(Protocol):
-
     def can_handle(
         self,
         result: HealthResult,
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
     def execute(
         self,
         result: HealthResult,
-    ) -> RecoveryResult:
-        ...
+    ) -> RecoveryResult: ...
 ```
 
 Chaque stratégie reste indépendante.

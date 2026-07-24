@@ -14,27 +14,19 @@ class HttpVisionClient:
     """Send observation and infrastructure payloads to Ohana-Vision."""
 
     observation_url: str
-    infrastructure_url: str = (
-        "http://127.0.0.1:8000/api/infrastructure"
-    )
+    infrastructure_url: str = "http://127.0.0.1:8000/api/infrastructure"
     timeout_seconds: float = 5.0
 
     def __post_init__(self) -> None:
         """Validate client configuration."""
         if not self.observation_url.strip():
-            raise ValueError(
-                "observation_url must not be empty."
-            )
+            raise ValueError("observation_url must not be empty.")
 
         if not self.infrastructure_url.strip():
-            raise ValueError(
-                "infrastructure_url must not be empty."
-            )
+            raise ValueError("infrastructure_url must not be empty.")
 
         if self.timeout_seconds <= 0:
-            raise ValueError(
-                "timeout_seconds must be greater than zero."
-            )
+            raise ValueError("timeout_seconds must be greater than zero.")
 
     def send_observation(
         self,
@@ -105,14 +97,12 @@ class HttpVisionClient:
 
         except URLError as error:
             raise VisionClientError(
-                "Unable to reach Ohana-Vision at "
-                f"{url}: {error.reason}"
+                f"Unable to reach Ohana-Vision at {url}: {error.reason}"
             ) from error
 
         except TimeoutError as error:
             raise VisionClientError(
-                f"Timed out while sending the {payload_name} to "
-                f"Ohana-Vision at {url}."
+                f"Timed out while sending the {payload_name} to Ohana-Vision at {url}."
             ) from error
 
         if status_code != expected_status:
@@ -136,8 +126,7 @@ class HttpVisionClient:
             )
         except (TypeError, ValueError) as error:
             raise VisionClientError(
-                f"The {payload_name} payload cannot be "
-                "encoded as JSON."
+                f"The {payload_name} payload cannot be encoded as JSON."
             ) from error
 
         return serialized_payload.encode("utf-8")
@@ -164,8 +153,7 @@ class HttpVisionClient:
     ) -> str:
         """Build a useful HTTP failure message."""
         message = (
-            f"Ohana-Vision rejected the {payload_name} "
-            f"with HTTP status {status_code}."
+            f"Ohana-Vision rejected the {payload_name} with HTTP status {status_code}."
         )
 
         if response_body:

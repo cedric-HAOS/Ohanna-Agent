@@ -135,18 +135,15 @@ class HealthMonitor:
         source: str,
         timeout_seconds: int,
         degraded_after_seconds: int | None = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def heartbeat(
         self,
         source: str,
         metadata: dict[str, Any] | None = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
-    def check_watchdogs(self) -> list[HealthResult]:
-        ...
+    def check_watchdogs(self) -> list[HealthResult]: ...
 ```
 
 ## Règles de nommage des sources

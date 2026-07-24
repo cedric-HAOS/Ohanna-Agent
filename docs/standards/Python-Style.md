@@ -99,8 +99,7 @@ Les imports inutilisés sont interdits.
 Les méthodes publiques doivent être typées.
 
 ```python
-def transition_to(self, new_state: AgentState) -> None:
-    ...
+def transition_to(self, new_state: AgentState) -> None: ...
 ```
 
 Les attributs importants doivent également être typés.
@@ -148,8 +147,7 @@ collect()
 Les méthodes privées commencent par `_`.
 
 ```python
-def _validate_transition(self) -> None:
-    ...
+def _validate_transition(self) -> None: ...
 ```
 
 ---
@@ -343,7 +341,11 @@ class Lifecycle:
         allowed_transitions = {
             AgentState.CREATED: {AgentState.INITIALIZING, AgentState.ERROR},
             AgentState.INITIALIZING: {AgentState.READY, AgentState.ERROR},
-            AgentState.READY: {AgentState.RUNNING, AgentState.STOPPING, AgentState.ERROR},
+            AgentState.READY: {
+                AgentState.RUNNING,
+                AgentState.STOPPING,
+                AgentState.ERROR,
+            },
             AgentState.RUNNING: {AgentState.STOPPING, AgentState.ERROR},
             AgentState.STOPPING: {AgentState.STOPPED, AgentState.ERROR},
             AgentState.STOPPED: set(),
@@ -351,7 +353,9 @@ class Lifecycle:
         }
 
         if new_state not in allowed_transitions[self.state]:
-            raise ValueError(f"Invalid transition: {self.state.value} -> {new_state.value}")
+            raise ValueError(
+                f"Invalid transition: {self.state.value} -> {new_state.value}"
+            )
 ```
 
 ---

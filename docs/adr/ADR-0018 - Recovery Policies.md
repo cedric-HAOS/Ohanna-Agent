@@ -93,18 +93,15 @@ Une politique implémente le protocole suivant :
 
 ```python
 class RecoveryPolicy(Protocol):
-
     def applies_to(
         self,
         result: HealthResult,
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
     def next_action(
         self,
         history: RecoveryHistory,
-    ) -> RecoveryAction | None:
-        ...
+    ) -> RecoveryAction | None: ...
 ```
 
 La méthode `next_action()` retourne :
@@ -265,8 +262,7 @@ Exemple conceptuel :
 
 ```python
 @property
-def priority(self) -> int:
-    ...
+def priority(self) -> int: ...
 ```
 
 Une valeur élevée indique une priorité plus forte.

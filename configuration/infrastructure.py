@@ -54,9 +54,7 @@ class TopologyLinkConfig(Config):
     source: str
     target: str
     kind: TopologyLinkKind
-    direction: TopologyLinkDirection = (
-        TopologyLinkDirection.BIDIRECTIONAL
-    )
+    direction: TopologyLinkDirection = TopologyLinkDirection.BIDIRECTIONAL
     label: str | None = None
     bandwidth_mbps: float | None = Field(
         default=None,
@@ -77,9 +75,7 @@ class TopologyLayoutConfig(Config):
     id: str
     label: str
     kind: TopologyLayoutKind
-    positions: dict[str, TopologyGridPositionConfig] = Field(
-        default_factory=dict
-    )
+    positions: dict[str, TopologyGridPositionConfig] = Field(default_factory=dict)
     metadata: dict[str, object] = Field(default_factory=dict)
 
 

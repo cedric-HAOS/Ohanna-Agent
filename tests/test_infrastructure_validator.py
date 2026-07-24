@@ -249,9 +249,7 @@ def build_valid_topology_config() -> InfrastructureConfig:
 
 
 def test_validator_accepts_valid_topology() -> None:
-    InfrastructureValidator().validate(
-        build_valid_topology_config()
-    )
+    InfrastructureValidator().validate(build_valid_topology_config())
 
 
 def test_validator_rejects_duplicate_topology_device_ids() -> None:
@@ -370,6 +368,7 @@ def test_validator_rejects_unknown_layout_device() -> None:
         match="references unknown devices: missing",
     ):
         InfrastructureValidator().validate(config)
+
 
 def test_validator_rejects_duplicate_grid_position() -> None:
     config = build_valid_topology_config()

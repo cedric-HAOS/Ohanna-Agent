@@ -104,9 +104,7 @@ def test_infrastructure_loader_rejects_non_mapping_yaml(
 
 
 def test_loader_loads_complete_topology() -> None:
-    config = InfrastructureLoader().load(
-        "config/infrastructure.example.yaml"
-    )
+    config = InfrastructureLoader().load("config/infrastructure.example.yaml")
 
     assert config.topology is not None
     assert len(config.topology.devices) == 4

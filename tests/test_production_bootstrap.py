@@ -11,9 +11,7 @@ from scheduler.clock import FakeClock
 class FakeVisionClient:
     """Capture data exported by the production bootstrap."""
 
-    operations: list[tuple[str, dict[str, Any]]] = field(
-        default_factory=list
-    )
+    operations: list[tuple[str, dict[str, Any]]] = field(default_factory=list)
 
     def send_observation(
         self,
@@ -88,19 +86,14 @@ def test_production_bootstrap_exports_infrastructure_before_observation() -> Non
     agent.tick()
     agent.stop()
 
-    assert [
-        operation
-        for operation, _payload in vision_client.operations
-    ] == [
+    assert [operation for operation, _payload in vision_client.operations] == [
         "infrastructure",
         "observation",
     ]
 
     infrastructure_payload = vision_client.operations[0][1]
 
-    assert infrastructure_payload["infrastructure_id"] == (
-        "ohana-house"
-    )
+    assert infrastructure_payload["infrastructure_id"] == ("ohana-house")
     assert len(infrastructure_payload["topology"]["devices"]) == 9
     assert len(infrastructure_payload["topology"]["links"]) == 8
     assert len(infrastructure_payload["topology"]["layouts"]) == 1
@@ -114,9 +107,5 @@ def test_production_bootstrap_exports_infrastructure_before_observation() -> Non
         "healthy",
         "unavailable",
     }
-    assert observation_payload["metadata"]["hostname"] == (
-        "example.com"
-    )
-    assert observation_payload["metadata"]["server"] == (
-        "192.168.1.10"
-    )
+    assert observation_payload["metadata"]["hostname"] == ("example.com")
+    assert observation_payload["metadata"]["server"] == ("192.168.1.10")

@@ -39,9 +39,7 @@ def build_infrastructure_config() -> InfrastructureConfig:
             NodeConfig(
                 id="infra-01",
                 name="INFRA-01",
-                description=(
-                    "Serveur principal de l'infrastructure Ohana"
-                ),
+                description=("Serveur principal de l'infrastructure Ohana"),
                 endpoint=NodeEndpointConfig(
                     type="ip",
                     address="192.168.1.10",
@@ -99,9 +97,7 @@ def test_mapper_builds_vision_infrastructure_payload() -> None:
             {
                 "node_id": "infra-01",
                 "name": "INFRA-01",
-                "description": (
-                    "Serveur principal de l'infrastructure Ohana"
-                ),
+                "description": ("Serveur principal de l'infrastructure Ohana"),
                 "endpoint": {
                     "type": "ip",
                     "address": "192.168.1.10",
@@ -110,9 +106,7 @@ def test_mapper_builds_vision_infrastructure_payload() -> None:
             {
                 "node_id": "ha-green",
                 "name": "HA-Green",
-                "description": (
-                    "Instance Home Assistant principale"
-                ),
+                "description": ("Instance Home Assistant principale"),
                 "endpoint": {
                     "type": "ip",
                     "address": "192.168.1.20",
@@ -226,6 +220,7 @@ def test_mapper_only_emits_public_contract_fields() -> None:
         "port",
     }
 
+
 def build_topology_config() -> InfrastructureConfig:
     """Build an infrastructure configuration with a complete topology."""
     config = build_infrastructure_config()
@@ -255,9 +250,7 @@ def build_topology_config() -> InfrastructureConfig:
                         source="internet",
                         target="infra-01-device",
                         kind=TopologyLinkKind.ETHERNET,
-                        direction=(
-                            TopologyLinkDirection.BIDIRECTIONAL
-                        ),
+                        direction=(TopologyLinkDirection.BIDIRECTIONAL),
                         label="Ethernet 1 Gb",
                         bandwidth_mbps=1000,
                     ),
@@ -364,9 +357,7 @@ def test_mapper_does_not_share_topology_metadata() -> None:
 
     payload = VisionInfrastructureMapper().to_payload(config)
     payload["topology"]["metadata"]["modified"] = True
-    payload["topology"]["devices"][1]["metadata"][
-        "modified"
-    ] = True
+    payload["topology"]["devices"][1]["metadata"]["modified"] = True
 
     assert config.topology is not None
     assert "modified" not in config.topology.metadata

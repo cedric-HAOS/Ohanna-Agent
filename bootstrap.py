@@ -96,15 +96,9 @@ def build_production_agent(
             )
 
         resolved_vision_client = HttpVisionClient(
-            observation_url=str(
-                configuration.vision.observation_url
-            ),
-            infrastructure_url=str(
-                configuration.vision.infrastructure_url
-            ),
-            timeout_seconds=(
-                configuration.vision.timeout_seconds
-            ),
+            observation_url=str(configuration.vision.observation_url),
+            infrastructure_url=str(configuration.vision.infrastructure_url),
+            timeout_seconds=(configuration.vision.timeout_seconds),
         )
 
     export_handler = ObservationExportHandler(
@@ -202,9 +196,7 @@ def build_production_agent(
         scheduler=scheduler,
         vision_client=resolved_vision_client,
         infrastructure_payload=(
-            VisionInfrastructureMapper().to_payload(
-                infrastructure_config
-            )
+            VisionInfrastructureMapper().to_payload(infrastructure_config)
         ),
         infrastructure_retry_seconds=(
             configuration.vision.infrastructure_retry_seconds

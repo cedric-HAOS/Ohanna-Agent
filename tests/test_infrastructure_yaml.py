@@ -34,9 +34,7 @@ def test_real_infrastructure_yaml_declares_complete_topology() -> None:
     assert len(topology["layouts"]) == 1
 
     rpi_link = next(
-        device
-        for device in topology["devices"]
-        if device["id"] == "rpi-link"
+        device for device in topology["devices"] if device["id"] == "rpi-link"
     )
 
     assert rpi_link["node"] == "infra-01"

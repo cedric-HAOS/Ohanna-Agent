@@ -68,10 +68,7 @@ class VisionInfrastructureMapper:
         config: InfrastructureConfig,
     ) -> dict[str, Any]:
         """Map the complete topology section."""
-        nodes_by_id = {
-            node.id: node
-            for node in config.nodes
-        }
+        nodes_by_id = {node.id: node for node in config.nodes}
 
         return {
             "devices": [
@@ -104,8 +101,7 @@ class VisionInfrastructureMapper:
                             "column": position.column,
                             "row": position.row,
                         }
-                        for device_id, position
-                        in layout.positions.items()
+                        for device_id, position in layout.positions.items()
                     },
                     "metadata": deepcopy(layout.metadata),
                 }

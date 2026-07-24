@@ -85,31 +85,25 @@ API cible :
 
 ```python
 class MQTTClient:
+    async def connect(self) -> None: ...
 
-    async def connect(self) -> None:
-        ...
-
-    async def disconnect(self) -> None:
-        ...
+    async def disconnect(self) -> None: ...
 
     async def publish(
         self,
         topic: str,
         payload: object,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     async def subscribe(
         self,
         topic: str,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     async def unsubscribe(
         self,
         topic: str,
-    ) -> None:
-        ...
+    ) -> None: ...
 ```
 
 ---

@@ -37,9 +37,7 @@ class FakeVisionClient:
     """Return configured infrastructure synchronization outcomes."""
 
     outcomes: list[Exception | None] = field(default_factory=list)
-    infrastructure_payloads: list[dict[str, Any]] = field(
-        default_factory=list
-    )
+    infrastructure_payloads: list[dict[str, Any]] = field(default_factory=list)
 
     def send_observation(
         self,
@@ -339,10 +337,7 @@ def test_production_agent_requires_client_and_payload_together(
 ) -> None:
     with pytest.raises(
         ValueError,
-        match=(
-            "vision_client and infrastructure_payload "
-            "must be configured together"
-        ),
+        match=("vision_client and infrastructure_payload must be configured together"),
     ):
         ProductionAgent(
             scheduler=Scheduler(),

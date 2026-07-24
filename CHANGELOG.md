@@ -6,6 +6,17 @@ Le projet suit les principes de **Semantic Versioning**.
 
 ---
 
+# [1.1.1] — Nommage Ohana cohérent
+
+## Modifié
+
+- Harmonisation du nom du projet, du package et des commandes avec `Ohana`.
+- Préparation d'artefacts `ohana_agent` distincts de la release `v1.1.0`
+  publiée avec l'ancien nom.
+- Alignement du prérequis de développement documenté sur Python 3.13.
+
+---
+
 # [1.1.0] — Infrastructure et topologie synchronisées
 
 ## Ajouté

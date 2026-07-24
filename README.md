@@ -215,7 +215,7 @@ retries: 1
 
 # Installation de développement
 
-Prérequis : Python 3.12 ou supérieur.
+Prérequis : Python 3.13 ou supérieur.
 
 ```bash
 python -m venv .venv

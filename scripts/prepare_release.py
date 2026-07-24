@@ -170,9 +170,6 @@ def main() -> int:
     print(f"Preparing Ohana-Agent {tag}")
     print()
 
-    if version != "1.0.0":
-        raise RuntimeError("The production release must use project version 1.0.0.")
-
     ensure_clean_worktree()
     ensure_release_tag_does_not_exist(version)
 
